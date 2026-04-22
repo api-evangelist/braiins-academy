@@ -1,42 +1,89 @@
-# Braiins Academy (braiins-academy)
-Braiins Academy is a leading institution dedicated to providing top-notch education and training in the field of blockchain technology and cryptocurrencies. With a team of expert instructors and cutting-edge curriculum, Braiins Academy offers a comprehensive range of courses, workshops, and seminars designed to equip individuals with the knowledge and skills needed to succeed in the rapidly evolving world of blockchain. Whether you are a novice looking to understand the basics or a seasoned professional seeking to advance your career, Braiins Academy provides the resources and support needed to help you excel in this exciting and dynamic industry. Join us today and take your first step towards becoming a blockchain enthusiast and an expert.
+# Braiins (braiins-academy)
 
-**URL:** [Visit APIs.json URL](https://raw.githubusercontent.com/api-evangelist/braiins-academy/refs/heads/main/apis.yml)
+Braiins is a Bitcoin mining technology company operating the world's longest-running Bitcoin mining pool (Slush Pool, now Braiins Pool), developing Braiins OS+ mining firmware, and pioneering the Stratum V2 next-generation mining protocol. Braiins Academy provides educational resources on Bitcoin mining, and the company publishes a public Mining Insights API with network statistics. Founded in Prague in 2011, Braiins powers over 2 gigawatts of mining infrastructure worldwide.
+
+**URL:** [https://raw.githubusercontent.com/api-evangelist/braiins-academy/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/braiins-academy/refs/heads/main/apis.yml)
 
 ## Scope
 
-- **Type:** Index 
-- **Position:** Consumer 
-- **Access:** 3rd-Party 
+- **Type:** Index
+- **Position:** Consumer
+- **Access:** 3rd-Party
 
-## Tags:
+## Tags
 
- - Blockchain, Cryptocurrency
+- Bitcoin Mining
+- Cryptocurrency
+- Mining Pool
+- Mining Firmware
+- Blockchain
+- Stratum V2
 
 ## Timestamps
 
-- **Created:** 2025-03-01 
-- **Modified:** 2025-03-01 
+- **Created:** 2025-03-01
+- **Modified:** 2026-04-21
 
 ## APIs
 
-### Braiins Academy
-Braiins Academy is a specialized educational institution dedicated to providing high-quality training and resources for individuals interested in the field of artificial intelligence and machine learning. Through a combination of cutting-edge curriculum, hands-on projects, and industry mentorship, Braiins Academy helps students develop the skills and knowledge needed to excel in this rapidly growing and evolving industry. With a focus on practical applications and real-world experience, Braiins Academy equips its students with the tools they need to succeed in the competitive field of AI and machine learning. Whether someone is looking to transition into a new career or advance their existing skills, Braiins Academy offers a comprehensive education that prepares students for success in the exciting world of artificial intelligence.
+### Braiins Mining Insights Public API
 
-**Human URL:** [ https://academy.braiins.com/en/mining-insights/public-api/]( https://academy.braiins.com/en/mining-insights/public-api/)
+Public API providing Bitcoin mining network statistics, hashrate data, and pool performance metrics.
 
-
-#### Tags:
-
- - Blockchain, Cryptocurrency
+**Human URL:** [https://academy.braiins.com/en/mining-insights/public-api/](https://academy.braiins.com/en/mining-insights/public-api/)
 
 #### Properties
 
-- [Documentation]( https://academy.braiins.com/en/mining-insights/public-api/)
+- [Documentation](https://academy.braiins.com/en/mining-insights/public-api/)
+
+### Braiins Pool API
+
+API access for Braiins Pool (formerly Slush Pool), the world's first Bitcoin mining pool. Provides miner statistics, payout data, worker management, and pool hashrate information.
+
+**Human URL:** [https://braiins.com/pool](https://braiins.com/pool)
+
+### Braiins OS+ Firmware API
+
+Custom mining firmware for Bitcoin ASICs featuring autotuning, dynamic performance scaling, and thermal management. Supports remote batch configuration via Braiins Toolbox.
+
+**Human URL:** [https://braiins.com/os/plus](https://braiins.com/os/plus)
+
+## Common Properties
+
+- [Website](https://braiins.com)
+- [Academy](https://academy.braiins.com)
+- [Mining Pool](https://braiins.com/pool)
+- [Firmware](https://braiins.com/os/plus)
+- [Stratum V2](https://braiins.com/stratum-v2)
+- [Documentation](https://academy.braiins.com/os/plus-en/)
+
+## Products
+
+- **Braiins Pool** - Bitcoin mining pool (world's first, formerly Slush Pool)
+- **Braiins OS+** - Custom ASIC firmware with autotuning
+- **Braiins Toolbox** - Batch remote configuration tool
+- **Stratum V2** - Next-generation mining protocol
+- **Braiins Academy** - Bitcoin mining education platform
+
+## Stratum V2 Features
+
+- Enhanced security against MITM attacks and hashrate hijacking
+- Bandwidth efficiency improvements
+- Miner-side transaction selection (decentralization)
+- Open-source reference implementation v1.0 (released March 2024)
+
+## Supported Hardware
+
+Antminer S21 series, S19 series, T19, S17 series, S9 series
+
+## About
+
+- **Founded:** 2011
+- **Headquarters:** Prague, Czech Republic
+- **Industry:** Bitcoin Mining Technology
 
 ## Maintainers
 
 **FN:** Kin Lane
 
 **Email:** info@apievangelist.com
-
