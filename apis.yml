@@ -83,6 +83,8 @@ common:
     url: https://braiins.com/stratum-v2
   - type: Documentation
     url: https://academy.braiins.com/os/plus-en/
+  - type: Integrations
+    url: https://braiins.com/marketplace
 properties:
   - type: x-domain
     value: braiins.com
@@ -110,6 +112,8 @@ properties:
     value: >-
       Mining pool management, firmware-based performance optimization, hashrate
       monitoring, mining network analytics, Stratum V2 protocol implementation
+integrations:
+  - name: weChat
 maintainers:
   - FN: Kin Lane
     email: info@apievangelist.com
