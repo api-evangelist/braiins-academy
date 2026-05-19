@@ -71,6 +71,8 @@ apis:
       Supports remote batch configuration via Braiins Toolbox and integrates with
       Braiins Pool for 0% effective pool fee.
 common:
+  - type: GitHubOrganization
+    url: https://github.com/braiins
   - type: Website
     url: https://braiins.com
   - type: Academy
