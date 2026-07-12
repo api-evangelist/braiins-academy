@@ -71,6 +71,8 @@ apis:
       Supports remote batch configuration via Braiins Toolbox and integrates with
       Braiins Pool for 0% effective pool fee.
 common:
+  - type: DomainSecurity
+    url: security/braiins-academy-domain-security.yml
   - type: GitHubOrganization
     url: https://github.com/braiins
   - type: Website
@@ -87,6 +89,8 @@ common:
     url: https://academy.braiins.com/os/plus-en/
   - type: Integrations
     url: https://braiins.com/marketplace
+  - url: https://braiins.com/blog
+    type: Blog
 properties:
   - type: x-domain
     value: braiins.com
