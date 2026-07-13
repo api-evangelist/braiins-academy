@@ -1,0 +1,14 @@
+{
+  "repo": "braiins-academy",
+  "feeds": [
+    {
+      "source": "https://braiins.com/blog",
+      "feed_url": "https://braiins.com/blog/rss.xml",
+      "title": "",
+      "saved": 0,
+      "method": "discovered"
+    }
+  ],
+  "fetched": "2026-07-11T11:50:51Z",
+  "post_count": 5
+}
