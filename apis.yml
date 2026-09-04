@@ -37,7 +37,7 @@ image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/braiins-ac
 access: 3rd-Party
 created: '2025-03-01'
 modified: '2026-04-21'
-position: Consumer
+position: Consuming
 description: >-
   Braiins is a Bitcoin mining technology company operating the world's longest-running
   Bitcoin mining pool (Slush Pool, now Braiins Pool), developing Braiins OS+ mining
