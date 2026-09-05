@@ -1,0 +1,134 @@
+generated: '2026-09-04'
+method: searched
+source: >-
+  https://academy.braiins.com/braiins-toolbox/introduction.md and the command pages
+  cmd-scan, cmd-miner, cmd-system, cmd-tuner, cmd-firmware, cmd-cooling, cmd-advanced
+name: Braiins Toolbox
+binary: braiins-toolbox
+version: 26.08.1
+released: '2026-08-26'
+description: >-
+  Braiins Toolbox is a local batch-management toolkit for Bitcoin ASIC fleets, shipping a GUI and
+  a CLI in one binary. The CLI drives the same operations as the Braiins OS Public API but over a
+  discovered address range rather than one device at a time — every subcommand takes an IP range,
+  a list of IPs, or --ip-file.
+homepage: https://braiins.com/toolbox
+docs: https://academy.braiins.com/braiins-toolbox/overview.md
+changelog: https://academy.braiins.com/braiins-toolbox/whats-new.md
+install:
+  - method: download
+    url: https://braiins.com/toolbox#download
+    note: Signed binary download from braiins.com. Not published to any package registry.
+platforms:
+  - Windows
+  - macOS 12.4+ (Apple silicon only from 26.08 — Intel x86_64 builds discontinued)
+  - Linux x86_64
+  - Linux aarch64
+  - Linux armv7 (32-bit)
+requirements:
+  - Target devices must run Braiins OS 23.03 or newer for the full command set; some commands
+    also work against Bitmain and MicroBT stock firmware.
+  - Devices must be reachable on TCP 22 (SSH), 80 (HTTP) and 50051 (Braiins OS Public API).
+  - Firmware installation requires the device to reach e5a33065.bos.braiins.com on port 3336.
+command_groups:
+  - name: scan
+    description: Network scan and miner detection.
+    commands:
+      - braiins-toolbox scan
+    flags:
+      - --format csv|plain
+      - --installable-only
+      - --ip-file
+  - name: miner
+    description: Mining control and pool configuration.
+    commands:
+      - braiins-toolbox miner start
+      - braiins-toolbox miner stop
+      - braiins-toolbox miner pause
+      - braiins-toolbox miner resume
+      - braiins-toolbox miner restart
+      - braiins-toolbox miner set-mode
+      - braiins-toolbox miner set-power-limit
+      - braiins-toolbox miner set-pool-urls
+    flags:
+      - --ip-file
+      - --url / --url-file
+  - name: system
+    description: Device system operations.
+    commands:
+      - braiins-toolbox system reboot
+      - braiins-toolbox system locate-device on|off
+      - braiins-toolbox system set-network dhcp|static
+      - braiins-toolbox system execute
+      - braiins-toolbox system collect-data
+    flags:
+      - --command
+      - --script
+      - --ip-file
+  - name: tuner
+    description: Performance targeting and dynamic performance scaling.
+    commands:
+      - braiins-toolbox tuner target
+      - braiins-toolbox tuner set-dps on|off
+      - braiins-toolbox tuner remove-profiles
+    flags:
+      - --hashrate
+      - --power
+      - --power-step
+      - --min-power-target
+      - --ip-file
+  - name: firmware
+    description: Braiins OS installation, upgrade and rollback.
+    commands:
+      - braiins-toolbox firmware install
+      - braiins-toolbox firmware upgrade
+      - braiins-toolbox firmware restore
+      - braiins-toolbox custom-contract apply
+    flags:
+      - --contract-code
+      - --target-version
+      - --url
+      - --concurrency
+      - --ip-file
+  - name: cooling
+    description: Fan and thermal management.
+    commands:
+      - braiins-toolbox cooling set
+      - braiins-toolbox cooling set-mode standard|immersion
+    flags:
+      - --mode auto|manual
+      - --target-temp
+      - --custom-fan-range
+      - --fixed-fan-speed
+      - --fan-paused-mode
+      - --fan-paused-pwm
+      - --print-results
+  - name: advanced
+    description: Experimental / advanced settings, added in Toolbox 26.06.
+    commands:
+      - braiins-toolbox advanced list
+      - braiins-toolbox advanced get
+      - braiins-toolbox advanced set
+      - braiins-toolbox advanced reset
+    flags:
+      - --all
+key_flows:
+  - name: Roll a fleet onto Braiins OS
+    steps:
+      - braiins-toolbox scan --installable-only
+      - braiins-toolbox firmware install --ip-file <file> --contract-code <code>
+      - braiins-toolbox miner set-pool-urls --url <stratum url> --ip-file <file>
+  - name: Curtail on an energy-price signal
+    steps:
+      - braiins-toolbox tuner set-dps on <range> --power-step 300 --min-power-target <W>
+      - braiins-toolbox miner pause --ip-file <file>
+      - braiins-toolbox miner resume --ip-file <file>
+  - name: Back out a firmware change
+    steps:
+      - braiins-toolbox firmware restore --ip-file <file>
+    note: Restores stock vendor firmware; the reversal path for `firmware install`.
+relationship_to_api: >-
+  Every Toolbox CLI verb has a counterpart in the Braiins OS Public API — miner pause maps to
+  pauseMining, tuner target to setPowerTarget/setHashrateTarget, firmware restore to restoreStock,
+  advanced reset to resetAllAdvancedSettings. The CLI is a fan-out driver over the same
+  device-local contract, which is why it exists at all: the API is per-miner and a farm is not.

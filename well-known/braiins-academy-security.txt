@@ -1,0 +1,6 @@
+Contact: mailto:security@braiins.com
+Expires: 2027-08-31T23:59:59.000Z
+Encryption: https://braiins.com/security/pgp.asc
+Preferred-Languages: en, cs
+Canonical: https://braiins.com/.well-known/security.txt
+Hiring: https://braiins.com/careers

@@ -1,0 +1,84 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements — Braiins Hashpower API
+  version: 1.0.0
+x-generated: '2026-09-04'
+x-method: derived
+x-source: openapi/braiins-academy-braiins-hashpower-openapi.yml
+x-extends: openapi/braiins-academy-braiins-hashpower-openapi.yml
+x-note: >-
+  Non-destructive enhancements over the verbatim Braiins Hashpower OpenAPI 3.1.0. The original is
+  never mutated. Everything here is sourced from Braiins' own published text — the per-operation
+  rate limits and access rules already in the spec descriptions, and the reversal windows stated
+  in the cancel/terminate descriptions — restructured into machine-readable extensions so an
+  agent does not have to parse prose.
+actions:
+  - target: $.info
+    description: Record the catalogued API and the artifacts derived from it.
+    update:
+      x-apis-io-aid: braiins-academy:braiins-hashpower-api
+      x-provider: Braiins
+      x-artifacts:
+        conventions: conventions/braiins-academy-conventions.yml
+        errors: errors/braiins-academy-problem-types.yml
+        rate_limits: rate-limits/braiins-academy-rate-limits.yml
+        authentication: authentication/braiins-academy-authentication.yml
+        plans: plans/braiins-academy-plans-pricing.yml
+        data_model: data-model/braiins-academy-data-model.yml
+  - target: $.info
+    description: >-
+      Surface the error-envelope quirk in the spec itself. Braiins documents it only in the
+      Academy page; a client generated from this spec alone would never look at a response header.
+    update:
+      x-error-envelope:
+        body_schema: none
+        reason_header: grpc-message
+        encoding: url-encoded
+        docs: https://academy.braiins.com/braiins-hashpower/api.md
+  - target: $.components.securitySchemes.ApiKey
+    description: Record the two token classes Braiins documents but does not express in the scheme.
+    update:
+      x-token-types:
+        - name: Owner Token
+          access: Full access to all endpoints including trading
+        - name: Read-only Token
+          access: Market data and account viewing only
+      x-issuance: Displayed once at account registration on https://hashpower.braiins.com
+  - target: $.paths['/spot/bid'].delete
+    description: Make the cancellation window machine-readable.
+    update:
+      x-reversal-of: spotPlaceBid
+      x-reversal-window: >-
+        Rejected while the configured bid grace period is active; the grace period is readable at
+        runtime from GET /spot/settings.
+      x-window-source: spotGetMarketSettings
+  - target: $.paths['/contract/{contract_id}:cancel'].post
+    description: Make the contract cancellation window and its cost machine-readable.
+    update:
+      x-reversal-of: scheduleContract
+      x-reversal-window: Only before delivery has started.
+      x-reversal-cost-lookup: getCurrentContractCancelFees
+      x-reversal-cost-preview: quoteContractCreation
+  - target: $.paths['/contract/{contract_id}:terminate'].post
+    description: Distinguish termination from cancellation for an agent choosing between them.
+    update:
+      x-reversal-of: scheduleContract
+      x-reversal-window: After delivery has begun and before scheduled expiry.
+      x-consequence: Permanent; can trigger final accounting.
+  - target: $.paths['/contract/quote'].post
+    description: Mark the two advisory operations as an explicit dry-run pair.
+    update:
+      x-dry-run: true
+      x-binding: false
+  - target: $.paths['/contract/availability'].post
+    update:
+      x-dry-run: true
+      x-binding: false
+  - target: $.paths['/account/transaction'].get
+    description: Name the successors of the deprecated mixed-transaction endpoint.
+    update:
+      x-superseded-by:
+        - getSettlementTransactions
+        - getLockTransactions
+        - getOnChainTransactions
+      x-sunset: null

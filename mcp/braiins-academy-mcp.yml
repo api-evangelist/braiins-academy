@@ -1,0 +1,734 @@
+generated: '2026-09-04'
+method: derived
+status: candidate
+source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json, openapi/braiins-academy-braiins-hashpower-openapi.yml
+notes: No official Braiins MCP server exists. Searched the Braiins docs (academy.braiins.com, braiins.com/llms.txt),
+  the braiins GitHub org (90 repos), npm, PyPI and crates.io, and probed https://mcp.braiins.com/mcp (DNS
+  does not resolve), https://braiins.com/mcp (404) and https://hashpower.braiins.com/mcp (404). Two third-party
+  MCP servers exist on npm under @ryno-crypto — they are NOT Braiins-published and are recorded in packages/
+  only. The tool list below is a candidate derived from the two published OpenAPI contracts; nobody ships
+  it.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: unknown
+  verified: derived
+third_party_servers:
+- name: '@ryno-crypto/braiins-pool-mcp-server'
+  registry: npm
+  version: 1.0.2
+  published: '2026-04-23'
+  official: false
+  covers: Braiins Pool JSON API
+- name: '@ryno-crypto/braiins-insights-mcp-server'
+  registry: npm
+  version: 0.4.0
+  published: '2026-02-17'
+  official: false
+  covers: Braiins Insights dashboard data
+surfaces:
+- id: bos
+  name: Braiins OS Public REST API
+  openapi: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json
+  host: 'the miner itself (servers: http://miner/)'
+  note: device-local; an agent needs network reach to each ASIC
+- id: hashpower
+  name: Braiins Hashpower API
+  openapi: openapi/braiins-academy-braiins-hashpower-openapi.yml
+  host: https://hashpower.braiins.com/v1
+  note: internet-reachable; market data callable anonymously
+- id: pool
+  name: Braiins Pool JSON API
+  openapi: null
+  host: https://pool.braiins.com
+  note: documented in prose only (6 JSON endpoints); no machine-readable contract, so no tools derived
+tool_count: 98
+tools:
+- name: bos_factory_reset
+  description: Factory Reset
+  surface: bos
+  method: PUT
+  path: /api/v1/actions/factory-reset
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#factory_reset
+  mutating: true
+- name: bos_getLocateDeviceStatus
+  description: Get locate device status
+  surface: bos
+  method: GET
+  path: /api/v1/actions/locate
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getLocateDeviceStatus
+  mutating: false
+- name: bos_setLocateDeviceStatus
+  description: Set locate device status
+  surface: bos
+  method: PUT
+  path: /api/v1/actions/locate
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setLocateDeviceStatus
+  mutating: true
+- name: bos_pauseMining
+  description: Pause mining
+  surface: bos
+  method: PUT
+  path: /api/v1/actions/pause
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#pauseMining
+  mutating: true
+- name: bos_reboot
+  description: Reboot
+  surface: bos
+  method: PUT
+  path: /api/v1/actions/reboot
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#reboot
+  mutating: true
+- name: bos_restart
+  description: Restart
+  surface: bos
+  method: PUT
+  path: /api/v1/actions/restart
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#restart
+  mutating: true
+- name: bos_resumeMining
+  description: Resume mining
+  surface: bos
+  method: PUT
+  path: /api/v1/actions/resume
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#resumeMining
+  mutating: true
+- name: bos_start
+  description: Start
+  surface: bos
+  method: PUT
+  path: /api/v1/actions/start
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#start
+  mutating: true
+- name: bos_stop
+  description: Stop
+  surface: bos
+  method: PUT
+  path: /api/v1/actions/stop
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#stop
+  mutating: true
+- name: bos_getAdvancedSettings
+  description: Get current advanced settings values
+  surface: bos
+  method: GET
+  path: /api/v1/advanced-settings/
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getAdvancedSettings
+  mutating: false
+- name: bos_resetAllAdvancedSettings
+  description: Reset all advanced settings to defaults
+  surface: bos
+  method: DELETE
+  path: /api/v1/advanced-settings/
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#resetAllAdvancedSettings
+  mutating: true
+- name: bos_setAdvancedSettings
+  description: Set advanced settings values
+  surface: bos
+  method: PATCH
+  path: /api/v1/advanced-settings/
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setAdvancedSettings
+  mutating: true
+- name: bos_getAdvancedSettingsSchema
+  description: Get settings schema
+  surface: bos
+  method: GET
+  path: /api/v1/advanced-settings/schema
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getAdvancedSettingsSchema
+  mutating: false
+- name: bos_login
+  description: User login
+  surface: bos
+  method: POST
+  path: /api/v1/auth/login
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#login
+  mutating: true
+- name: bos_setPassword
+  description: Set or remove user password
+  surface: bos
+  method: PUT
+  path: /api/v1/auth/password
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setPassword
+  mutating: true
+- name: bos_getConstraints
+  description: Get constraints
+  surface: bos
+  method: GET
+  path: /api/v1/configuration/constraints
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getConstraints
+  mutating: false
+- name: bos_getMinerConfiguration
+  description: Get miner configuration
+  surface: bos
+  method: GET
+  path: /api/v1/configuration/miner
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getMinerConfiguration
+  mutating: false
+- name: bos_setCoolingMode
+  description: Set cooling mode
+  surface: bos
+  method: PUT
+  path: /api/v1/cooling/mode
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setCoolingMode
+  mutating: true
+- name: bos_getCoolingState
+  description: Get cooling state
+  surface: bos
+  method: GET
+  path: /api/v1/cooling/state
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getCoolingState
+  mutating: false
+- name: bos_getOpenApiSchema
+  description: Retrieve OpenAPI JSON schema
+  surface: bos
+  method: GET
+  path: /api/v1/docs/openapi.json
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getOpenApiSchema
+  mutating: false
+- name: bos_applyContractKey
+  description: Apply custom contract key
+  surface: bos
+  method: PUT
+  path: /api/v1/license/apply-contract-key
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#applyContractKey
+  mutating: true
+- name: bos_getLicenseState
+  description: Get license state
+  surface: bos
+  method: GET
+  path: /api/v1/license/license
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getLicenseState
+  mutating: false
+- name: bos_getMinerDetails
+  description: Get miner details
+  surface: bos
+  method: GET
+  path: /api/v1/miner/details
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getMinerDetails
+  mutating: false
+- name: bos_getMinerErrors
+  description: Get miner errors
+  surface: bos
+  method: GET
+  path: /api/v1/miner/errors
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getMinerErrors
+  mutating: false
+- name: bos_getHashboards
+  description: Get hashboard details
+  surface: bos
+  method: GET
+  path: /api/v1/miner/hw/hashboards
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getHashboards
+  mutating: false
+- name: bos_updateHashboards
+  description: Enable or disable hashboards
+  surface: bos
+  method: PATCH
+  path: /api/v1/miner/hw/hashboards
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#updateHashboards
+  mutating: true
+- name: bos_getLog
+  description: Stream log file
+  surface: bos
+  method: GET
+  path: /api/v1/miner/log/{log_type}
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getLog
+  mutating: false
+- name: bos_getMinerStats
+  description: Get miner statistics
+  surface: bos
+  method: GET
+  path: /api/v1/miner/stats
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getMinerStats
+  mutating: false
+- name: bos_getMinerStatus
+  description: Stream miner status updates
+  surface: bos
+  method: GET
+  path: /api/v1/miner/status
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getMinerStatus
+  mutating: false
+- name: bos_getMinerDetailedStatus
+  description: Stream detailed miner status updates
+  surface: bos
+  method: GET
+  path: /api/v1/miner/status/detailed
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getMinerDetailedStatus
+  mutating: false
+- name: bos_getSupportArchive
+  description: Stream support archive
+  surface: bos
+  method: GET
+  path: /api/v1/miner/support-archive
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getSupportArchive
+  mutating: false
+- name: bos_getNetwork
+  description: Retrieve miner network information
+  surface: bos
+  method: GET
+  path: /api/v1/network/
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getNetwork
+  mutating: false
+- name: bos_getNetworkConfiguration
+  description: Get network configuration
+  surface: bos
+  method: GET
+  path: /api/v1/network/configuration
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getNetworkConfiguration
+  mutating: false
+- name: bos_updateNetworkConfiguration
+  description: Update network configuration
+  surface: bos
+  method: PATCH
+  path: /api/v1/network/configuration
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#updateNetworkConfiguration
+  mutating: true
+- name: bos_setDps
+  description: Set DPS (Dynamic Performance Scaling)
+  surface: bos
+  method: PUT
+  path: /api/v1/performance/dps
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setDps
+  mutating: true
+- name: bos_getEfficiencyProfile
+  description: Get miner efficiency profile
+  surface: bos
+  method: GET
+  path: /api/v1/performance/efficiency-profile
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getEfficiencyProfile
+  mutating: false
+- name: bos_setHashrateTarget
+  description: Set hashrate target
+  surface: bos
+  method: PUT
+  path: /api/v1/performance/hashrate-target
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setHashrateTarget
+  mutating: true
+- name: bos_decrementHashrateTarget
+  description: Decrement hashrate target
+  surface: bos
+  method: PATCH
+  path: /api/v1/performance/hashrate-target/decrement
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#decrementHashrateTarget
+  mutating: true
+- name: bos_setDefaultHashrateTarget
+  description: Set default hashrate target
+  surface: bos
+  method: PUT
+  path: /api/v1/performance/hashrate-target/default
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setDefaultHashrateTarget
+  mutating: true
+- name: bos_incrementHashrateTarget
+  description: Increment hashrate target
+  surface: bos
+  method: PATCH
+  path: /api/v1/performance/hashrate-target/increment
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#incrementHashrateTarget
+  mutating: true
+- name: bos_relativeHashrateTarget
+  description: Set hashrate target to a relative reference
+  surface: bos
+  method: PATCH
+  path: /api/v1/performance/hashrate-target/relative
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#relativeHashrateTarget
+  mutating: true
+- name: bos_getPerformanceMode
+  description: Get performance mode
+  surface: bos
+  method: GET
+  path: /api/v1/performance/mode
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getPerformanceMode
+  mutating: false
+- name: bos_setPerformanceMode
+  description: Set performance mode
+  surface: bos
+  method: PUT
+  path: /api/v1/performance/mode
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setPerformanceMode
+  mutating: true
+- name: bos_setPowerTarget
+  description: Set power target
+  surface: bos
+  method: PUT
+  path: /api/v1/performance/power-target
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setPowerTarget
+  mutating: true
+- name: bos_decrementPowerTarget
+  description: Decrement power target
+  surface: bos
+  method: PATCH
+  path: /api/v1/performance/power-target/decrement
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#decrementPowerTarget
+  mutating: true
+- name: bos_setDefaultPowerTarget
+  description: Set default power target
+  surface: bos
+  method: PUT
+  path: /api/v1/performance/power-target/default
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setDefaultPowerTarget
+  mutating: true
+- name: bos_incrementPowerTarget
+  description: Increment power target
+  surface: bos
+  method: PATCH
+  path: /api/v1/performance/power-target/increment
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#incrementPowerTarget
+  mutating: true
+- name: bos_relativePowerTarget
+  description: Set power target to a relative reference
+  surface: bos
+  method: PATCH
+  path: /api/v1/performance/power-target/relative
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#relativePowerTarget
+  mutating: true
+- name: bos_setQuickRamping
+  description: Set quick ramping
+  surface: bos
+  method: PUT
+  path: /api/v1/performance/quick-ramping
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setQuickRamping
+  mutating: true
+- name: bos_setDefaultQuickRamping
+  description: Set default quick ramping
+  surface: bos
+  method: PUT
+  path: /api/v1/performance/quick-ramping/default
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setDefaultQuickRamping
+  mutating: true
+- name: bos_getTargetProfiles
+  description: Get target profiles
+  surface: bos
+  method: GET
+  path: /api/v1/performance/target-profiles
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getTargetProfiles
+  mutating: false
+- name: bos_removeTunedProfiles
+  description: Remove tuner profiles
+  surface: bos
+  method: DELETE
+  path: /api/v1/performance/tuned-profiles
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#removeTunedProfiles
+  mutating: true
+- name: bos_getTunerState
+  description: Get tuner state
+  surface: bos
+  method: GET
+  path: /api/v1/performance/tuner-state
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getTunerState
+  mutating: false
+- name: bos_getPools
+  description: Get Pool Groups
+  surface: bos
+  method: GET
+  path: /api/v1/pools/
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getPools
+  mutating: false
+- name: bos_createPoolGroup
+  description: Create a new pool group
+  surface: bos
+  method: POST
+  path: /api/v1/pools/
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#createPoolGroup
+  mutating: true
+- name: bos_setBatchPools
+  description: Set multiple pool groups
+  surface: bos
+  method: PUT
+  path: /api/v1/pools/batch
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#setBatchPools
+  mutating: true
+- name: bos_updatePoolGroup
+  description: Update an existing pool group
+  surface: bos
+  method: PUT
+  path: /api/v1/pools/{uid}
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#updatePoolGroup
+  mutating: true
+- name: bos_deletePool
+  description: Delete a pool group by UID
+  surface: bos
+  method: DELETE
+  path: /api/v1/pools/{uid}
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#deletePool
+  mutating: true
+- name: bos_getAutoUpgradeStatus
+  description: Get auto-upgrade settings
+  surface: bos
+  method: GET
+  path: /api/v1/upgrade/auto-upgrade
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getAutoUpgradeStatus
+  mutating: false
+- name: bos_updateAutoUpgradeConfig
+  description: Set auto-upgrade settings
+  surface: bos
+  method: PATCH
+  path: /api/v1/upgrade/auto-upgrade
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#updateAutoUpgradeConfig
+  mutating: true
+- name: bos_restoreStock
+  description: Restore stock
+  surface: bos
+  method: POST
+  path: /api/v1/upgrade/restore-stock
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#restoreStock
+  mutating: true
+- name: bos_systemUpgrade
+  description: System upgrade
+  surface: bos
+  method: POST
+  path: /api/v1/upgrade/system-upgrade
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#systemUpgrade
+  mutating: true
+- name: bos_getApiVersion
+  description: Get API version
+  surface: bos
+  method: GET
+  path: /api/v1/version/
+  source_operation: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#getApiVersion
+  mutating: false
+- name: hashpower_spotGetMarketSettings
+  description: Retrieve market settings & rules
+  surface: hashpower
+  method: GET
+  path: /spot/settings
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotGetMarketSettings
+  mutating: false
+- name: hashpower_spotGetCurrentBids
+  description: List user's bids (active)
+  surface: hashpower
+  method: GET
+  path: /spot/bid/current
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotGetCurrentBids
+  mutating: false
+- name: hashpower_spotGetBids
+  description: List user’s bids (historical & active).
+  surface: hashpower
+  method: GET
+  path: /spot/bid
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotGetBids
+  mutating: false
+- name: hashpower_spotPlaceBid
+  description: Place new bid (buy order) to the market
+  surface: hashpower
+  method: POST
+  path: /spot/bid
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotPlaceBid
+  mutating: true
+- name: hashpower_spotEditBid
+  description: Edit existing bid
+  surface: hashpower
+  method: PUT
+  path: /spot/bid
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotEditBid
+  mutating: true
+- name: hashpower_spotCancelBid
+  description: Cancel existing bid
+  surface: hashpower
+  method: DELETE
+  path: /spot/bid
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotCancelBid
+  mutating: true
+- name: hashpower_spotGetBidDetail
+  description: Get detailed information for a specific bid
+  surface: hashpower
+  method: GET
+  path: /spot/bid/detail/{order_id}
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotGetBidDetail
+  mutating: false
+- name: hashpower_spotGetBidSpeedHistory
+  description: Get bid hashrate history time series
+  surface: hashpower
+  method: GET
+  path: /spot/bid/speed/{order_id}
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotGetBidSpeedHistory
+  mutating: false
+- name: hashpower_spotGetBidDeliveryHistory
+  description: Get bid delivery history time series
+  surface: hashpower
+  method: GET
+  path: /spot/bid/delivery/{order_id}
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotGetBidDeliveryHistory
+  mutating: false
+- name: hashpower_getContracts
+  description: List caller-owned contracts
+  surface: hashpower
+  method: GET
+  path: /contract
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getContracts
+  mutating: false
+- name: hashpower_scheduleContract
+  description: Schedule a new caller-owned contract
+  surface: hashpower
+  method: POST
+  path: /contract
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#scheduleContract
+  mutating: true
+- name: hashpower_quoteContractCreation
+  description: Quote and validate a contract creation request
+  surface: hashpower
+  method: POST
+  path: /contract/quote
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#quoteContractCreation
+  mutating: true
+- name: hashpower_getCurrentContractPricing
+  description: List current contract pricing
+  surface: hashpower
+  method: GET
+  path: /contract/pricing
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getCurrentContractPricing
+  mutating: false
+- name: hashpower_getCurrentContractCancelFees
+  description: List current contract cancellation fees
+  surface: hashpower
+  method: GET
+  path: /contract/cancel-fee
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getCurrentContractCancelFees
+  mutating: false
+- name: hashpower_checkContractSpeedAvailability
+  description: Check whether requested contract hashrate is available
+  surface: hashpower
+  method: POST
+  path: /contract/availability
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#checkContractSpeedAvailability
+  mutating: true
+- name: hashpower_getActiveContracts
+  description: List caller-owned pending, running, or paused contracts
+  surface: hashpower
+  method: GET
+  path: /contract/active
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getActiveContracts
+  mutating: false
+- name: hashpower_getContractDetail
+  description: Get a caller-owned contract
+  surface: hashpower
+  method: GET
+  path: /contract/{contract_id}/detail
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getContractDetail
+  mutating: false
+- name: hashpower_getContractSettings
+  description: Get effective contract policy settings
+  surface: hashpower
+  method: GET
+  path: /contract/settings
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getContractSettings
+  mutating: false
+- name: hashpower_cancelContract
+  description: Request cancellation for a pending caller-owned contract
+  surface: hashpower
+  method: POST
+  path: /contract/{contract_id}:cancel
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#cancelContract
+  mutating: true
+- name: hashpower_terminateContract
+  description: Terminate an active caller-owned contract
+  surface: hashpower
+  method: POST
+  path: /contract/{contract_id}:terminate
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#terminateContract
+  mutating: true
+- name: hashpower_getContractActivity
+  description: List contract activity for the caller
+  surface: hashpower
+  method: GET
+  path: /contract/activity
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getContractActivity
+  mutating: false
+- name: hashpower_getContractReservations
+  description: List reservation history for a caller-owned contract
+  surface: hashpower
+  method: GET
+  path: /contract/{contract_id}/reservation
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getContractReservations
+  mutating: false
+- name: hashpower_getContractSettlements
+  description: List settlement history for a caller-owned contract
+  surface: hashpower
+  method: GET
+  path: /contract/{contract_id}/settlement
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getContractSettlements
+  mutating: false
+- name: hashpower_getContractSpeedHistory
+  description: Get contract hashrate history time series
+  surface: hashpower
+  method: GET
+  path: /contract/{contract_id}/speed
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getContractSpeedHistory
+  mutating: false
+- name: hashpower_getContractDeliveryHistory
+  description: Get contract delivery history time series
+  surface: hashpower
+  method: GET
+  path: /contract/{contract_id}/delivery
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getContractDeliveryHistory
+  mutating: false
+- name: hashpower_getFeeStructure
+  description: Get spot market fee structure
+  surface: hashpower
+  method: GET
+  path: /spot/fee
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getFeeStructure
+  mutating: false
+- name: hashpower_getAccountBalances
+  description: Get account balance
+  surface: hashpower
+  method: GET
+  path: /account/balance
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getAccountBalances
+  mutating: false
+- name: hashpower_getTransactions
+  description: List mixed account transactions (deprecated)
+  surface: hashpower
+  method: GET
+  path: /account/transaction
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getTransactions
+  mutating: false
+- name: hashpower_getSettlementTransactions
+  description: List settlement account transactions
+  surface: hashpower
+  method: GET
+  path: /account/transaction/settlement
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getSettlementTransactions
+  mutating: false
+- name: hashpower_getLockTransactions
+  description: List lock account transactions
+  surface: hashpower
+  method: GET
+  path: /account/transaction/lock
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getLockTransactions
+  mutating: false
+- name: hashpower_getOnChainTransactions
+  description: List on-chain account transactions
+  surface: hashpower
+  method: GET
+  path: /account/transaction/on-chain
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#getOnChainTransactions
+  mutating: false
+- name: hashpower_spotGetMarketStats
+  description: Get market statistics
+  surface: hashpower
+  method: GET
+  path: /spot/stats
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotGetMarketStats
+  mutating: false
+- name: hashpower_spotGetOrderbookSnapshot
+  description: Get spot market order book snapshot
+  surface: hashpower
+  method: GET
+  path: /spot/orderbook
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotGetOrderbookSnapshot
+  mutating: false
+- name: hashpower_spotGetMarketTrades
+  description: Get last market trades
+  surface: hashpower
+  method: GET
+  path: /spot/trades
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotGetMarketTrades
+  mutating: false
+- name: hashpower_spotGetMarketBars
+  description: Get aggregated bars for a given market (OHLCV)
+  surface: hashpower
+  method: GET
+  path: /spot/bars
+  source_operation: openapi/braiins-academy-braiins-hashpower-openapi.yml#spotGetMarketBars
+  mutating: false

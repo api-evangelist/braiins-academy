@@ -1,0 +1,128 @@
+generated: '2026-09-04'
+method: searched
+source: >-
+  https://academy.braiins.com/braiins-os/papi-changelog.md (API contract),
+  https://academy.braiins.com/braiins-os/whats-new.md (firmware),
+  https://academy.braiins.com/braiins-toolbox/whats-new.md (CLI/GUI),
+  https://academy.braiins.com/braiins-manager/whats-new.md (SaaS),
+  https://github.com/braiins/bos-plus-api/blob/master/CHANGELOG.md (proto contract)
+description: >-
+  Braiins keeps four separate dated changelogs, one per product, and — unusually — versions the
+  API CONTRACT independently of the firmware that serves it. The Braiins OS Public API changelog
+  is the one that matters to an integrator: it is semver, it names every added, changed and
+  deprecated message and RPC, and it has shipped on a roughly six-week cadence since 2023.
+changelogs:
+  - id: bos-public-api
+    name: Braiins OS Public API
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+    scheme: semver
+    current_version: 1.14.0
+    current_date: '2026-08-13'
+    covers: The gRPC + REST contract (proto/bos/v1), versioned separately from the firmware.
+    history_depth: 20 releases back to 1.0.0-beta.2 (2023-08-10)
+    machine_readable_mirror: https://github.com/braiins/bos-plus-api/blob/master/CHANGELOG.md
+  - id: braiins-os
+    name: Braiins OS firmware
+    url: https://academy.braiins.com/braiins-os/whats-new.md
+    scheme: calver
+    current_version: 26.08.1
+    current_date: '2026-08-25'
+  - id: braiins-toolbox
+    name: Braiins Toolbox
+    url: https://academy.braiins.com/braiins-toolbox/whats-new.md
+    scheme: calver
+    current_version: 26.08.1
+    current_date: '2026-08-26'
+  - id: braiins-manager
+    name: Braiins Manager
+    url: https://academy.braiins.com/braiins-manager/whats-new.md
+    scheme: date
+    current_version: '2026-09-03'
+    current_date: '2026-09-03'
+    note: Dated entries rather than versions; continuous SaaS delivery.
+entries:
+  - changelog: bos-public-api
+    version: 1.14.0
+    date: '2026-08-13'
+    breaking: false
+    additions:
+      - Server-streaming RPC GetMinerDetailedStatus on braiins.bos.v1.MinerService.
+      - Messages GetMinerDetailedStatusRequest / GetMinerDetailedStatusResponse and MinerDetailedStatus.
+      - Status oneof members ExpectedTime, Unspecified, ApplicationUnavailable, UnsupportedHardware,
+        DeadPools, MissingLicense, UserPause, ThermalPause, DpsCooldown, TunerError, HardwareError,
+        DelayedStart, CoolingDown, WaitingWhileCold, Defrosting, Normal, Preheating.
+      - Enum ThermalPauseReason.
+      - Optional field keep_existing on ApplyContractKeyRequest, to retain licences already on the miner.
+      - Field detailed_status on GetMinerDetailsResponse.
+    deprecations:
+      - GetMinerStatus on MinerService, superseded by GetMinerDetailedStatus.
+    highlights: >-
+      Deprecates the coarse miner status in favour of a detailed status carrying the REASON a
+      miner is not hashing — the change an automation consumer most needs.
+  - changelog: bos-public-api
+    version: 1.13.0
+    date: '2026-07-08'
+    breaking: false
+  - changelog: bos-public-api
+    version: 1.12.0
+    date: '2026-06-02'
+    breaking: false
+  - changelog: bos-public-api
+    version: 1.11.0
+    date: '2026-05-11'
+    breaking: false
+  - changelog: bos-public-api
+    version: 1.10.0
+    date: '2026-04-15'
+    breaking: false
+  - changelog: bos-public-api
+    version: 1.9.0
+    date: '2026-02-18'
+    breaking: false
+  - changelog: bos-public-api
+    version: 1.8.0
+    date: '2025-11-25'
+    breaking: false
+  - changelog: bos-public-api
+    version: 1.7.0
+    date: '2025-08-10'
+    breaking: false
+    highlights: >-
+      The version the currently published OpenAPI document declares (info.version 1.7.0), one
+      release behind the gRPC contract's REST-era start and seven behind the current 1.14.0.
+  - changelog: braiins-os
+    version: 26.08.1
+    date: '2026-08-25'
+    breaking: false
+  - changelog: braiins-os
+    version: 25.07
+    date: '2025-08-10'
+    breaking: false
+    highlights: Braiins OS Public API gained a REST transport alongside gRPC.
+  - changelog: braiins-os
+    version: '23.03'
+    date: '2023-08-10'
+    breaking: false
+    highlights: Braiins OS Public API introduced (gRPC only).
+  - changelog: braiins-toolbox
+    version: 26.08.1
+    date: '2026-08-26'
+    breaking: false
+    highlights: Bugfix release — GUI bulk-selection error and CLI scan issues.
+  - changelog: braiins-toolbox
+    version: '26.08'
+    date: '2026-08-01'
+    breaking: true
+    highlights: macOS Intel (x86_64) builds discontinued; Apple silicon only.
+  - changelog: braiins-manager
+    version: '2026-09-03'
+    date: '2026-09-03'
+    breaking: false
+findings:
+  - >-
+    The published REST OpenAPI declares info.version 1.7.0 while the gRPC contract it mirrors is
+    at 1.14.0. Braiins states the two transports "provide the same functionality"; the document
+    version does not corroborate that.
+  - >-
+    Deprecations are announced in the changelog with a named replacement, but no Deprecation or
+    Sunset response header is emitted and no removal date is given.

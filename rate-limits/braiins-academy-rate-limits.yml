@@ -3,101 +3,115 @@ specificationVersion: '0.1'
 schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
 provider: Braiins
 providerId: braiins-academy
+generated: '2026-09-04'
+method: searched
+source: >-
+  openapi/braiins-academy-braiins-hashpower-openapi.yml (per-operation "Rate limit:" lines and
+  the TooManyRequests response), https://academy.braiins.com/braiins-pool/monitoring.md
+  ("API request limit"), https://braiins.com/manager/pricing (API access tiering)
 created: '2026-05-04'
-# Provenance stamped 2026-08-11: this artifact was written by the API Evangelist
-# bulk sweep dated 2026-05-04, not harvested from the provider. See roadmap#35.
-method: generated
-modified: '2026-05-04'
+modified: '2026-09-04'
+supersedes: >-
+  The 2026-05-04 bulk-sweep scaffold that invented free/professional/enterprise tiers and
+  X-RateLimit-* headers Braiins does not publish. Every number below is quoted from Braiins.
 tags:
   - Bitcoin Mining
-  - Cryptocurrency
   - Mining Pool
-  - Mining Firmware
-  - Blockchain
-  - Stratum V2
+  - Hashrate Marketplace
   - Rate Limiting
-  - Quotas
-  - Throttling
-description: Machine-readable rate limit definitions for the Braiins API surface. Captures per-tier quotas,
-  burst behavior, response signaling, and recovery semantics. Defaults are scaffold values to be replaced
-  with published provider limits.
+description: >-
+  Published request limits across the Braiins API surface. Braiins Hashpower states a limit on
+  EVERY operation in its OpenAPI — unusually good — but returns no rate-limit response headers at
+  all, so a client has the budget and no runtime signal. Braiins Pool publishes a prose limit and
+  escalates to an IP ban. The Braiins OS Public API, running on the miner itself, publishes no
+  limit.
+limit_count: 4
 headers:
-  limit: X-RateLimit-Limit
-  remaining: X-RateLimit-Remaining
-  reset: X-RateLimit-Reset
-  retryAfter: Retry-After
-  policy: RateLimit-Policy
+  limit: null
+  remaining: null
+  reset: null
+  retryAfter: null
+  policy: null
+headers_note: >-
+  No X-RateLimit-*, RateLimit-* or Retry-After header is documented or observed on any Braiins
+  surface. The Hashpower 429 response description says only "retry after reducing request
+  frequency". This is the single biggest agent-readiness gap in the runtime signal: the numbers
+  are published, but a client cannot see how much budget it has left.
 responseCodes:
   throttled: 429
   quotaExceeded: 429
-  serviceUnavailable: 503
+  banned: >-
+    Braiins Pool does not use a status code — it first silently ignores excess requests, then
+    bans the client IP address, which must be lifted by contacting support.
 limits:
-  - tier: free
-    name: Free Tier Default
-    scope: api-key
-    metric: requests_per_minute
-    limit: 10
-    burst: 20
-    timeFrame: minute
-    applies:
-      - Braiins Mining Insights Public API
-      - Braiins Pool API
-      - Braiins OS+ Firmware API
-  - tier: free
-    name: Free Tier Monthly Quota
-    scope: api-key
-    metric: requests_per_month
-    limit: 1000
-    timeFrame: month
-    applies:
-      - Braiins Mining Insights Public API
-      - Braiins Pool API
-      - Braiins OS+ Firmware API
-  - tier: professional
-    name: Professional Tier Default
+  - id: hashpower-authenticated
+    api: braiins-academy:braiins-hashpower-api
+    name: Hashpower authenticated operations
     scope: api-key
     metric: requests_per_minute
     limit: 100
-    burst: 200
     timeFrame: minute
-    applies:
-      - Braiins Mining Insights Public API
-      - Braiins Pool API
-      - Braiins OS+ Firmware API
-  - tier: professional
-    name: Professional Tier Monthly Quota
-    scope: api-key
-    metric: requests_per_month
-    limit: 100000
-    timeFrame: month
-    applies:
-      - Braiins Mining Insights Public API
-      - Braiins Pool API
-      - Braiins OS+ Firmware API
-  - tier: enterprise
-    name: Enterprise Negotiated Limit
-    scope: contract
+    burst: null
+    applies_to: >-
+      All 31 operations that require the `apikey` header — bid placement/edit/cancel, contract
+      scheduling/quoting/cancel/terminate, account balance and transaction reads, market settings.
+    evidence: >-
+      openapi/braiins-academy-braiins-hashpower-openapi.yml — "**Rate limit:** 100 requests/minute
+      per API credential." appears in 31 operation descriptions.
+  - id: hashpower-public-market-data
+    api: braiins-academy:braiins-hashpower-api
+    name: Hashpower public market data
+    scope: client-ip
     metric: requests_per_minute
-    limit: 1000
-    burst: 5000
+    limit: 500
     timeFrame: minute
-    applies:
-      - Braiins Mining Insights Public API
-      - Braiins Pool API
-      - Braiins OS+ Firmware API
-policies:
-  - name: Backoff Strategy
-    description: Clients should implement exponential backoff with jitter, honoring the Retry-After header
-      when present.
-  - name: Burst Handling
-    description: Short bursts above the steady-state limit are tolerated up to the documented burst ceiling
-      before throttling engages.
-  - name: Quota Reset
-    description: Monthly quotas reset at the start of each calendar month in UTC. Per-minute and per-second
-      windows reset on a sliding-window basis.
-  - name: Fair Use
-    description: Even on uncapped enterprise tiers, sustained usage that materially impacts shared infrastructure
-      may be subject to fair-use throttling.
+    applies_to:
+      - spotGetOrderbookSnapshot
+      - spotGetMarketTrades
+      - spotGetMarketBars
+      - spotGetMarketStats
+    anonymous: true
+    evidence: >-
+      openapi/braiins-academy-braiins-hashpower-openapi.yml — "**Rate limit:** 500 requests/minute
+      per client IP." on the four anonymous market-data operations.
+  - id: hashpower-cancel-fee
+    api: braiins-academy:braiins-hashpower-api
+    name: Hashpower cancellation-fee lookup
+    scope: client-ip
+    metric: requests_per_minute
+    limit: 100
+    timeFrame: minute
+    applies_to:
+      - getCurrentContractCancelFees
+    anonymous: optional
+    evidence: >-
+      openapi/braiins-academy-braiins-hashpower-openapi.yml — "**Rate limit:** 100 requests/minute
+      per client IP." (the operation accepts an optional API key).
+  - id: pool-json-api
+    api: braiins-academy:braiins-pool-api
+    name: Braiins Pool JSON API
+    scope: account-token
+    metric: requests_per_second
+    limit: 0.2
+    timeFrame: second
+    stated_as: approximately one request per five seconds (Braiins calls this the "safe value")
+    overage_behaviour: >-
+      Transient excess — some requests are silently ignored. Sustained or large excess — the
+      client IP address may be banned, and support must be contacted to resolve it.
+    evidence: https://academy.braiins.com/braiins-pool/monitoring.md
+plan_gating:
+  - api: Braiins Manager
+    note: >-
+      Braiins Manager gates API access by plan rather than by rate: "Public API Access" is a Pro
+      ($250/MW/month) feature, and "Increased API Usage — increase your API request limits to
+      support higher-volume integrations" is Enterprise-only. The Basic (free) tier has no API
+      access at all. No numeric limit is published for either tier.
+    evidence: https://braiins.com/manager/pricing
+undocumented:
+  - api: braiins-academy:braiins-os-api
+    note: >-
+      The Braiins OS Public API publishes no rate limit. It runs on the miner, so the practical
+      limit is the device; nothing in the OpenAPI, the proto files or the docs states one.
 maintainers:
   - FN: Kin Lane
     email: info@apievangelist.com

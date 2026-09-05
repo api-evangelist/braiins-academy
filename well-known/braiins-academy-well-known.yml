@@ -1,0 +1,182 @@
+generated: '2026-09-04'
+method: probed
+source: live HTTPS probes of the named /.well-known/ path list on every host this record knows
+description: >-
+  Probe of the RFC 8615 well-known path list across every Braiins host in this record. Only
+  braiins.com serves a real document. pool.braiins.com, hashpower.braiins.com and
+  insights.braiins.com are single-page-application catch-alls that answer 200 with an HTML shell
+  for EVERY /.well-known/* path — those rows are recorded as misses, not documents.
+hosts:
+  - host: braiins.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 200
+        content_type: text/plain
+        file: braiins-academy-security.txt
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+  - host: www.braiins.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 200
+        content_type: text/plain
+        note: same document as the apex; not saved twice
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+  - host: academy.braiins.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+  - host: developer.braiins-os.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-protected-resource
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+  - host: help.braiins.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-protected-resource
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+  - host: pool.braiins.com
+    catch_all_html: true
+    documents:
+      - path: /.well-known/security.txt
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/openid-configuration
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/oauth-authorization-server
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/api-catalog
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/ai-plugin.json
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/agent-card.json
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/agent.json
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+  - host: hashpower.braiins.com
+    catch_all_html: true
+    documents:
+      - path: /.well-known/security.txt
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/agent-card.json
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/agent.json
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/oauth-protected-resource
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/openid-configuration
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/api-catalog
+        status: 404
+  - host: insights.braiins.com
+    catch_all_html: true
+    documents:
+      - path: /.well-known/security.txt
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/agent-card.json
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/agent.json
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/oauth-protected-resource
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/openid-configuration
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+      - path: /.well-known/api-catalog
+        status: 200
+        content_type: text/html
+        note: SPA shell, not a document — treated as a miss
+findings:
+  - >-
+    One real document: RFC 9116 security.txt on braiins.com, expiring 2027-08-31, pointing at
+    security@braiins.com and a PGP key.
+  - >-
+    No /.well-known/api-catalog anywhere — the three published API surfaces (Braiins OS Public
+    API, Braiins Hashpower, Braiins Pool) are not machine-discoverable from any Braiins host.
+  - >-
+    No A2A agent card on any host. Every 200 on an agent-card path came from an SPA catch-all
+    returning HTML.

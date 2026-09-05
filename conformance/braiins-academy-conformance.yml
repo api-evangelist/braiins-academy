@@ -1,0 +1,126 @@
+generated: '2026-09-04'
+method: searched
+source: >-
+  openapi/braiins-academy-braiins-hashpower-openapi.yml,
+  openapi/braiins-academy-braiins-os-public-rest-api-openapi.json,
+  grpc/ (proto/bos/v1),
+  https://academy.braiins.com/braiins-pool/stratum-v2-manual.md,
+  https://braiins.com/blog/raising-the-bar-on-security-and-trust---soc-2-type-2-compliance,
+  https://braiins.com/.well-known/security.txt
+description: >-
+  Cross-cutting and domain standards Braiins conforms to. The headline is the domain standard:
+  Braiins co-authored Stratum V2, the successor mining-pool protocol for Bitcoin, and ships it in
+  both the pool and the firmware — a case where the provider is the standards body for its own
+  market rather than an adopter of someone else's.
+domain_standards:
+  - id: stratum-v2
+    name: Stratum V2 Mining Protocol
+    body: Stratum V2 (stratumprotocol.org) — co-developed by Braiins with Bitcoin developer Matt Corallo
+    role: co-author and reference implementer
+    conforms: true
+    evidence: >-
+      Braiins Pool advertises a Stratum V2 endpoint whose URL carries the scheme `stratum2+tcp`
+      and a pool public key in the path — "stratum2+tcp://stratum.braiins.com:3333/<pool public
+      key>" — documented at
+      https://academy.braiins.com/braiins-pool/stratum-v2-manual.md. That URL scheme is the
+      on-the-wire conformance signal: the Braiins OS Public API PoolConfiguration.url field
+      (openapi/braiins-academy-braiins-os-public-rest-api-openapi.json, components.schemas.
+      PoolConfiguration; grpc/braiins-academy-bos-pool.proto message PoolConfiguration field
+      `url`) accepts it, so an agent configuring a miner over the API is selecting Stratum V1 or
+      Stratum V2 by URL scheme.
+    properties:
+      - Authenticated endpoints via a pool public key in the URL path, preventing MITM hashrate
+        hijacking (the failure Stratum V1 could not detect).
+      - Binary framing and reduced bandwidth versus Stratum V1 JSON-RPC.
+      - Miner-side transaction selection (job negotiation), the decentralisation argument for V2.
+    caveat: >-
+      The protocol version is not expressed as a typed field in either published contract — it is
+      inferable only from the URL scheme string. A client cannot ask a miner "are you on V2?"
+      except by parsing PoolConfiguration.url.
+    default_port: 3336 (Braiins Pool Stratum V2), 3333 on the published endpoint URL
+    reference_implementation: https://github.com/braiins/braiins-open
+  - id: cgminer-api
+    name: CGMiner API command set
+    body: de facto (upstream CGMiner)
+    conforms: partial
+    evidence: >-
+      https://academy.braiins.com/braiins-os/papi-bosminer.md — "BOSminer API: basic subset of the
+      upstream CGMiner API as well as several new commands are implemented". Braiins implements
+      the legacy fleet-tooling lingua franca alongside its own gRPC/REST API, which is why
+      third-party farm software can read a Braiins OS miner without any Braiins-specific code.
+    note: A subset, explicitly. Not a claim of full compatibility.
+standards:
+  - id: oauth2
+    conforms: false
+    evidence: >-
+      No OAuth 2.0 surface on any Braiins API. /.well-known/oauth-authorization-server returns 404
+      on braiins.com. All three APIs use bearer keys or device session tokens.
+  - id: oidc
+    conforms: false
+    evidence: /.well-known/openid-configuration returns 404 on braiins.com (2026-09-04).
+  - id: rfc9457
+    name: RFC 9457 Problem Details for HTTP APIs
+    conforms: false
+    evidence: >-
+      No application/problem+json anywhere. Hashpower's reusable error responses declare a
+      description and no content schema; the failure reason is returned in a `grpc-message`
+      response header instead. See errors/braiins-academy-problem-types.yml.
+  - id: rfc9116
+    name: RFC 9116 security.txt
+    conforms: true
+    evidence: >-
+      https://braiins.com/.well-known/security.txt — Contact, Expires (2027-08-31), Encryption,
+      Preferred-Languages, Canonical and Hiring fields present. Saved verbatim to
+      well-known/braiins-academy-security.txt.
+  - id: rfc8594
+    name: RFC 8594 Sunset / Deprecation headers
+    conforms: false
+    evidence: >-
+      Deprecations are announced in the changelog only; no Sunset or Deprecation response header
+      on any surface. See lifecycle/braiins-academy-lifecycle.yml.
+  - id: openapi
+    name: OpenAPI 3.1.0
+    conforms: true
+    evidence: >-
+      Two first-party OpenAPI 3.1.0 documents — Braiins Hashpower API (35 operations, 94 schemas,
+      served at https://hashpower.braiins.com/api/openapi/openapi.yml) and Braiins OS Public REST
+      API (63 operations, 158 schemas, served at
+      https://developer.braiins-os.com/latest/openapi.json and self-served by every miner at
+      GET /api/v1/docs/openapi.json).
+  - id: grpc
+    name: gRPC / protobuf3
+    conforms: true
+    evidence: >-
+      16 proto3 files under proto/bos/v1 in https://github.com/braiins/bos-plus-api, package
+      braiins.bos.v1, mirrored verbatim to grpc/. Braiins OS serves gRPC on TCP 50051.
+  - id: soc2
+    name: SOC 2 Type 2
+    conforms: true
+    evidence: >-
+      Braiins announced completion of a SOC 2 Type 2 audit on 2025-02-26
+      (https://braiins.com/blog/raising-the-bar-on-security-and-trust---soc-2-type-2-compliance),
+      following a SOC audit announced 2024-05-29. A SOC 2 badge appears in the braiins.com
+      footer. The report itself is not published and there is no trust centre to request it from.
+  - id: pagination
+    conforms: partial
+    evidence: >-
+      Hashpower history endpoints take from/to time windows and a limit, but return no cursor and
+      no has_more field. Braiins Pool returns fixed windows (last 90 days, last 15 blocks).
+  - id: idempotency
+    conforms: false
+    evidence: >-
+      No idempotency key on any mutating operation across three APIs. See
+      conventions/braiins-academy-conventions.yml (idempotency.coverage: none).
+  - id: json-api
+    conforms: false
+  - id: odata
+    conforms: false
+  - id: scim
+    conforms: false
+  - id: fhir
+    conforms: false
+  - id: psd2
+    conforms: false
+    note: >-
+      Braiins Hashpower is a hashrate marketplace settling in bitcoin, not a payment services
+      provider; no EU payment-services regime applies to the API surface.

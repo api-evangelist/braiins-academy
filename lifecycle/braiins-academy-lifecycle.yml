@@ -1,0 +1,107 @@
+generated: '2026-09-04'
+method: searched
+source: >-
+  https://academy.braiins.com/braiins-os/papi-changelog.md,
+  https://academy.braiins.com/braiins-os/papi-about.md,
+  https://developer.braiins-os.com/latest/openapi.json,
+  openapi/braiins-academy-braiins-hashpower-openapi.yml,
+  https://braiins.com/legal/braiins-general-terms-and-conditions
+versioning:
+  scheme: mixed
+  surfaces:
+    - api: Braiins OS Public API
+      scheme: semver on the contract, path-versioned on the wire
+      current: 1.14.0 (gRPC contract) / 1.7.0 (published REST OpenAPI info.version)
+      path_prefix: /api/v1/
+      proto_package: braiins.bos.v1
+      introspection: GET /api/v1/version/ (getApiVersion) returns the running API version
+      self_description: GET /api/v1/docs/openapi.json (getOpenApiSchema) serves the miner's own OpenAPI
+      docs: https://academy.braiins.com/braiins-os/papi-changelog.md
+    - api: Braiins Hashpower API
+      scheme: path-versioned
+      current: v1
+      path_prefix: /v1
+      docs: https://academy.braiins.com/braiins-hashpower/api.md
+    - api: Braiins Pool API
+      scheme: unversioned
+      note: >-
+        The JSON endpoints carry no version segment. The header name was renamed from
+        SlushPool-Auth-Token to Pool-Auth-Token with the Slush Pool -> Braiins Pool rebrand;
+        both Pool-Auth-Token and X-Pool-Auth-Token are documented as accepted.
+deprecation:
+  policy_url: null
+  policy_published: false
+  changelog: https://academy.braiins.com/braiins-os/papi-changelog.md
+  sunset_header: false
+  deprecation_header: false
+  practice: >-
+    Braiins deprecates in the changelog with a named successor and leaves the old member in
+    place. There is no written deprecation policy, no notice period, and no RFC 8594
+    Sunset/Deprecation header on any surface — an integrator learns of a deprecation only by
+    reading the release notes.
+deprecated_operations:
+  - surface: Braiins OS Public API (gRPC)
+    name: braiins.bos.v1.MinerService.GetMinerStatus
+    deprecated_in: 1.14.0
+    deprecated_on: '2026-08-13'
+    superseded_by: braiins.bos.v1.MinerService.GetMinerDetailedStatus
+    removal_date: null
+    evidence: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - surface: Braiins Hashpower API
+    operationId: getTransactions
+    path: /account/transaction
+    method: GET
+    deprecated: true
+    summary: List mixed account transactions (deprecated)
+    superseded_by: >-
+      The typed transaction endpoints — getSettlementTransactions, getLockTransactions,
+      getOnChainTransactions.
+    removal_date: null
+    evidence: 'openapi/braiins-academy-braiins-hashpower-openapi.yml (deprecated: true)'
+  - surface: Braiins Toolbox
+    name: macOS x86_64 (Intel) builds
+    deprecated_in: '26.08'
+    removal_date: '2026-08-01'
+    note: >-
+      Actually removed, not merely deprecated — Toolbox 26.08 ships Apple silicon only.
+      Recorded here because it is the only hard removal Braiins announced in this window.
+status_page:
+  url: null
+  published: false
+  note: >-
+    No status page. status.braiins.com does not resolve, https://braiins.com/status returns 404,
+    and https://braiins.statuspage.io/ serves the Statuspage marketing site rather than a Braiins
+    page — the subdomain is unclaimed. There is no incident history for a pool that has been
+    running since 2010.
+sla:
+  url: https://braiins.com/legal/braiins-general-terms-and-conditions
+  public_uptime_target: null
+  note: >-
+    No published numeric uptime commitment for any surface. Braiins Manager Pro sells "Premium
+    Support" and Enterprise is contact-sales, so availability terms are presumably contractual.
+support:
+  help_center: https://help.braiins.com
+  ticket: https://help.braiins.com/en/support/tickets/new
+  community:
+    - https://t.me/BraiinsOS
+    - https://t.me/BraiinsManager
+maturity:
+  - api: Braiins OS Public API
+    stage: ga
+    since: '2023-08-10'
+  - api: Braiins Hashpower API
+    stage: beta
+    evidence: >-
+      Braiins labels Hashpower "Beta" in its own product navigation and the fee schedule states
+      the 0% spot bid fee applies "during the beta period" and may change on exit.
+  - api: Braiins Pool API
+    stage: ga
+    since: '2010'
+findings:
+  - >-
+    Three published APIs, zero status pages and zero written deprecation policy — the two
+    operational-transparency artifacts a fleet operator would most want from a company whose
+    software controls physical machines.
+  - >-
+    Deprecation is practised (two live examples with named successors) but never contracted:
+    no notice period, no removal date, no response header.

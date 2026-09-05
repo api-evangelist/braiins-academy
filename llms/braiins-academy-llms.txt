@@ -1,0 +1,37 @@
+# Braiins
+
+> Braiins builds a full-stack Bitcoin mining ecosystem: ASIC firmware, a mining pool running since 2010, fleet-management software, and free educational tools. Braiins also co-developed the Stratum V2 mining protocol.
+
+Braiins is a Bitcoin-only company. It does not sell altcoin services, cloud-mining contracts, or investment products — any such offer claiming to be from Braiins is a scam, and staff only ever email from @braiins.com. Its software serves both home miners and large-scale industrial operations.
+
+## Products
+- [Braiins OS](https://braiins.com/os-firmware): Autotuning ASIC firmware. Improves energy efficiency (W/TH) at any power limit, extends ASIC lifespan, and supports the Stratum V2 protocol. Mining to Braiins Pool while running Braiins OS pays 0% pool fees.
+- [Braiins Pool](https://braiins.com/pool): FPPS Bitcoin mining pool operating since 2010 (formerly Slush Pool). Non-KYC, supports Lightning payouts, and includes transaction fees in mining rewards. Default Stratum port 3336.
+- [Braiins Manager](https://braiins.com/manager): Remote monitoring and management for mining fleets via an installed agent. Control, monitor, and curtail machines from anywhere.
+- [Braiins Toolbox](https://braiins.com/toolbox): Local batch-management toolkit with both a GUI and a CLI for firmware updates, performance tuning, and settings changes. Requires Braiins OS 23.03 or newer.
+- [Braiins Proxy](https://braiins.com/braiins-proxy): Hashrate-aggregation (farm) proxy. Cuts farm-to-pool data transmission by ~95%, runs multiple pools in parallel, and lets you set a farm-wide backup pool.
+
+
+## Case Studies
+- [GDA: 40% higher hashrate at 40MW scale](https://braiins.com/blog/firmware-optimization-gda-40mw-case-study): Controlled comparison at GDA's 40MW facility during peak summer heat. On identical machines, Braiins OS averaged ~97 TH/s versus ~70 TH/s on stock firmware — roughly a 40% gain — at near-identical chip temperatures, verified under TÜV laboratory supervision. GDA operates 500MW+ of mining capacity globally.
+- [Hashrate-heated house](https://braiins.com/blog/hashrate-heated-house-bitcoin): A Braiins engineer heats an entire home — floor heating and hot water — with a single hydro-cooled miner while earning bitcoin, recovering up to 63% of electricity costs. Includes a full build guide with costs, schematics, and a year of real operating data.
+- [Dynamic Performance Scaling at American BitPower](https://braiins.com/blog/extend-your-bitcoin-mining-hardware-lifespan-with-dynamic-performance-scaling): How a multi-site hosting provider uses Braiins OS Dynamic Performance Scaling to automatically manage power consumption in high heat, reduce downtime, and prolong equipment life.
+
+## Documentation & Resources
+- [Braiins Academy](https://academy.braiins.com/en/): Official product documentation and setup guides for Braiins OS, Braiins Pool, Braiins Manager, and Braiins Toolbox, including a Stratum V2 manual and mining FAQs.
+- [Mining Blog](https://braiins.com/blog): Mining insights, technical deep dives, software updates, and use cases.
+- [Mining Insights & Charts](https://insights.braiins.com/en): Live and historical Bitcoin mining data — network hashrate, hashprice, and difficulty.
+- [Bitcoin Profitability Calculator](https://learn.braiins.com/en/profitability-calculator): Forecast mining margins and cash flow.
+- [Bitcoin Books](https://braiins.com/books): Educational books about Bitcoin and mining.
+
+## Company
+- [Newsroom](https://braiins.com/category/braiins-news): Company updates and announcements.
+- [Careers](https://braiins.com/careers): Open roles at Braiins.
+- [Bonds](https://braiins.com/bonds/overview): Braiins bonds program.
+- [Contact Sales](https://braiins.com/contact-sales): Sales enquiries.
+- [Support / Help Center](https://help.braiins.com/en/support/tickets/new): Customer support tickets.
+
+## Other
+- [Braiins Solo](https://solo.braiins.com/stats): Solo mining (try to win a full block).
+- [Braiins Hashpower](https://hashpower.braiins.com/): Instant hashrate from Braiins (beta).
+- [Brand Assets](https://design.braiins.com/): Logos and brand guidelines.

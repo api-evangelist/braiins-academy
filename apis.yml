@@ -2,12 +2,16 @@ aid: braiins-academy
 url: https://raw.githubusercontent.com/api-evangelist/braiins-academy/refs/heads/main/apis.yml
 name: Braiins
 tags:
-  - Bitcoin Mining
-  - Cryptocurrency
-  - Mining Pool
-  - Mining Firmware
-  - Blockchain
-  - Stratum V2
+- Bitcoin Mining
+- Cryptocurrency
+- Mining Pool
+- Mining Firmware
+- Blockchain
+- Stratum V2
+- Hashrate Marketplace
+- Mining Management
+- ASIC
+- Energy
 type: Index
 kind: company
 deliveryModel:
@@ -36,114 +40,242 @@ accessModel:
 image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/braiins-academy.png
 access: 3rd-Party
 created: '2025-03-01'
-modified: '2026-04-21'
-position: Consuming
-description: >-
-  Braiins is a Bitcoin mining technology company operating the world's longest-running
-  Bitcoin mining pool (Slush Pool, now Braiins Pool), developing Braiins OS+ mining
-  firmware, and pioneering the Stratum V2 next-generation mining protocol. Braiins
-  Academy provides educational resources on Bitcoin mining, and the company publishes
-  a public Mining Insights API with network statistics. Stratum V2 increases mining
-  security, bandwidth efficiency, and miner autonomy through decentralized transaction
-  selection.
+modified: '2026-09-04'
+position: Producing
+description: 'Braiins is a Prague-based Bitcoin mining technology company that operates the world''s longest-running
+  Bitcoin mining pool (Slush Pool, now Braiins Pool, mining since 2010), builds Braiins OS autotuning
+  ASIC firmware, and co-developed Stratum V2, the successor mining-pool protocol. Three of its products
+  publish an API: Braiins OS ships a Public API over both gRPC and REST that runs on the miner itself
+  (63 REST operations, 16 proto3 service files); Braiins Hashpower publishes an OpenAPI 3.1 contract for
+  its spot hashrate marketplace and fixed-duration contracts (35 operations); and Braiins Pool exposes
+  six read-only JSON endpoints for pool, worker and reward statistics. Braiins Manager gates its own public
+  API behind a paid tier. Braiins completed a SOC 2 Type 2 audit in 2025 and publishes a vulnerability
+  disclosure policy with a five-business-day response commitment.'
 apis:
-  - aid: braiins-academy:mining-insights-api
-    name: Braiins Mining Insights Public API
-    tags:
-      - Bitcoin Mining
-      - Mining Statistics
-      - Network Data
-      - Hashrate
-    humanURL: https://academy.braiins.com/en/mining-insights/public-api/
-    properties:
-      - url: https://academy.braiins.com/en/mining-insights/public-api/
-        type: Documentation
-    description: >-
-      The Braiins Mining Insights Public API provides access to Bitcoin mining
-      network statistics, hashrate data, and mining pool performance metrics.
-      Used for research, analysis, and integration with mining management tools.
-  - aid: braiins-academy:braiins-pool-api
-    name: Braiins Pool API
-    tags:
-      - Mining Pool
-      - Bitcoin
-      - Hashrate
-      - Payouts
-    humanURL: https://braiins.com/pool
-    properties:
-      - url: https://braiins.com/pool
-        type: Documentation
-    description: >-
-      API access for Braiins Pool (formerly Slush Pool), the world's first Bitcoin
-      mining pool. Provides miner statistics, payout data, worker management,
-      and pool hashrate information.
-  - aid: braiins-academy:braiins-os-api
-    name: Braiins OS+ Firmware API
-    tags:
-      - Mining Firmware
-      - ASIC
-      - Autotuning
-      - Performance
-    humanURL: https://braiins.com/os/plus
-    properties:
-      - url: https://braiins.com/os/plus
-        type: Documentation
-    description: >-
-      Braiins OS+ is custom mining firmware for Bitcoin ASICs (Antminer series)
-      featuring autotuning, dynamic performance scaling, and thermal management.
-      Supports remote batch configuration via Braiins Toolbox and integrates with
-      Braiins Pool for 0% effective pool fee.
-common:
-  - type: DomainSecurity
-    url: security/braiins-academy-domain-security.yml
-  - type: GitHubOrganization
-    url: https://github.com/braiins
-  - type: Website
-    url: https://braiins.com
-  - type: Academy
-    url: https://academy.braiins.com
-  - type: Pool
-    url: https://braiins.com/pool
-  - type: Firmware
-    url: https://braiins.com/os/plus
-  - type: StratumV2
-    url: https://braiins.com/stratum-v2
+- aid: braiins-academy:braiins-os-api
+  name: Braiins OS Public API
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/braiins-academy.png
+  tags:
+  - Mining Firmware
+  - ASIC
+  - Autotuning
+  - Performance
+  - Curtailment
+  - gRPC
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  description: 'The Braiins OS Public API, introduced in Braiins OS 23.03, is the control contract for
+    a Bitcoin ASIC running Braiins OS. It is offered over gRPC (package braiins.bos.v1, TCP 50051) and,
+    since Braiins OS 25.07, over REST — Braiins states both transports provide the same functionality.
+    The API runs ON the miner: servers[] is http://miner/, so the host is each device on the operator''s
+    own network and there is no Braiins-hosted endpoint. 63 REST operations cover mining actions, performance
+    and power targeting, Dynamic Performance Scaling, cooling, pool groups, licensing, network configuration,
+    firmware upgrade and restore-to-stock, and a detailed miner status that reports the reason a machine
+    is not hashing. Every miner also self-serves its own OpenAPI at GET /api/v1/docs/openapi.json.'
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Overlay
+    url: overlays/braiins-academy-braiins-os-public-rest-api-overlay.yaml
   - type: Documentation
-    url: https://academy.braiins.com/os/plus-en/
-  - type: Integrations
-    url: https://braiins.com/marketplace
-  - url: https://braiins.com/blog
-    type: Blog
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+- aid: braiins-academy:braiins-hashpower-api
+  name: Braiins Hashpower API
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/braiins-academy.png
+  tags:
+  - Hashrate Marketplace
+  - Bitcoin
+  - Trading
+  - Contracts
+  - Market Data
+  humanURL: https://academy.braiins.com/braiins-hashpower/api.md
+  baseURL: https://hashpower.braiins.com/v1
+  description: 'Public HTTP API for the Braiins Hashpower marketplace: buying hashrate on the spot market,
+    scheduling fixed-duration contracts with guaranteed delivery, and reading account and market data.
+    35 operations across bid orders, contracts, accounts, market data and market configuration, published
+    as OpenAPI 3.1.0 and rendered in Scalar at https://hashpower.braiins.com/api. Authentication is an
+    API key in the apikey header, scoped by ACL role (owner for trading, read-only for viewing); the four
+    market-data operations are callable anonymously. Every operation publishes its own rate limit in the
+    contract. Notable for two advisory operations — quoteContractCreation and checkContractSpeedAvailability
+    — that let a caller cost and validate a contract without reserving funds or capacity. Braiins labels
+    Hashpower a beta product and the 0% spot bid fee is stated to apply during the beta period.'
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-braiins-hashpower-openapi.yml
+  - type: Overlay
+    url: overlays/braiins-academy-braiins-hashpower-overlay.yaml
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-pool-api
+  name: Braiins Pool API
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/braiins-academy.png
+  tags:
+  - Mining Pool
+  - Bitcoin
+  - Hashrate
+  - Payouts
+  - Statistics
+  humanURL: https://academy.braiins.com/braiins-pool/monitoring.md
+  baseURL: https://pool.braiins.com
+  description: 'Read-only JSON API for Braiins Pool, the oldest active Bitcoin mining pool (first block
+    2010, 1.29M+ BTC mined). Six documented endpoints: pool stats and recent blocks, user profile and
+    rewards, daily rewards over a date range, daily hashrate for a user or group, and block rewards. Authentication
+    is an access-profile token in the Pool-Auth-Token (or X-Pool-Auth-Token) header, generated per access
+    profile after enabling "Allow access to web APIs". Braiins publishes a limit of approximately one
+    request per five seconds and states that sustained excess can result in an IP ban. No machine-readable
+    contract is published — the endpoints and response fields are documented in prose tables only.'
+  properties:
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-pool/monitoring.md
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-pool/quick-start.md
+  - type: Authentication
+    url: authentication/braiins-academy-authentication.yml
+  - type: Sandbox
+    url: https://pool.braiins.com/demo-login/
+  - type: TermsOfService
+    url: https://braiins.com/pool/terms-and-conditions-braiins-mining-limited
+  - type: PrivacyPolicy
+    url: https://braiins.com/pool/braiins-pool-privacy-policy
+common:
+- type: Website
+  url: https://braiins.com
+- type: DeveloperPortal
+  url: https://academy.braiins.com
+- type: Documentation
+  url: https://academy.braiins.com
+- type: APIReference
+  url: https://developer.braiins-os.com/latest/openapi.html
+- type: GettingStarted
+  url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+- type: Blog
+  url: https://braiins.com/blog
+- type: GitHubOrganization
+  url: https://github.com/braiins
+- type: Support
+  url: https://help.braiins.com/en/support/tickets/new
+- type: HelpCenter
+  url: https://help.braiins.com
+- type: SignUp
+  url: https://manager.braiins.com/sign-up
+- type: Pricing
+  url: https://braiins.com/manager/pricing
+- type: TermsOfService
+  url: https://braiins.com/legal/braiins-general-terms-and-conditions
+- type: PrivacyPolicy
+  url: https://braiins.com/legal/privacy-policy
+- type: X-Academy
+  url: https://academy.braiins.com
+- type: X-Product-Pool
+  url: https://braiins.com/pool
+- type: X-Product-Firmware
+  url: https://braiins.com/os/plus
+- type: X-StratumV2
+  url: https://braiins.com/stratum-v2
+- type: Integrations
+  url: https://braiins.com/marketplace
+- type: Authentication
+  url: authentication/braiins-academy-authentication.yml
+- type: Conventions
+  url: conventions/braiins-academy-conventions.yml
+- type: ErrorCatalog
+  url: errors/braiins-academy-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/braiins-academy-lifecycle.yml
+- type: Deprecation
+  url: lifecycle/braiins-academy-lifecycle.yml
+- type: ChangeLog
+  url: changelog/braiins-academy-changelog.yml
+- type: Conformance
+  url: conformance/braiins-academy-conformance.yml
+- type: Compliance
+  url: security/braiins-academy-trust-center.yml
+- type: TrustCenter
+  url: security/braiins-academy-trust-center.yml
+- type: Security
+  url: security/braiins-academy-vulnerability-disclosure.yml
+- type: VulnerabilityDisclosure
+  url: security/braiins-academy-vulnerability-disclosure.yml
+- type: SecurityTxt
+  url: well-known/braiins-academy-security.txt
+- type: WellKnown
+  url: well-known/braiins-academy-well-known.yml
+- type: DomainSecurity
+  url: security/braiins-academy-domain-security.yml
+- type: RateLimits
+  url: rate-limits/braiins-academy-rate-limits.yml
+- type: Plans
+  url: plans/braiins-academy-plans-pricing.yml
+- type: FinOps
+  url: finops/braiins-academy-finops.yml
+- type: Packages
+  url: packages/braiins-academy-packages.yml
+- type: CLI
+  url: cli/braiins-academy-cli.yml
+- type: Sandbox
+  url: sandbox/braiins-academy-sandbox.yml
+- type: DataModel
+  url: data-model/braiins-academy-data-model.yml
+- type: LLMsTxt
+  url: llms/braiins-academy-llms.txt
+- type: AgentSkill
+  url: skills/_index.yml
+- type: X-MCPServerCandidate
+  url: mcp/braiins-academy-mcp.yml
+  note: 'The manifest self-describes as status: candidate — a tool list derived from the two published
+    OpenAPI contracts, not a server anybody ships. Braiins publishes no MCP server; the two on npm are
+    third-party. Not wired as MCPServer, which would credit Braiins with an agent surface that does not
+    exist.'
 properties:
-  - type: x-domain
-    value: braiins.com
-  - type: x-founded
-    value: '2011'
-  - type: x-headquarters
-    value: Prague, Czech Republic
-  - type: x-industry
-    value: Bitcoin Mining Technology
-  - type: x-products
-    value: Braiins Pool, Braiins OS+, Braiins Toolbox, Stratum V2, Braiins Academy
-  - type: x-protocol
-    value: Stratum V2 - next-generation Bitcoin mining protocol
-  - type: x-stratum-v2-features
-    value: >-
-      Enhanced security (prevents MITM attacks and hashrate hijacking), bandwidth
-      efficiency, miner-side transaction selection, decentralization improvement
-  - type: x-firmware-features
-    value: >-
-      Autotuning per-chip frequency calibration, dynamic thermal management,
-      overclocking, underclocking, batch remote configuration, 24/7 support
-  - type: x-supported-hardware
-    value: Antminer S21 series, S19 series, T19, S17 series, S9 series
-  - type: x-capabilities
-    value: >-
-      Mining pool management, firmware-based performance optimization, hashrate
-      monitoring, mining network analytics, Stratum V2 protocol implementation
+- type: x-domain
+  value: braiins.com
+- type: x-founded
+  value: '2011'
+- type: x-headquarters
+  value: Prague, Czech Republic
+- type: x-industry
+  value: Bitcoin Mining Technology
+- type: x-products
+  value: Braiins Pool, Braiins OS+, Braiins Toolbox, Stratum V2, Braiins Academy
+- type: x-protocol
+  value: Stratum V2 - next-generation Bitcoin mining protocol
+- type: x-stratum-v2-features
+  value: Enhanced security (prevents MITM attacks and hashrate hijacking), bandwidth efficiency, miner-side
+    transaction selection, decentralization improvement
+- type: x-firmware-features
+  value: Autotuning per-chip frequency calibration, dynamic thermal management, overclocking, underclocking,
+    batch remote configuration, 24/7 support
+- type: x-supported-hardware
+  value: Antminer S21 series, S19 series, T19, S17 series, S9 series
+- type: x-capabilities
+  value: Mining pool management, firmware-based performance optimization, hashrate monitoring, mining
+    network analytics, Stratum V2 protocol implementation
 integrations:
-  - name: weChat
+- name: weChat
 maintainers:
-  - FN: Kin Lane
-    email: info@apievangelist.com
+- FN: Kin Lane
+  email: info@apievangelist.com
 specificationVersion: '0.23'
+x-enrichment:
+  date: '2026-09-04'
+  status: enriched
+  artifacts_added: 42
+  pass: local-v3

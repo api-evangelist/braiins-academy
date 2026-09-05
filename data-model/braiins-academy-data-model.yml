@@ -1,0 +1,627 @@
+generated: '2026-09-04'
+method: derived
+source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json, openapi/braiins-academy-braiins-hashpower-openapi.yml
+description: 'Entity graph derived from $ref links and id-bearing fields in the two published Braiins
+  OpenAPI contracts. The two graphs do not touch: Braiins OS models a physical machine (miner, hashboards,
+  fans, pool groups, tuner state, licence) and Braiins Hashpower models a market (bids, contracts, settlements,
+  balances). There is no shared identifier between them — an agent cannot join a Hashpower contract to
+  the miner receiving the hashrate through anything either API returns.'
+domains:
+- id: bos
+  name: Braiins OS — device
+  root: GetMinerDetailsResponse
+  id_convention: Opaque string `uid` on pool and pool-group records; no cross-resource id prefixes.
+  entities:
+  - name: GetMinerDetailsResponse
+    description: Structure to handle system details
+    id_fields:
+    - uid
+    relationships:
+    - target: BosVersion
+      type: has_one
+      via: bos_version
+    - target: GigaHashrate
+      type: has_one
+      via: sticker_hashrate
+    - target: MinerDetailedStatus
+      type: has_one
+      via: detailed_status
+    - target: MinerIdentity
+      type: has_one
+      via: miner_identity
+    - target: PsuInfo
+      type: has_one
+      via: psu_info
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/GetMinerDetailsResponse
+  - name: MinerDetailedStatus
+    description: 'Detailed miner status: the lifecycle phase the miner is in, the reason or'
+    id_fields: null
+    relationships:
+    - target: ExpectedTime
+      type: has_one
+      via: status_until
+    - target: Status
+      type: has_one
+      via: status
+    - target: Timestamp
+      type: has_one
+      via: status_since
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/MinerDetailedStatus
+  - name: PoolGroup
+    description: Structure handle all pool group details
+    id_fields:
+    - uid
+    relationships:
+    - target: Pool
+      type: has_many
+      via: pools
+    - target: Strategy
+      type: has_one
+      via: strategy
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/PoolGroup
+  - name: Pool
+    description: Structure handle information about configured pool
+    id_fields:
+    - uid
+    relationships:
+    - target: PoolStats
+      type: has_one
+      via: stats
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/Pool
+  - name: PoolConfiguration
+    description: Structure handle information about configured pool
+    id_fields:
+    - uid
+    relationships: null
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/PoolConfiguration
+  - name: PoolStats
+    description: Structure handle pool statistics
+    id_fields: null
+    relationships:
+    - target: Timestamp
+      type: has_one
+      via: last_share_time
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/PoolStats
+  - name: PoolGroupConfiguration
+    description: Structure handle configured mining group
+    id_fields:
+    - uid
+    relationships:
+    - target: LoadBalanceStrategy
+      type: has_one
+      via: load_balance_strategy
+    - target: PoolConfiguration
+      type: has_many
+      via: pools
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/PoolGroupConfiguration
+  - name: LoadBalanceStrategy
+    description: Group load balance strategy
+    id_fields: null
+    relationships:
+    - target: FixedShareRatio
+      type: has_one
+      via: null
+    - target: Quota
+      type: has_one
+      via: null
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/LoadBalanceStrategy
+  - name: GetMinerStatsResponse
+    description: null
+    id_fields: null
+    relationships:
+    - target: MinerPowerStats
+      type: has_one
+      via: power_stats
+    - target: PoolStats
+      type: has_one
+      via: pool_stats
+    - target: WorkSolverStats
+      type: has_one
+      via: miner_stats
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/GetMinerStatsResponse
+  - name: GetHashboardsResponse
+    description: null
+    id_fields: null
+    relationships:
+    - target: Hashboard
+      type: has_many
+      via: hashboards
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/GetHashboardsResponse
+  - name: GetCoolingStateResponse
+    description: Response to get current fan states and
+    id_fields: null
+    relationships:
+    - target: FanState
+      type: has_many
+      via: fans
+    - target: TemperatureSensor
+      type: has_one
+      via: highest_temperature
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/GetCoolingStateResponse
+  - name: FanState
+    description: Structure which contain info about one specific miner fan.
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/FanState
+  - name: TemperatureSensor
+    description: null
+    id_fields:
+    - id
+    relationships:
+    - target: Temperature
+      type: has_one
+      via: temperature
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/TemperatureSensor
+  - name: GetLicenseStateResponse
+    description: null
+    id_fields: null
+    relationships:
+    - target: State
+      type: has_one
+      via: state
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/GetLicenseStateResponse
+  - name: GetTunerStateResponse
+    description: Response with the current tuner details
+    id_fields: null
+    relationships:
+    - target: ModeState
+      type: has_one
+      via: mode_state
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/GetTunerStateResponse
+  - name: CoolingConfiguration
+    description: null
+    id_fields: null
+    relationships:
+    - target: CoolingConfigurationMode
+      type: has_one
+      via: mode
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/CoolingConfiguration
+  - name: GetConstraintsResponse
+    description: null
+    id_fields: null
+    relationships:
+    - target: CoolingConstraints
+      type: has_one
+      via: cooling_constraints
+    - target: DpsConstraints
+      type: has_one
+      via: dps_constraints
+    - target: HashboardConstraints
+      type: has_one
+      via: hashboards_constraints
+    - target: TunerConstraints
+      type: has_one
+      via: tuner_constraints
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/GetConstraintsResponse
+  - name: GetMinerConfigurationResponse
+    description: Structure to return miner configuration
+    id_fields: null
+    relationships:
+    - target: CoolingConfiguration
+      type: has_one
+      via: temperature
+    - target: DpsConfiguration
+      type: has_one
+      via: dps
+    - target: HashboardPerformanceConfiguration
+      type: has_one
+      via: hashboard_config
+    - target: PoolGroupConfiguration
+      type: has_many
+      via: pool_groups
+    - target: TunerConfiguration
+      type: has_one
+      via: tuner
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/GetMinerConfigurationResponse
+  - name: LoginRequest
+    description: Request for login action.
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/LoginRequest
+  - name: LoginResponse
+    description: Response for login action.
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json#/components/schemas/LoginResponse
+- id: hashpower
+  name: Braiins Hashpower — market
+  root: Contract
+  id_convention: Server-assigned `order_id` / `contract_id`, plus a caller-assigned `cl_order_id` on bids.
+    Both bid identifiers address the same record and are mutually exclusive on a request.
+  entities:
+  - name: SpotInstrumentStatus
+    description: null
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotInstrumentStatus
+  - name: MarketSettings
+    description: null
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: tick_size_sat
+    - target: Int32
+      type: has_one
+      via: hr_multiplier_log10
+    - target: SpotInstrumentStatus
+      type: has_one
+      via: status
+    - target: Uint32
+      type: has_one
+      via: max_bid_idle_time_s
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/MarketSettings
+  - name: ContractCreationQuoteStatus
+    description: null
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractCreationQuoteStatus
+  - name: ContractCreationQuoteReason
+    description: null
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractCreationQuoteReason
+  - name: ContractCancellationRequestState
+    description: null
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractCancellationRequestState
+  - name: ContractCancellationRequest
+    description: null
+    id_fields:
+    - cancellation_request_id
+    - contract_id
+    relationships:
+    - target: ContractCancellationRequestState
+      type: has_one
+      via: state
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractCancellationRequest
+  - name: ContractPublic
+    description: null
+    id_fields:
+    - id
+    relationships:
+    - target: ContractDestination
+      type: has_one
+      via: destination
+    - target: ContractStatus
+      type: has_one
+      via: status
+    - target: Double
+      type: has_one
+      via: nominal_speed_ph
+    - target: OptionalDouble
+      type: has_one
+      via: premium_pct
+    - target: ProfileIdentifier
+      type: has_one
+      via: created_by
+    - target: Uint32
+      type: has_one
+      via: last_status_change_reason
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractPublic
+  - name: ContractStatePublic
+    description: null
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: shares_claimed
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractStatePublic
+  - name: ContractStatus
+    description: null
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractStatus
+  - name: ContractReservationPublicItem
+    description: null
+    id_fields: null
+    relationships:
+    - target: ContractReservationOriginPublic
+      type: has_one
+      via: origin
+    - target: Int64
+      type: has_one
+      via: amount
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractReservationPublicItem
+  - name: ContractReservationOriginPublic
+    description: null
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractReservationOriginPublic
+  - name: ContractSettlementPublicItem
+    description: null
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: pps_rate_for_day
+    - target: Int64
+      type: has_one
+      via: bare_price_amount
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractSettlementPublicItem
+  - name: ContractActivityType
+    description: null
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractActivityType
+  - name: ContractActivityItem
+    description: null
+    id_fields:
+    - contract_id
+    relationships:
+    - target: ContractActivityType
+      type: has_one
+      via: type
+    - target: Int64
+      type: has_one
+      via: amount
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractActivityItem
+  - name: ContractDestination
+    description: null
+    id_fields: null
+    relationships:
+    - target: LocalContractDestination
+      type: has_one
+      via: null
+    - target: UpstreamContractDestination
+      type: has_one
+      via: null
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractDestination
+  - name: SpotGetBidsResponse
+    description: null
+    id_fields: null
+    relationships:
+    - target: SpotGetBidsResponseItem
+      type: has_many
+      via: items
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotGetBidsResponse
+  - name: SpotGetBidsResponseItem
+    description: null
+    id_fields: null
+    relationships:
+    - target: SpotMarketBid
+      type: has_one
+      via: bid
+    - target: SpotMarketBidCounters
+      type: has_one
+      via: counters_estimate
+    - target: SpotMarketBidState
+      type: has_one
+      via: state_estimate
+    - target: UpstreamFailure
+      type: has_one
+      via: last_network_failure
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotGetBidsResponseItem
+  - name: SpotGetBidDetailResponse
+    description: null
+    id_fields: null
+    relationships:
+    - target: SpotBidHistoryItem
+      type: has_many
+      via: history
+    - target: SpotMarketBid
+      type: has_one
+      via: bid
+    - target: SpotMarketBidCounters
+      type: has_one
+      via: counters_estimate
+    - target: SpotMarketBidState
+      type: has_one
+      via: state_estimate
+    - target: UpstreamFailure
+      type: has_one
+      via: last_network_failure
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotGetBidDetailResponse
+  - name: SpotMarketBid
+    description: null
+    id_fields:
+    - id
+    - cl_order_id
+    relationships:
+    - target: Double
+      type: has_one
+      via: speed_limit_ph
+    - target: ProfileIdentifier
+      type: has_one
+      via: created_by
+    - target: SpotMarketBidStatus
+      type: has_one
+      via: status
+    - target: UpstreamSpecification
+      type: has_one
+      via: dest_upstream
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotMarketBid
+  - name: SpotMarketBidStatus
+    description: Common status values used for multiple client management entities
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotMarketBidStatus
+  - name: SpotMarketBidCounters
+    description: null
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: shares_purchased_m
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotMarketBidCounters
+  - name: SpotMarketBidState
+    description: null
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: avg_speed_ph
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotMarketBidState
+  - name: SpotBidHistoryItem
+    description: null
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: speed_limit_ph
+    - target: ProfileIdentifier
+      type: has_one
+      via: updated_by
+    - target: SpotMarketBidStatus
+      type: has_one
+      via: status
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotBidHistoryItem
+  - name: SpotPlaceBidRequest
+    description: null
+    id_fields:
+    - cl_order_id
+    relationships:
+    - target: Double
+      type: has_one
+      via: speed_limit_ph
+    - target: UpstreamSpecification
+      type: has_one
+      via: dest_upstream
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotPlaceBidRequest
+  - name: SpotEditBidRequest
+    description: null
+    id_fields:
+    - bid_id
+    - cl_order_id
+    relationships:
+    - target: Double
+      type: has_one
+      via: new_amount_sat
+    - target: OptionalDouble
+      type: has_one
+      via: new_speed_limit_ph
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotEditBidRequest
+  - name: SpotCancelBidRequest
+    description: Identifies the caller-owned bid to cancel by its public or client-assigned ID.
+    id_fields:
+    - order_id
+    - cl_order_id
+    relationships: null
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotCancelBidRequest
+  - name: SpotFeePublic
+    description: null
+    id_fields: null
+    relationships:
+    - target: FeeSpec
+      type: has_one
+      via: fee
+    - target: SpotMarketFeeType
+      type: has_one
+      via: fee_type
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotFeePublic
+  - name: SpotMarketFeeType
+    description: '* SPOT_FEE_TYPE_UNSPECIFIED'
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotMarketFeeType
+  - name: FeeSpec
+    description: Generic fee specification. Allows to specify a fee w/ percents for now.
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: fee_rate_pct
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/FeeSpec
+  - name: AccountBalance
+    description: null
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: total_balance_sat
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/AccountBalance
+  - name: Transaction
+    description: null
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: amount_sat
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/Transaction
+  - name: SpotGetMarketStatsResponse
+    description: null
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: volume_24h_m
+    - target: SpotInstrumentStatus
+      type: has_one
+      via: status
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotGetMarketStatsResponse
+  - name: SpotGetOrderBookResponse
+    description: null
+    id_fields: null
+    relationships:
+    - target: AskItem
+      type: has_many
+      via: asks
+    - target: BidItem
+      type: has_many
+      via: bids
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotGetOrderBookResponse
+  - name: BidItem
+    description: null
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: price_sat
+    - target: Uint32
+      type: has_one
+      via: degraded_bids_count
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/BidItem
+  - name: SpotGetMarketTradesResponse
+    description: null
+    id_fields: null
+    relationships:
+    - target: TradeSha256Btc
+      type: has_many
+      via: trades
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotGetMarketTradesResponse
+  - name: TradeSha256Btc
+    description: null
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: volume_m
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/TradeSha256Btc
+  - name: ContractHistoryAggregationPeriod
+    description: Aggregation period for contract history time series.
+    id_fields: null
+    relationships: null
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/ContractHistoryAggregationPeriod
+  - name: SpotGetBarsResponse
+    description: null
+    id_fields: null
+    relationships:
+    - target: TradeBar
+      type: has_many
+      via: bars
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotGetBarsResponse
+  - name: TradeBar
+    description: null
+    id_fields: null
+    relationships:
+    - target: Double
+      type: has_one
+      via: open
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/TradeBar
+  - name: SpotGetOrderSpeedHistoryResponse
+    description: null
+    id_fields: null
+    relationships:
+    - target: SpotGetOrderSpeedHistoryItem
+      type: has_many
+      via: items
+    source: openapi/braiins-academy-braiins-hashpower-openapi.yml#/components/schemas/SpotGetOrderSpeedHistoryResponse
+findings:
+- Braiins Hashpower has no single canonical Order/Contract schema — the surface is response-shaped (SpotGetBidsResponse,
+  GetContractDetailResponse) rather than resource-shaped, so a client models the entities from response
+  wrappers.
+- 'The Braiins OS graph is deeply nested (158 schemas for 63 operations) because it encodes hardware:
+  temperature sensors, fans, hashboards and per-chip tuning profiles are all first-class.'
+- No cross-product entity. Braiins Pool, the third surface, publishes no schema at all — its six JSON
+  documents are described in prose tables only.

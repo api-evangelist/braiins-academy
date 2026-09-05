@@ -1,0 +1,91 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements — Braiins OS Public REST API
+  version: 1.0.0
+x-generated: '2026-09-04'
+x-method: derived
+x-source: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json
+x-extends: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json
+x-note: >-
+  Non-destructive enhancements over the verbatim Braiins OS Public REST API document served at
+  https://developer.braiins-os.com/latest/openapi.json. The original is never mutated. The
+  security scheme below is not invented: it is the bearer token that POST /api/v1/auth/login
+  already returns and that the login operation's own description says must be sent in the
+  Authorization header — the document simply never declares it in components.
+actions:
+  - target: $.info
+    description: Record the catalogued API and the artifacts derived from it.
+    update:
+      x-apis-io-aid: braiins-academy:braiins-os-api
+      x-provider: Braiins
+      x-transport-siblings:
+        grpc:
+          package: braiins.bos.v1
+          port: 50051
+          contract: grpc/
+          contract_version: 1.14.0
+      x-artifacts:
+        conventions: conventions/braiins-academy-conventions.yml
+        errors: errors/braiins-academy-problem-types.yml
+        authentication: authentication/braiins-academy-authentication.yml
+        cli: cli/braiins-academy-cli.yml
+        data_model: data-model/braiins-academy-data-model.yml
+  - target: $.info
+    description: >-
+      Flag the version skew between the published REST document (1.7.0) and the gRPC contract it
+      mirrors (1.14.0, 2026-08-13), so a consumer knows which surface is ahead.
+    update:
+      x-contract-version-grpc: 1.14.0
+      x-contract-version-rest: 1.7.0
+      x-changelog: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - target: $.servers
+    description: >-
+      The document declares servers[] as http://miner/ — correct and deliberate: this API runs ON
+      the ASIC. Annotate it so a reader does not mistake it for a placeholder.
+    update:
+      x-server-shape: device-local
+      x-server-note: >-
+        The host is the individual miner's address on the operator's own network. There is no
+        Braiins-hosted endpoint for this API.
+      x-required-ports: [80, 50051]
+  - target: $.components
+    description: >-
+      Declare the bearer scheme the API already issues and requires but never expresses.
+      Documented in the login operation description and in the BOS gRPC docs.
+    update:
+      securitySchemes:
+        BosSessionToken:
+          type: http
+          scheme: bearer
+          description: >-
+            Session token returned by POST /api/v1/auth/login, sent in the Authorization header
+            of every subsequent request. Authenticates against the miner, not a Braiins account.
+          x-added-by: API Evangelist overlay — absent from the published document.
+  - target: $.paths['/api/v1/actions/factory-reset'].put
+    description: Mark the one irreversible device action so an agent can gate it.
+    update:
+      x-consequence: irreversible
+      x-consequence-note: >-
+        Clears the miner's configuration, optionally including network settings. Documented at
+        https://academy.braiins.com/braiins-os/factory-reset.md.
+  - target: $.paths['/api/v1/upgrade/restore-stock'].post
+    description: Name this as the reversal of a firmware install.
+    update:
+      x-reversal-of: systemUpgrade
+      x-reversal-window: null
+      x-cli-equivalent: braiins-toolbox firmware restore
+  - target: $.paths['/api/v1/performance/power-target/default'].put
+    update:
+      x-reversal-of: setPowerTarget
+  - target: $.paths['/api/v1/performance/hashrate-target/default'].put
+    update:
+      x-reversal-of: setHashrateTarget
+  - target: $.paths['/api/v1/advanced-settings/'].delete
+    update:
+      x-reversal-of: setAdvancedSettings
+  - target: $.paths['/api/v1/miner/status'].get
+    description: Record the deprecation announced in Public API 1.14.0 on the gRPC twin.
+    update:
+      x-deprecated-upstream: braiins.bos.v1.MinerService.GetMinerStatus
+      x-superseded-by: getMinerDetailedStatus
+      x-deprecated-in: 1.14.0

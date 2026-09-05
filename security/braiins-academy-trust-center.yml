@@ -1,0 +1,39 @@
+generated: '2026-09-04'
+method: searched
+source: >-
+  https://braiins.com/security (footer SOC 2 badge),
+  https://braiins.com/blog/raising-the-bar-on-security-and-trust---soc-2-type-2-compliance,
+  https://braiins.com/blog/ensuring-security-and-reliability-soc-audit-success
+trust_center_url: null
+trust_center_note: >-
+  Braiins publishes no dedicated trust centre. trust.braiins.com does not resolve and
+  https://braiins.com/trust returns 404. Certification evidence is a SOC 2 badge in the site
+  footer plus two company blog announcements — a real, dated, first-party claim, but not a
+  portal where a buyer can request the report.
+certifications:
+  - name: SOC 2 Type 2
+    status: attested
+    announced: '2025-02-26'
+    evidence: https://braiins.com/blog/raising-the-bar-on-security-and-trust---soc-2-type-2-compliance
+    report_access: >-
+      Not published. No self-serve request path was found; the report is presumably obtained
+      through sales.
+    note: >-
+      Preceded by a SOC audit announced 2024-05-29
+      (https://braiins.com/blog/ensuring-security-and-reliability-soc-audit-success).
+  - name: ISO 27001
+    status: not-claimed
+subprocessors_page: null
+uptime_sla: null
+status_page: null
+evidence:
+  - url: https://braiins.com/security
+    http_status: 200
+    fetched: '2026-09-04'
+  - url: https://braiins.com/trust
+    http_status: 404
+    fetched: '2026-09-04'
+  - url: https://trust.braiins.com/
+    http_status: 0
+    note: DNS does not resolve
+    fetched: '2026-09-04'

@@ -1,0 +1,54 @@
+generated: '2026-09-04'
+method: generated
+source: >-
+  openapi/braiins-academy-braiins-hashpower-openapi.yml,
+  openapi/braiins-academy-braiins-os-public-rest-api-openapi.json,
+  cli/braiins-academy-cli.yml, conventions/braiins-academy-conventions.yml
+note: >-
+  Braiins publishes no skills/ or AGENTS.md of its own; these are generated from the two
+  published OpenAPI contracts. Every operationId named in a skill was read out of the spec — none
+  are invented. The four skills cover the marquee flows on both write surfaces plus the fleet
+  roll-out that spans the CLI and the device API.
+skills:
+  - name: buy-hashrate-on-the-spot-market
+    file: braiins-academy-buy-hashrate-on-the-spot-market.md
+    api: braiins-academy:braiins-hashpower-api
+    operations: 12
+    summary: >-
+      Place, monitor, adjust and cancel a spot bid — with the grace period and the asymmetric
+      edit rules made explicit, because both decide whether the action can be taken back.
+  - name: schedule-and-unwind-a-hashrate-contract
+    file: braiins-academy-schedule-and-unwind-a-hashrate-contract.md
+    api: braiins-academy:braiins-hashpower-api
+    operations: 16
+    summary: >-
+      Quote, schedule, monitor and exit a fixed-duration contract, using the API's own advisory
+      quote/availability operations to cost the decision — and choosing correctly between
+      cancelContract (before delivery) and terminateContract (after).
+  - name: curtail-a-miner-on-an-energy-signal
+    file: braiins-academy-curtail-a-miner-on-an-energy-signal.md
+    api: braiins-academy:braiins-os-api
+    operations: 15
+    summary: >-
+      Reduce, pause and restore power draw on a Braiins OS miner, verify the result through
+      getMinerDetailedStatus, and back out through the documented default-restore operations
+      rather than a factory reset.
+  - name: roll-a-fleet-onto-braiins-os
+    file: braiins-academy-roll-a-fleet-onto-braiins-os.md
+    api: braiins-academy:braiins-os-api
+    operations: 12
+    summary: >-
+      Discover, install, licence and pool-configure a fleet across the Toolbox CLI and the device
+      API, including the Stratum V2 URL scheme that carries the pool public key, and the
+      restore-to-stock rollback.
+cross_cutting_rules:
+  - No idempotency key exists on any Braiins API — never blind-retry a mutating call; re-read state first.
+  - >-
+    Braiins Hashpower returns the error reason in the URL-encoded `grpc-message` RESPONSE HEADER,
+    not the body.
+  - >-
+    No rate-limit response headers on any surface; budgets are published (100/min per credential,
+    500/min per IP on anonymous market data, ~1 per 5s on Braiins Pool) and must be tracked client-side.
+  - >-
+    The Braiins OS Public API's server is the miner itself. There is no Braiins-hosted endpoint
+    and no sandbox — every call reaches a physical machine.

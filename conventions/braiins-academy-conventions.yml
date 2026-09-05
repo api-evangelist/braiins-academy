@@ -1,0 +1,258 @@
+generated: '2026-09-04'
+method: searched
+source: >-
+  https://academy.braiins.com/braiins-hashpower/api.md,
+  https://academy.braiins.com/braiins-pool/monitoring.md,
+  https://academy.braiins.com/braiins-os/papi-about.md,
+  https://academy.braiins.com/braiins-os/factory-reset.md,
+  openapi/braiins-academy-braiins-hashpower-openapi.yml,
+  openapi/braiins-academy-braiins-os-public-rest-api-openapi.json
+description: >-
+  Cross-cutting runtime semantics across the three Braiins API surfaces. They do not share
+  conventions: Hashpower is a JSON REST market API on the public internet, the Braiins OS Public
+  API is a device-local contract offered over both gRPC and REST, and the Braiins Pool API is six
+  read-only JSON documents. An agent must treat them as three different APIs from one company.
+surfaces:
+  - id: hashpower
+    base_url: https://hashpower.braiins.com/v1
+    style: REST over HTTPS, JSON in and out
+    contract: openapi/braiins-academy-braiins-hashpower-openapi.yml
+  - id: bos
+    base_url: http://<miner>/api/v1
+    style: REST over HTTP on the device, and gRPC on TCP 50051
+    contract: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json
+    grpc: grpc/
+  - id: pool
+    base_url: https://pool.braiins.com
+    style: Read-only JSON documents, no contract published
+authentication:
+  hashpower:
+    scheme: API key in the `apikey` header
+    roles: owner (full incl. trading), read-only (market data + account viewing)
+    anonymous: /spot/orderbook, /spot/trades, /spot/bars, /spot/stats
+  bos:
+    scheme: Session token from POST /api/v1/auth/login, sent in the Authorization header
+    note: Authenticates against the individual miner, not a Braiins account.
+  pool:
+    scheme: Access-profile token in the Pool-Auth-Token (or X-Pool-Auth-Token) header
+  detail: authentication/braiins-academy-authentication.yml
+idempotency:
+  supported: false
+  coverage: none
+  mechanism: null
+  scope: []
+  detail: >-
+    No Braiins surface documents an idempotency key, a replay window, or safe-retry semantics for
+    any mutating operation. The nearest thing is Braiins Hashpower's `cl_order_id`, a
+    client-assigned bid identifier that spotPlaceBid accepts and spotEditBid / spotCancelBid can
+    address a bid by — but the docs and the spec describe it as an identifier for later reference,
+    never as a deduplication key, and nothing states what happens when the same cl_order_id is
+    submitted twice. Treating it as an idempotency key would be an assumption, not a documented
+    guarantee.
+  risk: >-
+    The mutating surface includes placing bids that reserve funds (spotPlaceBid), scheduling
+    contracts that reserve capital (scheduleContract), and physical device actions (reboot,
+    factory_reset, systemUpgrade, restoreStock). A retried request after a timeout has no defined
+    behaviour on any of them.
+  docs: null
+pagination:
+  hashpower:
+    style: time-window + limit
+    request_params:
+      from: RFC 3339 start of window on history endpoints
+      to: RFC 3339 end of window
+      limit: page size where supported
+    note: >-
+      No cursor and no has_more/next_page envelope field. History endpoints
+      (getContractActivity, getTransactions, spotGetMarketTrades) are windowed by time.
+  pool:
+    style: fixed window
+    note: >-
+      The Daily Reward API returns the last 90 days by default and accepts from/to as
+      YYYY-MM-DD. Pool Stats returns the last 15 blocks. No paging controls.
+  bos:
+    style: none
+    note: Device-local collections (hashboards, pools, logs) are small and returned whole.
+field_expansion:
+  supported: false
+metadata:
+  supported: false
+  note: >-
+    No arbitrary key-value store on any object. Hashpower's cl_order_id is the only
+    caller-supplied field that survives on a server-side record.
+request_tracing:
+  request_id_header: null
+  note: >-
+    No request-id header is documented or returned on any surface. Support correlation on the
+    Braiins OS side is done by pulling a support archive from the device
+    (GET /api/v1/miner/support-archive), not by quoting a request id.
+versioning:
+  detail: lifecycle/braiins-academy-lifecycle.yml
+  summary: >-
+    Path-versioned (/api/v1, /v1) with a separately semver-versioned contract on Braiins OS; the
+    Braiins Pool API is unversioned.
+error_envelope:
+  hashpower:
+    format: non-standard
+    rfc9457: false
+    detail: >-
+      Status codes are conventional (400/401/403/404/429 plus a `default` service error) but the
+      human-readable reason for a rejected request is returned in the `grpc-message` RESPONSE
+      HEADER, URL-encoded — not in the JSON body. Braiins documents this explicitly. A client that
+      reads only the body sees a bare status code.
+    example_header: 'grpc-message: Bid%20duration%20too%20short%20(estimate:%209.29,%20limit:%201800)'
+  bos:
+    format: prose descriptions only
+    rfc9457: false
+    detail: >-
+      The OpenAPI declares 400/401/404/409/412/500/501 on individual operations with a
+      description string and no response schema — there is no machine-readable error body.
+  detail_artifact: errors/braiins-academy-problem-types.yml
+rate_limit_signaling:
+  documented_limits: true
+  response_headers: []
+  detail: >-
+    Limits are published per operation in the Hashpower OpenAPI (100/min per credential,
+    100 or 500/min per client IP) and in prose for Braiins Pool (~1 request per 5 seconds), but
+    NO rate-limit response headers are documented on any surface — no X-RateLimit-*, no
+    RateLimit-*, no Retry-After. Hashpower returns 429 with a description that says to "retry
+    after reducing request frequency" and gives the client nothing to compute a delay from.
+    Braiins Pool escalates from silently ignoring requests to banning the client IP.
+  artifact: rate-limits/braiins-academy-rate-limits.yml
+reversibility:
+  grade: verified
+  applicable: true
+  summary: >-
+    Both write surfaces publish reversal paths, and Braiins Hashpower states the window inside
+    which each one works. Braiins OS reversals are unwindowed but unconditional — every setting
+    change has a documented "back to default" operation, and the firmware install itself has a
+    restore.
+  surfaces:
+    - id: hashpower
+      write_operations: 8
+      reversals:
+        - action: Place a spot bid
+          operation: spotPlaceBid
+          reversal: spotCancelBid
+          window: >-
+            Any time EXCEPT while the configured bid grace period is active — cancellation is
+            rejected during the grace period. The grace period value is readable at runtime from
+            GET /spot/settings (spotGetMarketSettings), which returns the market's grace periods
+            and edit timing rules.
+          window_stated: true
+          evidence: >-
+            openapi/braiins-academy-braiins-hashpower-openapi.yml — spotCancelBid description
+            ("cancellation can be rejected while the configured bid grace period is active") and
+            spotGetMarketSettings description.
+        - action: Schedule a fixed-duration contract
+          operation: scheduleContract
+          reversal: cancelContract
+          window: >-
+            Only before delivery starts — "Requests cancellation of a contract that has not
+            started delivery". Cancellation fees apply and are published in advance via
+            getCurrentContractCancelFees, which lists the active standard and time-limited
+            cancellation-fee layers.
+          window_stated: true
+          cost: >-
+            Non-zero and knowable before acting: GET /contract/cancel-fee returns the fee layers,
+            and POST /contract/quote returns the cancellation-weighted premium on the Contractual
+            Funding Tail for a proposed contract.
+          evidence: openapi/braiins-academy-braiins-hashpower-openapi.yml — cancelContract, getCurrentContractCancelFees, quoteContractCreation
+        - action: Run an active contract
+          operation: scheduleContract
+          reversal: terminateContract
+          window: >-
+            After delivery has begun and before scheduled expiry — "Permanently stops an active
+            caller-owned contract before its scheduled expiry". Termination is explicitly distinct
+            from cancelling a pending contract and "can trigger final accounting".
+          window_stated: true
+          evidence: openapi/braiins-academy-braiins-hashpower-openapi.yml — terminateContract
+        - action: Edit a bid
+          operation: spotEditBid
+          reversal: spotEditBid
+          window: >-
+            Partially reversible only. "Market timing and range rules can prevent price or
+            hashrate-limit decreases", and the hashrate limit "can be decreased only after this
+            many seconds have passed since the previous decrease" (a value returned by
+            spotGetMarketSettings). Raising a bid is not symmetrically undoable.
+          window_stated: true
+      dry_run:
+        supported: true
+        operations:
+          - quoteContractCreation
+          - checkContractSpeedAvailability
+        note: >-
+          Both are explicitly advisory — "does not reserve funds or capacity; scheduling
+          recomputes all checks". A real rehearse-before-you-act path, correctly labelled as
+          non-binding.
+    - id: bos
+      write_operations: 25
+      reversals:
+        - action: Change the power target
+          operation: setPowerTarget
+          reversal: setDefaultPowerTarget
+          window: unbounded — the default can be restored at any time
+          window_stated: false
+        - action: Change the hashrate target
+          operation: setHashrateTarget
+          reversal: setDefaultHashrateTarget
+          window: unbounded
+          window_stated: false
+        - action: Enable quick ramping
+          operation: setQuickRamping
+          reversal: setDefaultQuickRamping
+          window: unbounded
+          window_stated: false
+        - action: Change advanced settings
+          operation: setAdvancedSettings
+          reversal: resetAllAdvancedSettings
+          window: unbounded
+          window_stated: false
+        - action: Pause mining
+          operation: pauseMining
+          reversal: resumeMining
+          window: unbounded
+          window_stated: false
+        - action: Stop mining
+          operation: stop
+          reversal: start
+          window: unbounded
+          window_stated: false
+        - action: Install Braiins OS over stock firmware
+          operation: systemUpgrade
+          reversal: restoreStock
+          window: >-
+            Not stated. Braiins documents the restore-to-stock path (and the equivalent
+            `braiins-toolbox firmware restore`) but names no window or precondition.
+          window_stated: false
+        - action: Apply tuned performance profiles
+          operation: (tuner)
+          reversal: removeTunedProfiles
+          window: unbounded
+          window_stated: false
+      irreversible:
+        - operation: factory_reset
+          note: >-
+            Documented at https://academy.braiins.com/braiins-os/factory-reset.md — clears the
+            miner's configuration, optionally including network settings. Not reversible; the
+            docs describe what each reset method clears so an operator can judge before acting.
+        - operation: reboot
+          note: Not a state change to reverse, but it interrupts hashing.
+      dry_run:
+        supported: false
+        note: >-
+          getConstraints and getAdvancedSettingsSchema let a client validate a change against the
+          device's limits before sending it, which is preflight validation rather than a dry run.
+  na_reason: null
+webhooks:
+  supported: false
+  note: >-
+    No webhook or event surface on any Braiins API. Braiins Manager can notify on automation
+    events, but the docs state "Telegram is currently the only supported notification channel" —
+    there is no HTTP callback, so no AsyncAPI or webhook catalogue applies.
+cross_links:
+  errors: errors/braiins-academy-problem-types.yml
+  lifecycle: lifecycle/braiins-academy-lifecycle.yml
+  authentication: authentication/braiins-academy-authentication.yml
+  rate_limits: rate-limits/braiins-academy-rate-limits.yml
+  cli: cli/braiins-academy-cli.yml

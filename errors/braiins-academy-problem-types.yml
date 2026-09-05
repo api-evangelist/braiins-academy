@@ -1,0 +1,165 @@
+generated: '2026-09-04'
+method: derived
+source: >-
+  openapi/braiins-academy-braiins-hashpower-openapi.yml (components.responses + per-operation
+  4xx/5xx), openapi/braiins-academy-braiins-os-public-rest-api-openapi.json,
+  enriched from https://academy.braiins.com/braiins-hashpower/api.md and
+  https://academy.braiins.com/braiins-os/miner-states.md
+format: none
+rfc9457: false
+description: >-
+  Neither Braiins REST surface returns a machine-readable error body. Hashpower defines its error
+  responses as reusable components with descriptions but no schema, and puts the human-readable
+  reason in a URL-encoded `grpc-message` RESPONSE HEADER. Braiins OS declares status codes with
+  prose descriptions only. This catalogue is therefore a status-code registry plus the documented
+  meanings, not an RFC 9457 problem-type list — because there is nothing shaped like one to
+  harvest.
+envelope:
+  hashpower:
+    body: none — the reusable responses declare a description and no content schema
+    header: 'grpc-message'
+    header_encoding: URL-encoded UTF-8
+    header_example: 'Bid%20duration%20too%20short%20(estimate:%209.29,%20limit:%201800)'
+    remediation: >-
+      Clients must read and percent-decode the grpc-message response header to get any detail;
+      the status code alone does not say which field or rule failed.
+  bos:
+    body: none declared
+    header: none documented
+problem_types:
+  - surface: hashpower
+    status: 400
+    id: BadRequest
+    title: Bad Request
+    detail: >-
+      The path, query, or JSON body is invalid, violates a market rule, or contains mutually
+      exclusive fields.
+    occurrences: 29
+    remediation: >-
+      Decode grpc-message for the failing rule. Read GET /spot/settings first — the server
+      validates orders against the live tick size, order limits, grace periods and edit timing
+      rules returned there.
+  - surface: hashpower
+    status: 401
+    id: Unauthorized
+    title: Unauthorized
+    detail: The `apikey` header is missing or does not contain a valid API credential.
+    occurrences: 29
+    remediation: Send a valid Hashpower API token in the `apikey` header.
+  - surface: hashpower
+    status: 403
+    id: Forbidden
+    title: Forbidden
+    detail: >-
+      The API credential is valid but its ACL role or resource ownership does not permit this
+      operation.
+    occurrences: 29
+    remediation: >-
+      Trading operations require an owner token; a read-only token can view market data and
+      account records only. A 403 also fires when the addressed bid or contract belongs to
+      another account.
+  - surface: hashpower
+    status: 404
+    id: NotFound
+    title: Not Found
+    detail: The requested caller-visible resource does not exist.
+    occurrences: 12
+  - surface: hashpower
+    status: 429
+    id: TooManyRequests
+    title: Too Many Requests
+    detail: The applicable per-credential or per-client-IP request limit was exceeded.
+    occurrences: 35
+    remediation: >-
+      Reduce request frequency. No Retry-After or RateLimit-* header is returned, so the client
+      must back off on its own schedule against the published 100/min (per credential) or
+      100-500/min (per client IP) budgets.
+  - surface: hashpower
+    status: default
+    id: ServiceError
+    title: Service Error
+    detail: >-
+      The gateway or upstream service could not complete the request. The response body and
+      status depend on the failing boundary.
+    occurrences: 35
+    remediation: >-
+      Treat as retryable but note there is no idempotency key on this API — a retried
+      spotPlaceBid or scheduleContract after a `default` error has undefined replay behaviour.
+  - surface: bos
+    status: 400
+    title: Invalid request payload
+    detail: Declared on setPassword. Prose description, no schema.
+    occurrences: 1
+  - surface: bos
+    status: 401
+    title: Unauthorized
+    detail: Session token missing or invalid.
+    occurrences: 1
+  - surface: bos
+    status: 404
+    title: Not Found
+    occurrences: 1
+  - surface: bos
+    status: 409
+    title: Conflict
+    detail: The device is in a state that rejects the requested transition.
+    occurrences: 2
+  - surface: bos
+    status: 412
+    title: Precondition Failed
+    detail: A device constraint blocks the change; read GET /api/v1/configuration/constraints first.
+    occurrences: 1
+  - surface: bos
+    status: 500
+    title: Internal Server Error
+    occurrences: 4
+  - surface: bos
+    status: 501
+    title: Not Implemented
+    detail: The operation is not supported on this hardware model or firmware build.
+    occurrences: 1
+device_state_reasons:
+  note: >-
+    Braiins OS does publish a machine-readable failure vocabulary, but it lives in the miner
+    STATUS rather than in error responses — the MinerDetailedStatus status oneof added in Public
+    API 1.14.0. An agent diagnosing "why is this miner not hashing" reads this, not an error body.
+  source: >-
+    https://academy.braiins.com/braiins-os/miner-states.md,
+    grpc/braiins-academy-bos-miner.proto
+  reasons:
+    - id: ApplicationUnavailable
+      message: Mining software is not running
+    - id: UnsupportedHardware
+      message: 'Unsupported hardware: {detail}'
+    - id: DeadPools
+      message: All mining pools are unresponsive
+    - id: MissingLicense
+      message: No valid BOS license
+    - id: UserPause
+      message: Mining paused by user
+    - id: ThermalPause
+      message: 'Thermal protection activated: {detail}'
+      enum: ThermalPauseReason
+    - id: DpsCooldown
+      message: DPS cooldown, will resume {time}
+    - id: TunerError
+    - id: HardwareError
+    - id: DelayedStart
+    - id: CoolingDown
+    - id: WaitingWhileCold
+    - id: Defrosting
+    - id: Preheating
+    - id: Normal
+    - id: Unspecified
+gaps:
+  - >-
+    No error schema on either published contract — a code generator produces clients that cannot
+    type an error.
+  - >-
+    Putting the failure reason in a `grpc-message` header rather than the body is a leaked
+    gateway detail; it works, it is documented, and it is invisible to every generic OpenAPI
+    client.
+  - >-
+    Braiins OS firmware error codes referenced by the docs at
+    https://academy.braiins.com/braiins-os/technical-resources.md#error-codes could not be
+    harvested — that page returned an empty body on 2026-09-04.

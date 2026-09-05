@@ -1,0 +1,76 @@
+generated: '2026-09-04'
+method: searched
+source: >-
+  https://academy.braiins.com/braiins-hashpower/quick-start.md,
+  https://braiins.com/pool (Try Demo), https://pool.braiins.com/demo-login/,
+  openapi/braiins-academy-braiins-hashpower-openapi.yml
+description: >-
+  Braiins publishes two ways to try things without committing money, and neither is a developer
+  sandbox in the Stripe sense. There is no test-mode key prefix, no separate sandbox host, and no
+  fixture or trigger tooling on any surface.
+sandboxes:
+  - id: hashpower-demo-token
+    product: Braiins Hashpower
+    type: demo-credential
+    credential: demo
+    credential_field: apikey header
+    published_at: https://academy.braiins.com/braiins-hashpower/quick-start.md
+    published_text: >-
+      "Use `demo` as the API token to explore the platform. Demo mode provides simulated data for
+      testing."
+    probe:
+      url: https://hashpower.braiins.com/v1/account/balance
+      header: 'apikey: demo'
+      status: 401
+      date: '2026-09-04'
+      finding: >-
+        The documented demo token is rejected by the public /v1 API. It appears to unlock the
+        Hashpower web platform's demo mode rather than the API, or it has lapsed. Recorded as a
+        documented-but-unverified credential, not as a working API sandbox.
+  - id: hashpower-anonymous-market-data
+    product: Braiins Hashpower
+    type: no-auth-read-surface
+    note: >-
+      The closest thing to a working sandbox on this API: four market-data operations
+      (spotGetOrderbookSnapshot, spotGetMarketTrades, spotGetMarketBars, spotGetMarketStats) are
+      callable with no credential at all, against live production data, at 500 requests/minute
+      per client IP. An integrator can exercise the client, the pagination and the error paths
+      before ever holding a token.
+    probe:
+      url: https://hashpower.braiins.com/v1/spot/orderbook
+      status: 200
+      date: '2026-09-04'
+  - id: pool-demo-account
+    product: Braiins Pool
+    type: demo-account
+    url: https://pool.braiins.com/demo-login/
+    note: >-
+      A read-only demo of the Braiins Pool dashboard, linked from https://braiins.com/pool as
+      "Try Demo". It is a UI walkthrough; Braiins does not publish a demo access-profile token,
+      so the Pool JSON API cannot be exercised this way.
+  - id: bos-no-sandbox
+    product: Braiins OS Public API
+    type: none
+    note: >-
+      No sandbox and no simulator. The API's server is the miner (servers: http://miner/), so
+      exercising it requires a physical ASIC running Braiins OS 23.03+ with ports 22, 80 and
+      50051 reachable. Braiins' substitute is tooling rather than a test environment: documented
+      workflows for grpcurl, gRPCui and Postman against a real device
+      (https://academy.braiins.com/braiins-os/papi-tools.md), plus example code at
+      https://github.com/braiins/bos-plus-api-demos.
+test_data:
+  test_keys: []
+  key_prefixes: []
+  test_cards: []
+  time_simulation: false
+  fixtures: false
+  triggers: false
+findings:
+  - >-
+    No test/live key separation on any Braiins API. A Hashpower owner token places real bids
+    against real funds on its first call; the only rehearsal path is the API's own advisory
+    operations, quoteContractCreation and checkContractSpeedAvailability, which are explicitly
+    non-binding.
+  - >-
+    The one published test credential (`demo`) does not authenticate against the public API — a
+    documentation-versus-deployment gap worth reporting to Braiins.
