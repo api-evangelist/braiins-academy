@@ -52,78 +52,6 @@ description: 'Braiins is a Prague-based Bitcoin mining technology company that o
   API behind a paid tier. Braiins completed a SOC 2 Type 2 audit in 2025 and publishes a vulnerability
   disclosure policy with a five-business-day response commitment.'
 apis:
-- aid: braiins-academy:braiins-os-api
-  name: Braiins OS Public API
-  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/braiins-academy.png
-  tags:
-  - Mining Firmware
-  - ASIC
-  - Autotuning
-  - Performance
-  - Curtailment
-  - gRPC
-  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
-  baseURL: http://miner/api/v1
-  description: 'The Braiins OS Public API, introduced in Braiins OS 23.03, is the control contract for
-    a Bitcoin ASIC running Braiins OS. It is offered over gRPC (package braiins.bos.v1, TCP 50051) and,
-    since Braiins OS 25.07, over REST — Braiins states both transports provide the same functionality.
-    The API runs ON the miner: servers[] is http://miner/, so the host is each device on the operator''s
-    own network and there is no Braiins-hosted endpoint. 63 REST operations cover mining actions, performance
-    and power targeting, Dynamic Performance Scaling, cooling, pool groups, licensing, network configuration,
-    firmware upgrade and restore-to-stock, and a detailed miner status that reports the reason a machine
-    is not hashing. Every miner also self-serves its own OpenAPI at GET /api/v1/docs/openapi.json.'
-  properties:
-  - type: OpenAPI
-    url: openapi/braiins-academy-braiins-os-public-rest-api-openapi.json
-  - type: Protobuf
-    url: grpc/braiins-academy-bos-miner.proto
-  - type: Overlay
-    url: overlays/braiins-academy-braiins-os-public-rest-api-overlay.yaml
-  - type: Documentation
-    url: https://academy.braiins.com/braiins-os/papi-about.md
-  - type: APIReference
-    url: https://developer.braiins-os.com/latest/openapi.html
-  - type: SourceCode
-    url: https://github.com/braiins/bos-plus-api
-  - type: Examples
-    url: https://github.com/braiins/bos-plus-api-demos
-  - type: ChangeLog
-    url: https://academy.braiins.com/braiins-os/papi-changelog.md
-- aid: braiins-academy:braiins-hashpower-api
-  name: Braiins Hashpower API
-  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/braiins-academy.png
-  tags:
-  - Hashrate Marketplace
-  - Bitcoin
-  - Trading
-  - Contracts
-  - Market Data
-  humanURL: https://academy.braiins.com/braiins-hashpower/api.md
-  baseURL: https://hashpower.braiins.com/v1
-  description: 'Public HTTP API for the Braiins Hashpower marketplace: buying hashrate on the spot market,
-    scheduling fixed-duration contracts with guaranteed delivery, and reading account and market data.
-    35 operations across bid orders, contracts, accounts, market data and market configuration, published
-    as OpenAPI 3.1.0 and rendered in Scalar at https://hashpower.braiins.com/api. Authentication is an
-    API key in the apikey header, scoped by ACL role (owner for trading, read-only for viewing); the four
-    market-data operations are callable anonymously. Every operation publishes its own rate limit in the
-    contract. Notable for two advisory operations — quoteContractCreation and checkContractSpeedAvailability
-    — that let a caller cost and validate a contract without reserving funds or capacity. Braiins labels
-    Hashpower a beta product and the 0% spot bid fee is stated to apply during the beta period.'
-  properties:
-  - type: OpenAPI
-    url: openapi/braiins-academy-braiins-hashpower-openapi.yml
-  - type: Overlay
-    url: overlays/braiins-academy-braiins-hashpower-overlay.yaml
-  - type: Documentation
-    url: https://academy.braiins.com/braiins-hashpower/api.md
-  - type: APIReference
-    url: https://hashpower.braiins.com/api
-  - type: GettingStarted
-    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
-  - type: Pricing
-    url: https://academy.braiins.com/braiins-hashpower/fees.md
-  - type: TermsOfService
-    url: https://hashpower.braiins.com/terms-and-conditions.html
 - aid: braiins-academy:braiins-pool-api
   name: Braiins Pool API
   image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/braiins-academy.png
@@ -135,13 +63,14 @@ apis:
   - Statistics
   humanURL: https://academy.braiins.com/braiins-pool/monitoring.md
   baseURL: https://pool.braiins.com
-  description: 'Read-only JSON API for Braiins Pool, the oldest active Bitcoin mining pool (first block
-    2010, 1.29M+ BTC mined). Six documented endpoints: pool stats and recent blocks, user profile and
-    rewards, daily rewards over a date range, daily hashrate for a user or group, and block rewards. Authentication
-    is an access-profile token in the Pool-Auth-Token (or X-Pool-Auth-Token) header, generated per access
+  description: >-
+    Read-only JSON API for Braiins Pool, the oldest active Bitcoin mining pool (first block 2010, 1.29M+
+    BTC mined). Six documented endpoints: pool stats and recent blocks, user profile and rewards, daily
+    rewards over a date range, daily hashrate for a user or group, and block rewards. Authentication is
+    an access-profile token in the Pool-Auth-Token (or X-Pool-Auth-Token) header, generated per access
     profile after enabling "Allow access to web APIs". Braiins publishes a limit of approximately one
     request per five seconds and states that sustained excess can result in an IP ban. No machine-readable
-    contract is published — the endpoints and response fields are documented in prose tables only.'
+    contract is published — the endpoints and response fields are documented in prose tables only.
   properties:
   - type: Documentation
     url: https://academy.braiins.com/braiins-pool/monitoring.md
@@ -155,7 +84,587 @@ apis:
     url: https://braiins.com/pool/terms-and-conditions-braiins-mining-limited
   - type: PrivacyPolicy
     url: https://braiins.com/pool/braiins-pool-privacy-policy
+- aid: braiins-academy:braiins-academy-accounts-api
+  name: Braiins Accounts API
+  description: Read caller-owned balances and accounting transactions.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Accounts
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-accounts-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-actions-api
+  name: Braiins Actions API
+  description: The Actions API from Braiins — 8 operation(s) for actions.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Actions
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-actions-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-advanced-settings-api
+  name: Braiins Advanced Settings API
+  description: The Advanced Settings API from Braiins — 2 operation(s) for advanced settings.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Advanced Settings
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-advanced-settings-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-authentication-api
+  name: Braiins Authentication API
+  description: The Authentication API from Braiins — 2 operation(s) for authentication.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Authentication
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-authentication-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-bid-orders-api
+  name: Braiins Bid orders API
+  description: Create, update, cancel, and inspect caller-owned spot-market bids.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Bid orders
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-bid-orders-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-configuration-api
+  name: Braiins Configuration API
+  description: The Configuration API from Braiins — 2 operation(s) for configuration.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-configuration-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-contracts-api
+  name: Braiins Contracts API
+  description: Quote, schedule, manage, and inspect caller-owned fixed-duration contracts.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Contracts
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-contracts-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-cooling-api
+  name: Braiins Cooling API
+  description: The Cooling API from Braiins — 2 operation(s) for cooling.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Cooling
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-cooling-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-documentation-api
+  name: Braiins Documentation API
+  description: The Documentation API from Braiins — 1 operation(s) for documentation.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Documentation
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-documentation-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-license-api
+  name: Braiins License API
+  description: The License API from Braiins — 2 operation(s) for license.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - License
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-license-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-market-configuration-api
+  name: Braiins Market configuration API
+  description: Spot-market rules, units, and fees needed to construct valid orders.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Market configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-market-configuration-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-market-data-api
+  name: Braiins Market data API
+  description: Public statistics, order-book snapshots, trades, and OHLCV bars.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Market data
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-market-data-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-miner-api
+  name: Braiins Miner API
+  description: The Miner API from Braiins — 8 operation(s) for miner.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Miner
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-miner-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-network-api
+  name: Braiins Network API
+  description: The Network API from Braiins — 2 operation(s) for network.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Network
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-network-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-performance-api
+  name: Braiins Performance API
+  description: The Performance API from Braiins — 18 operation(s) for performance.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Performance
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-performance-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-pools-api
+  name: Braiins Pools API
+  description: The Pools API from Braiins — 3 operation(s) for pools.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Pools
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-pools-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-upgrade-api
+  name: Braiins Upgrade API
+  description: The Upgrade API from Braiins — 3 operation(s) for upgrade.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Upgrade
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-upgrade-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
+- aid: braiins-academy:braiins-academy-version-api
+  name: Braiins Version API
+  description: The Version API from Braiins — 1 operation(s) for version.
+  humanURL: https://academy.braiins.com/braiins-os/papi-about.md
+  baseURL: http://miner/api/v1
+  tags:
+  - Version
+  properties:
+  - type: OpenAPI
+    url: openapi/braiins-academy-version-api-openapi.yml
+  - type: Protobuf
+    url: grpc/braiins-academy-bos-miner.proto
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-os/papi-about.md
+  - type: APIReference
+    url: https://developer.braiins-os.com/latest/openapi.html
+  - type: SourceCode
+    url: https://github.com/braiins/bos-plus-api
+  - type: Examples
+    url: https://github.com/braiins/bos-plus-api-demos
+  - type: ChangeLog
+    url: https://academy.braiins.com/braiins-os/papi-changelog.md
+  - type: Documentation
+    url: https://academy.braiins.com/braiins-hashpower/api.md
+  - type: APIReference
+    url: https://hashpower.braiins.com/api
+  - type: GettingStarted
+    url: https://academy.braiins.com/braiins-hashpower/quick-start.md
+  - type: Pricing
+    url: https://academy.braiins.com/braiins-hashpower/fees.md
+  - type: TermsOfService
+    url: https://hashpower.braiins.com/terms-and-conditions.html
 common:
+- type: Overlay
+  url: overlays/braiins-academy-braiins-os-public-rest-api-overlay.yaml
+- type: Overlay
+  url: overlays/braiins-academy-braiins-hashpower-overlay.yaml
 - type: Website
   url: https://braiins.com
 - type: DeveloperPortal
