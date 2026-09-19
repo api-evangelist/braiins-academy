@@ -90,6 +90,8 @@ apis:
   humanURL: https://academy.braiins.com/braiins-os/papi-about.md
   baseURL: http://miner/api/v1
   tags:
+  - Account
+  tags_raw:
   - Accounts
   properties:
   - type: OpenAPI
@@ -442,6 +444,8 @@ apis:
   humanURL: https://academy.braiins.com/braiins-os/papi-about.md
   baseURL: http://miner/api/v1
   tags:
+  - Market Data
+  tags_raw:
   - Market data
   properties:
   - type: OpenAPI
@@ -506,6 +510,8 @@ apis:
   humanURL: https://academy.braiins.com/braiins-os/papi-about.md
   baseURL: http://miner/api/v1
   tags:
+  - Networks
+  tags_raw:
   - Network
   properties:
   - type: OpenAPI
