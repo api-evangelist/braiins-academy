@@ -1,0 +1,1024 @@
+openapi: 3.2.0
+info:
+  title: Braiins OS Public REST Performance API
+  description: ''
+  contact:
+    name: Braiins
+    url: https://help.braiins.com
+    email: help@braiins.com
+  license:
+    name: ''
+  version: 1.7.0
+servers:
+- url: http://miner/
+tags:
+- name: Performance
+paths:
+  /api/v1/performance/dps:
+    put:
+      tags:
+      - Performance
+      summary: Set DPS (Dynamic Performance Scaling)
+      description: Sets DPS for the miner, including DPS enable flag, DPS shutdown enable flag, DPS shutdown duration, DPS target, DPS mode and initial target for DPS.
+      operationId: setDps
+      requestBody:
+        description: Save action (deprecated), DPS enable flag, DPS shutdown enable flag, DPS shutdown duration, DPS target, DPS mode and initial target for DPS.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetDpsRequestRest'
+            example:
+              enable: true
+              enable_shutdown: true
+              mode: 1
+              on_start_target_percent: 100
+              save_action: null
+              shutdown_duration:
+                hours: 4
+              target:
+                target:
+                  powertarget:
+                    min_power_target:
+                      watt: 3210
+                    power_step:
+                      watt: 20
+        required: true
+      responses:
+        '200':
+          description: Successful response containing DPS settings.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetDpsResponse'
+              example:
+                enabled: true
+                hashrate_target: null
+                mode: 1
+                on_start_target_percent: 100
+                power_target:
+                  min_power_target:
+                    watt: 3210
+                  power_step:
+                    watt: 20
+                shutdown_duration:
+                  hours: 4
+                shutdown_enabled: true
+  /api/v1/performance/efficiency-profile:
+    get:
+      tags:
+      - Performance
+      summary: Get miner efficiency profile
+      description: Fetches miner's efficiency profile, a list of performance curve points sorted by ascending power target.
+      operationId: getEfficiencyProfile
+      responses:
+        '200':
+          description: Successful response containing miner efficiency profile points.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMinerEfficiencyProfileResponse'
+              example:
+                points:
+                - ambient_temp:
+                    degree_c: 6.166664123535156
+                  consumption:
+                    watt: 944
+                  fan_speed: 25
+                  frequency:
+                    hertz: 210401396.0
+                  hashrate:
+                    terahash_per_second: 38.579544502568424
+                  outlet_temp:
+                    degree_c: 40.45505142211914
+                  power_target:
+                    watt: 900
+                  quality: 1
+                  voltage:
+                    volt: 11.966
+        '412':
+          description: BOSminer is not running.
+        '500':
+          description: Internal server error.
+  /api/v1/performance/hashrate-target:
+    put:
+      tags:
+      - Performance
+      summary: Set hashrate target
+      description: Sets hashrate target for the miner.
+      operationId: setHashrateTarget
+      requestBody:
+        description: Hashrate target to be set.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeraHashrate'
+            example:
+              terahash_per_second: 190.0
+        required: true
+      responses:
+        '200':
+          description: Successful response containing hashrate target (Th/s).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeraHashrate'
+              example:
+                terahash_per_second: 190.0
+  /api/v1/performance/hashrate-target/decrement:
+    patch:
+      tags:
+      - Performance
+      summary: Decrement hashrate target
+      description: Decrements hashrate target for the miner by a set value.
+      operationId: decrementHashrateTarget
+      requestBody:
+        description: Hashrate target decrement.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeraHashrate'
+            example:
+              terahash_per_second: 10.0
+        required: true
+      responses:
+        '200':
+          description: Successful response containing hashrate target (Th/s).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeraHashrate'
+              example:
+                terahash_per_second: 190.0
+  /api/v1/performance/hashrate-target/default:
+    put:
+      tags:
+      - Performance
+      summary: Set default hashrate target
+      description: Sets default hashrate target for the miner.
+      operationId: setDefaultHashrateTarget
+      responses:
+        '200':
+          description: Successful response containing hashrate target (Th/s).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeraHashrate'
+              example:
+                terahash_per_second: 190.0
+  /api/v1/performance/hashrate-target/increment:
+    patch:
+      tags:
+      - Performance
+      summary: Increment hashrate target
+      description: Increments hashrate target for the miner by a set value.
+      operationId: incrementHashrateTarget
+      requestBody:
+        description: Hashrate target increment.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeraHashrate'
+            example:
+              terahash_per_second: 10.0
+        required: true
+      responses:
+        '200':
+          description: Successful response containing hashrate target (Th/s).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeraHashrate'
+              example:
+                terahash_per_second: 190.0
+  /api/v1/performance/hashrate-target/relative:
+    patch:
+      tags:
+      - Performance
+      summary: Set hashrate target to a relative reference
+      description: Sets hashrate target to a relative reference by a set percentage.
+      operationId: relativeHashrateTarget
+      requestBody:
+        description: Set relative target
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRelativeTargetRequestRest'
+            example:
+              percentage: 85.5
+              reference: 1
+        required: true
+      responses:
+        '200':
+          description: Successful response containing hashrate target (Th/s).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeraHashrate'
+              example:
+                terahash_per_second: 190.0
+  /api/v1/performance/mode:
+    get:
+      tags:
+      - Performance
+      summary: Get performance mode
+      description: Fetches miner's performance mode, including manual or tuner mode.
+      operationId: getPerformanceMode
+      responses:
+        '200':
+          description: Successful response containing performance mode.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceModeMode'
+              example:
+                tunermode:
+                  target:
+                    powertarget:
+                      power_target:
+                        watt: 2000
+    put:
+      tags:
+      - Performance
+      summary: Set performance mode
+      description: Sets performance mode for the miner.
+      operationId: setPerformanceMode
+      requestBody:
+        description: Performance mode.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PerformanceModeMode'
+            example:
+              tunermode:
+                target:
+                  powertarget:
+                    power_target:
+                      watt: 2000
+        required: true
+      responses:
+        '200':
+          description: Successful response containing performance mode.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceModeMode'
+              example:
+                tunermode:
+                  target:
+                    powertarget:
+                      power_target:
+                        watt: 2000
+  /api/v1/performance/power-target:
+    put:
+      tags:
+      - Performance
+      summary: Set power target
+      description: Sets power target for the miner.
+      operationId: setPowerTarget
+      requestBody:
+        description: Power target to be set.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Power'
+            example:
+              watt: 3730
+        required: true
+      responses:
+        '200':
+          description: Successful response containing power target (watt).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Power'
+              example:
+                watt: 3730
+  /api/v1/performance/power-target/decrement:
+    patch:
+      tags:
+      - Performance
+      summary: Decrement power target
+      description: Decrements power target for the miner by a set value.
+      operationId: decrementPowerTarget
+      requestBody:
+        description: Power target decrement.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Power'
+            example:
+              watt: 100
+        required: true
+      responses:
+        '200':
+          description: Successful response containing power target (watt).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Power'
+              example:
+                watt: 3730
+  /api/v1/performance/power-target/default:
+    put:
+      tags:
+      - Performance
+      summary: Set default power target
+      description: Sets default power target for the miner.
+      operationId: setDefaultPowerTarget
+      responses:
+        '200':
+          description: Successful response containing power target (watt).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Power'
+              example:
+                watt: 3730
+  /api/v1/performance/power-target/increment:
+    patch:
+      tags:
+      - Performance
+      summary: Increment power target
+      description: Increments power target for the miner by a set value.
+      operationId: incrementPowerTarget
+      requestBody:
+        description: Save action and power target increment.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Power'
+            example:
+              watt: 100
+        required: true
+      responses:
+        '200':
+          description: Successful response containing power target (watt).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Power'
+              example:
+                watt: 3730
+  /api/v1/performance/power-target/relative:
+    patch:
+      tags:
+      - Performance
+      summary: Set power target to a relative reference
+      description: Sets power target to a relative reference by a set percentage.
+      operationId: relativePowerTarget
+      requestBody:
+        description: Set relative target
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRelativeTargetRequestRest'
+            example:
+              percentage: 85.5
+              reference: 1
+        required: true
+      responses:
+        '200':
+          description: Successful response containing power target (watt).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Power'
+              example:
+                watt: 3730
+  /api/v1/performance/quick-ramping:
+    put:
+      tags:
+      - Performance
+      summary: Set quick ramping
+      description: Sets quick ramping up and down times for the miner (used in curtailments).
+      operationId: setQuickRamping
+      requestBody:
+        description: Quick ramping up and down times to be set.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetQuickRampingRequestRest'
+            example:
+              down_s: 2
+              up_s: 5
+        required: true
+      responses:
+        '200':
+          description: Successful response containing quick ramping up and down times (s).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuickRampingResponse'
+              example:
+                down_s: 2
+                up_s: 5
+  /api/v1/performance/quick-ramping/default:
+    put:
+      tags:
+      - Performance
+      summary: Set default quick ramping
+      description: Sets default quick ramping up and down times for the miner (used in curtailments).
+      operationId: setDefaultQuickRamping
+      responses:
+        '200':
+          description: Successful response containing quick ramping up and down times (s).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuickRampingResponse'
+              example:
+                down_s: 2
+                up_s: 5
+  /api/v1/performance/target-profiles:
+    get:
+      tags:
+      - Performance
+      summary: Get target profiles
+      description: Fetches miner's target profiles, including power and hashrate target profiles.
+      operationId: getTargetProfiles
+      responses:
+        '200':
+          description: Successful response containing target profiles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTargetProfilesRequest'
+              example:
+                hashrate_target_profiles: []
+                power_target_profiles:
+                - created:
+                    nanos: 0
+                    seconds: 1744000000
+                  estimated_power_consumption:
+                    watt: 2000
+                  measured_hashrate:
+                    gigahash_per_second: 12345.0
+                  target:
+                    watt: 2000
+  /api/v1/performance/tuned-profiles:
+    delete:
+      tags:
+      - Performance
+      summary: Remove tuner profiles
+      description: Removes tuner profiles. If it was mining before stops and then starts mining.
+      operationId: removeTunedProfiles
+      responses:
+        '204':
+          description: Tuned profiles successfully removed.
+  /api/v1/performance/tuner-state:
+    get:
+      tags:
+      - Performance
+      summary: Get tuner state
+      description: Fetches miner's tuner state, including overall tuner state and power or hashrate mode both including profile and current target.
+      operationId: getTunerState
+      responses:
+        '200':
+          description: Successful response containing tuner state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTunerStateResponse'
+              example:
+                mode_state:
+                  powertargetmodestate:
+                    current_target:
+                      watt: 3000
+                    profile:
+                      created:
+                        nanos: 0
+                        seconds: 1744000000
+                      estimated_power_consumption:
+                        watt: 3000
+                      measured_hashrate:
+                        gigahash_per_second: 12345.0
+                      target:
+                        watt: 3000
+                overall_tuner_state: 1
+components:
+  schemas:
+    HashrateTargetProfile:
+      type: object
+      description: Structure to handle hashrate target profile
+      properties:
+        created:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Timestamp'
+            description: Creation timestamp
+        estimated_power_consumption:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Estimated power consumption
+        measured_hashrate:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+            description: Measured hashrate
+        target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+            description: Tuned hashrate target
+    DPSTargetTarget:
+      oneOf:
+      - type: object
+        description: Power target settings for Dynamic Performance Scaling
+        required:
+        - powertarget
+        properties:
+          powertarget:
+            $ref: '#/components/schemas/DpsPowerTarget'
+            description: Power target settings for Dynamic Performance Scaling
+      - type: object
+        description: Hashrate target settings for Dynamic Performance Scaling
+        required:
+        - hashratetarget
+        properties:
+          hashratetarget:
+            $ref: '#/components/schemas/DpsHashrateTarget'
+            description: Hashrate target settings for Dynamic Performance Scaling
+    QuickRampingResponse:
+      type: object
+      required:
+      - up_s
+      - down_s
+      properties:
+        down_s:
+          type: integer
+          format: int32
+          description: Quick ramping time down in seconds when PAUSING the miner. Sets how fast the miner will power off. Used in curtailments
+          minimum: 0
+        up_s:
+          type: integer
+          format: int32
+          description: Quick ramping time up in seconds when RESUMING the miner. Sets how fast the miner will power up. Used in curtailments
+          minimum: 0
+    PowerTargetMode:
+      type: object
+      properties:
+        power_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Power target
+    Hours:
+      type: object
+      required:
+      - hours
+      properties:
+        hours:
+          type: integer
+          format: int32
+          minimum: 0
+    ManualPerformanceMode:
+      type: object
+      required:
+      - hashboards
+      properties:
+        global_frequency:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Frequency'
+            description: Global hashboard frequency
+        global_voltage:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Voltage'
+            description: Global hashboard voltage
+        hashboards:
+          type: array
+          items:
+            $ref: '#/components/schemas/HashboardPerformanceSettings'
+          description: Per hashboard frequency/voltage. It has higher priority than global one
+    SetDpsRequestRest:
+      type: object
+      properties:
+        enable:
+          type:
+          - boolean
+          - 'null'
+          description: Flag if Dynamic Performance Scaling should be enabled
+        enable_shutdown:
+          type:
+          - boolean
+          - 'null'
+          description: Flag if shutdown for Dynamic Performance Scaling should be enabled
+        mode:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Dynamic Performance Scaling mode
+        on_start_target_percent:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Initial target for Dynamic Performance Scaling in percent
+          minimum: 0
+        save_action:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Save action (deprecated, value is ignored)
+          deprecated: true
+        shutdown_duration:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Hours'
+            description: Dynamic Performance Scaling shutdown duration
+        target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/DpsTarget'
+            description: Dynamic Performance Scaling target
+    SetDpsResponse:
+      type: object
+      properties:
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Flag if Dynamic Performance Scaling is enabled
+        hashrate_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/DpsHashrateTarget'
+            description: Dynamic Performance Scaling hashrate target
+        mode:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Dynamic Performance Scaling mode
+        on_start_target_percent:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Initial target for Dynamic Performance Scaling in percent
+          minimum: 0
+        power_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/DpsPowerTarget'
+            description: Dynamic Performance Scaling Power target
+        shutdown_duration:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Hours'
+            description: Dynamic Performance Scaling shutdown duration
+        shutdown_enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Flag if shutdown for Dynamic Performance Scaling should be enabled
+    TunerPerformanceMode:
+      type: object
+      properties:
+        target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TunerPerformanceModeTarget'
+    SetRelativeTargetRequestRest:
+      type: object
+      required:
+      - percentage
+      - reference
+      properties:
+        percentage:
+          type: number
+          format: double
+          description: Percentage value to set (e.g., 85.5 for 85.5%)
+        reference:
+          type: integer
+          format: int32
+          description: 'Reference point from which the percentage is calculated<br>
+
+            1 = nominal - use nominal (sticker) power/hashrate target as the reference<br>
+
+            2 = min - use minimal power/hashrate target as the reference<br>
+
+            3 = max - use maximal power/hashrate target as the reference<br>
+
+            4 = current - use current power/hashrate target as the reference<br>'
+    HashrateTargetModeState:
+      type: object
+      properties:
+        current_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+            description: Current hashrate target
+        profile:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/HashrateTargetProfile'
+            description: Currently used profile
+    GigaHashrate:
+      type: object
+      required:
+      - gigahash_per_second
+      properties:
+        gigahash_per_second:
+          type: number
+          format: double
+    SetQuickRampingRequestRest:
+      type: object
+      required:
+      - up_s
+      - down_s
+      properties:
+        down_s:
+          type: integer
+          format: int32
+          minimum: 0
+        up_s:
+          type: integer
+          format: int32
+          minimum: 0
+    ListTargetProfilesRequest:
+      type: object
+    PerformanceModeMode:
+      oneOf:
+      - type: object
+        required:
+        - manualmode
+        properties:
+          manualmode:
+            $ref: '#/components/schemas/ManualPerformanceMode'
+      - type: object
+        required:
+        - tunermode
+        properties:
+          tunermode:
+            $ref: '#/components/schemas/TunerPerformanceMode'
+    Timestamp:
+      type: object
+      description: 'Custom version of google.protobuf.Timestamp
+
+        It is used only during compilation to replace google.protobuf.Timestamp to
+
+        enable traits for de/serialization and for generating documentation'
+      required:
+      - seconds
+      - nanos
+      properties:
+        nanos:
+          type: integer
+          format: int32
+        seconds:
+          type: integer
+          format: int64
+    Frequency:
+      type: object
+      required:
+      - hertz
+      properties:
+        hertz:
+          type: number
+          format: double
+    PowerTargetProfile:
+      type: object
+      description: Structure to handle power target profile
+      properties:
+        created:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Timestamp'
+            description: Creation timestamp
+        estimated_power_consumption:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Estimated power consumption
+        measured_hashrate:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+            description: Measured hashrate
+        target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Tuned power target
+    TeraHashrate:
+      type: object
+      required:
+      - terahash_per_second
+      properties:
+        terahash_per_second:
+          type: number
+          format: double
+    PowerTargetModeState:
+      type: object
+      properties:
+        current_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Current power target
+        profile:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PowerTargetProfile'
+            description: current power target profile
+    TunerPerformanceModeTarget:
+      oneOf:
+      - type: object
+        description: Tuner power target
+        required:
+        - powertarget
+        properties:
+          powertarget:
+            $ref: '#/components/schemas/PowerTargetMode'
+            description: Tuner power target
+      - type: object
+        description: Tuner hashrate target
+        required:
+        - hashratetarget
+        properties:
+          hashratetarget:
+            $ref: '#/components/schemas/HashrateTargetMode'
+            description: Tuner hashrate target
+    ModeState:
+      oneOf:
+      - type: object
+        required:
+        - powertargetmodestate
+        properties:
+          powertargetmodestate:
+            $ref: '#/components/schemas/PowerTargetModeState'
+      - type: object
+        required:
+        - hashratetargetmodestate
+        properties:
+          hashratetargetmodestate:
+            $ref: '#/components/schemas/HashrateTargetModeState'
+    DpsTarget:
+      type: object
+      properties:
+        target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/DPSTargetTarget'
+    Temperature:
+      type: object
+      required:
+      - degree_c
+      properties:
+        degree_c:
+          type: number
+          format: double
+    DpsPowerTarget:
+      type: object
+      properties:
+        min_power_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Dynamic Performance Scaling minimal power target
+        power_step:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Dynamic Performance Scaling power step
+    DpsHashrateTarget:
+      type: object
+      properties:
+        hashrate_step:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+            description: Dynamic Performance Scaling hashrate step
+        min_hashrate_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+            description: Dynamic Performance Scaling minimal hashrate target
+    Voltage:
+      type: object
+      required:
+      - volt
+      properties:
+        volt:
+          type: number
+          format: double
+    GetMinerEfficiencyProfileResponse:
+      type: object
+      description: Miner efficiency profile curve
+      required:
+      - points
+      properties:
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/MinerEfficiencyPoint'
+          description: 'Efficiency curve points ordered by ascending power target. The number of points varies by miner model (typically 6
+
+            to 20 points).'
+    GetTunerStateResponse:
+      type: object
+      description: Response with the current tuner details
+      required:
+      - overall_tuner_state
+      properties:
+        mode_state:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/ModeState'
+        overall_tuner_state:
+          type: integer
+          format: int32
+          description: Tuner state
+    HashboardPerformanceSettings:
+      type: object
+      required:
+      - id
+      properties:
+        frequency:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Frequency'
+            description: Hashboard frequency
+        id:
+          type: string
+          description: Hashboard id
+        voltage:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Voltage'
+            description: Hashboard voltage
+    Power:
+      type: object
+      required:
+      - watt
+      properties:
+        watt:
+          type: integer
+          format: int64
+          minimum: 0
+    HashrateTargetMode:
+      type: object
+      properties:
+        hashrate_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+            description: Hashrate target
+    MinerEfficiencyPoint:
+      type: object
+      description: Single point on the miner efficiency curve
+      required:
+      - quality
+      - fan_speed
+      properties:
+        ambient_temp:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Estimated ambient temperature
+        consumption:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Estimated power consumption
+        fan_speed:
+          type: integer
+          format: int32
+          description: Estimated fan speed expressed as a value between 0 and 100 (PWM)
+          maximum: 100
+          minimum: 0
+        frequency:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Frequency'
+            description: Estimated frequency
+        hashrate:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+            description: Estimated hashrate
+        outlet_temp:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Estimated outlet temperature
+        power_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Power target
+        quality:
+          type: integer
+          format: int32
+          description: Number of tuned profiles used to interpolate the curve from
+          minimum: 0
+        voltage:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Voltage'
+            description: Estimated voltage

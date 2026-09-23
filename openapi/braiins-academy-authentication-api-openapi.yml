@@ -1,0 +1,103 @@
+openapi: 3.2.0
+info:
+  title: Braiins OS Public REST Authentication API
+  description: ''
+  contact:
+    name: Braiins
+    url: https://help.braiins.com
+    email: help@braiins.com
+  license:
+    name: ''
+  version: 1.7.0
+servers:
+- url: http://miner/
+tags:
+- name: Authentication
+paths:
+  /api/v1/auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: User login
+      description: Authenticates a user using their username and password. If the credentials are valid, a token is returned, which should be included in the `Authorization` header of subsequent requests.
+      operationId: login
+      requestBody:
+        description: User login credentials, including username and password.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              password: '1234'
+              username: root
+        required: true
+      responses:
+        '200':
+          description: Successful login. Returns an authentication token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+  /api/v1/auth/password:
+    put:
+      tags:
+      - Authentication
+      summary: Set or remove user password
+      description: Allows a user to set or update their password. To remove the password, set the `password` field to `null`. This operation requires authentication.
+      operationId: setPassword
+      requestBody:
+        description: Payload containing the new password. If the password field is null, the password will be removed.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPasswordRequest'
+            example:
+              password: '1234'
+        required: true
+      responses:
+        '204':
+          description: Password successfully set or removed.
+        '400':
+          description: Invalid request payload.
+        '401':
+          description: Unauthorized. User must be authenticated.
+        '500':
+          description: Internal server error.
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      description: Request for login action.
+      required:
+      - username
+      - password
+      properties:
+        password:
+          type: string
+        username:
+          type: string
+    SetPasswordRequest:
+      type: object
+      description: Request for set password action.
+      properties:
+        password:
+          type:
+          - string
+          - 'null'
+    LoginResponse:
+      type: object
+      description: Response for login action.
+      required:
+      - token
+      - timeout_s
+      properties:
+        timeout_s:
+          type: integer
+          format: int32
+          description: 'Authentication token validity/timeout in seconds.
+
+            Token validity refreshed to this value with each request.'
+          minimum: 0
+        token:
+          type: string
+          description: Token to be used for authentication

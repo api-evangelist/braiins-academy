@@ -1,0 +1,260 @@
+openapi: 3.2.0
+info:
+  title: Braiins Hashpower Market configuration API
+  description: 'Public HTTP API for buying hashrate on the spot market, scheduling fixed-duration
+
+    contracts, and reading account and market data.'
+  version: 1.0.0
+servers:
+- url: https://hashpower.braiins.com/v1
+  description: Production public API
+security:
+- ApiKey: []
+tags:
+- name: Market configuration
+  description: Spot-market rules, units, and fees needed to construct valid orders.
+paths:
+  /spot/settings:
+    get:
+      summary: Retrieve market settings & rules
+      description: 'Returns the active spot-market status, price tick, hashrate unit, order limits, grace periods, and edit timing rules. Read this resource before placing or editing a bid because the server validates orders against these values.
+
+
+        **Access:** API key required; allowed ACLs: `staff`, `owner`, `read-only`.
+
+
+        **Rate limit:** 100 requests/minute per API credential.'
+      tags:
+      - Market configuration
+      operationId: spotGetMarketSettings
+      x-required-acl:
+      - staff
+      - owner
+      - read-only
+      x-rate-limit: 100 requests/minute per API credential
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/ServiceError'
+  /spot/fee:
+    get:
+      summary: Get spot market fee structure
+      description: 'Returns the caller-visible spot trading fee schedule used when bid trades settle. Read it together with market settings when estimating order cost.
+
+
+        **Access:** API key required; allowed ACLs: `staff`, `owner`, `read-only`.
+
+
+        **Rate limit:** 100 requests/minute per API credential.'
+      tags:
+      - Market configuration
+      operationId: getFeeStructure
+      x-required-acl:
+      - staff
+      - owner
+      - read-only
+      x-rate-limit: 100 requests/minute per API credential
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFeeStructureResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/ServiceError'
+components:
+  schemas:
+    SpotMarketFeeType:
+      type: string
+      description: '* SPOT_FEE_TYPE_UNSPECIFIED
+
+        * SPOT_FEE_TYPE_BUY - Continuous spot buy fee. Only percentage_fee_rate is used.
+
+        * SPOT_FEE_TYPE_SELL - Continuous spot sell fee. Only percentage_fee_rate is used.
+
+        * SPOT_FEE_TYPE_PLACEMENT - Fee for placing a new order. Both percentage_fee_rate and abs_fee are used.
+
+        * SPOT_FEE_TYPE_CANCEL - Fee for canceling an order. Both percentage_fee_rate and abs_fee are used.
+
+        * SPOT_FEE_TYPE_EDIT - Fee for editing an order. Both percentage_fee_rate and abs_fee are used.'
+      enum:
+      - SPOT_FEE_TYPE_UNSPECIFIED
+      - SPOT_FEE_TYPE_BUY
+      - SPOT_FEE_TYPE_SELL
+      - SPOT_FEE_TYPE_PLACEMENT
+      - SPOT_FEE_TYPE_CANCEL
+      - SPOT_FEE_TYPE_EDIT
+    FeeSpec:
+      description: Generic fee specification. Allows to specify a fee w/ percents for now.
+      type: object
+      required:
+      - fee_rate_pct
+      properties:
+        fee_rate_pct:
+          $ref: '#/components/schemas/Double'
+          description: Fee rate in percents
+    Uint32:
+      type: integer
+      format: uint32
+      minimum: 0
+      maximum: 4294967295
+    SpotFeePublic:
+      type: object
+      required:
+      - symbol
+      - fee_type
+      - fee
+      properties:
+        symbol:
+          type: string
+        fee_type:
+          $ref: '#/components/schemas/SpotMarketFeeType'
+        fee:
+          $ref: '#/components/schemas/FeeSpec'
+    MarketSettings:
+      type: object
+      required:
+      - status
+      - tick_size_sat
+      - hr_multiplier_log10
+      - hr_unit
+      - min_bid_price_sat
+      - max_bid_price_sat
+      - min_ask_price_sat
+      - max_ask_price_sat
+      - min_bid_amount_sat
+      - max_bid_amount_sat
+      - min_bid_speed_limit_ph
+      - max_bid_speed_limit_ph
+      - max_bid_idle_time_s
+      - created
+      - max_bids_per_subaccount
+      - max_asks_per_subaccount
+      - bid_grace_period_s
+      - ask_grace_period_s
+      - min_bid_price_decrease_period_s
+      - min_bid_speed_limit_decrease_period_s
+      - min_limited_bid_amount_sat
+      - max_limited_bid_amount_sat
+      - min_limited_bid_duration_s
+      properties:
+        status:
+          $ref: '#/components/schemas/SpotInstrumentStatus'
+        tick_size_sat:
+          $ref: '#/components/schemas/Double'
+          description: Order book decimalization step in satoshi.
+        hr_multiplier_log10:
+          $ref: '#/components/schemas/Int32'
+          description: Market base-10 exponent for hashrate units. For example, 18 makes EH/day the base unit.
+          examples:
+          - 18
+        hr_unit:
+          type: string
+          description: Human readable market log10 multiplier, e.g. 18 -> "EH/day", 17 -> "100PH/day"
+          examples:
+          - EH/day
+          - 100PH/day
+          - 10PH/day
+        min_bid_price_sat:
+          $ref: '#/components/schemas/Double'
+        max_bid_price_sat:
+          $ref: '#/components/schemas/Double'
+        min_ask_price_sat:
+          $ref: '#/components/schemas/Double'
+        max_ask_price_sat:
+          $ref: '#/components/schemas/Double'
+        min_bid_amount_sat:
+          $ref: '#/components/schemas/Double'
+          description: Minimum bid amount for bids with no hashrate limit in satoshi.
+        max_bid_amount_sat:
+          $ref: '#/components/schemas/Double'
+          description: Maximum bid amount for bids with no hashrate limit in satoshi.
+        min_bid_speed_limit_ph:
+          $ref: '#/components/schemas/Double'
+        max_bid_speed_limit_ph:
+          $ref: '#/components/schemas/Double'
+        max_bid_idle_time_s:
+          $ref: '#/components/schemas/Uint32'
+          description: Max allowed idle time for any bid in seconds. For example 7 days = 604800.
+        created:
+          type: string
+          format: date-time
+        max_bids_per_subaccount:
+          $ref: '#/components/schemas/Uint32'
+        max_asks_per_subaccount:
+          $ref: '#/components/schemas/Uint32'
+        bid_grace_period_s:
+          $ref: '#/components/schemas/Uint32'
+          description: Minimum period required to be able to cancel a bid in seconds.
+        ask_grace_period_s:
+          $ref: '#/components/schemas/Uint32'
+          description: Minimum period required to be able to cancel an ask in seconds.
+        min_bid_price_decrease_period_s:
+          $ref: '#/components/schemas/Uint32'
+          description: Price is allowed to be decreased only when this period passes since last decrease (in seconds).
+        min_bid_speed_limit_decrease_period_s:
+          $ref: '#/components/schemas/Uint32'
+          description: The hashrate limit can be decreased only after this many seconds have passed since the previous decrease.
+        min_limited_bid_amount_sat:
+          $ref: '#/components/schemas/Double'
+          description: Minimum bid amount for bids with a hashrate limit in satoshi.
+        max_limited_bid_amount_sat:
+          $ref: '#/components/schemas/Double'
+          description: Maximum bid amount for bids with a hashrate limit in satoshi.
+        min_limited_bid_duration_s:
+          $ref: '#/components/schemas/Uint32'
+          description: Minimum duration for bids with a hashrate limit in seconds.
+    Int32:
+      type: integer
+      format: int32
+    Double:
+      type: number
+      format: double
+    GetFeeStructureResponse:
+      type: object
+      required:
+      - spot_fees
+      properties:
+        spot_fees:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpotFeePublic'
+    SpotInstrumentStatus:
+      type: string
+      enum:
+      - SPOT_INSTRUMENT_STATUS_UNSPECIFIED
+      - SPOT_INSTRUMENT_STATUS_ACTIVE
+      - SPOT_INSTRUMENT_STATUS_HALTED
+  responses:
+    Unauthorized:
+      description: The `apikey` header is missing or does not contain a valid API credential.
+    ServiceError:
+      description: The gateway or upstream service could not complete the request. The response body and status depend on the failing boundary.
+    Forbidden:
+      description: The API credential is valid but its ACL role or resource ownership does not permit this operation.
+    TooManyRequests:
+      description: The applicable per-credential or per-client-IP request limit was exceeded. Retry after reducing request frequency.
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: apikey
+      description: API credential issued for a Braiins Hashpower account. The credential's ACL role and resource ownership determine which authenticated operations and records are available.

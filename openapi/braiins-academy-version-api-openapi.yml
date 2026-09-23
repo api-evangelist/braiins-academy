@@ -1,0 +1,55 @@
+openapi: 3.2.0
+info:
+  title: Braiins OS Public REST Version API
+  description: ''
+  contact:
+    name: Braiins
+    url: https://help.braiins.com
+    email: help@braiins.com
+  license:
+    name: ''
+  version: 1.7.0
+servers:
+- url: http://miner/
+tags:
+- name: Version
+paths:
+  /api/v1/version/:
+    get:
+      tags:
+      - Version
+      summary: Get API version
+      description: Returns current API version with informations about major, minor and patch version numbers.
+      operationId: getApiVersion
+      responses:
+        '200':
+          description: Major version number - breaking changesMinor version number - backwards compatible changesPatch version number - bug fix changes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiVersion'
+              example:
+                major: 1
+                minor: 7
+                patch: 0
+components:
+  schemas:
+    ApiVersion:
+      type: object
+      required:
+      - major
+      - minor
+      - patch
+      properties:
+        major:
+          type: integer
+          format: int64
+          minimum: 0
+        minor:
+          type: integer
+          format: int64
+          minimum: 0
+        patch:
+          type: integer
+          format: int64
+          minimum: 0

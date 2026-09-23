@@ -1,0 +1,910 @@
+openapi: 3.2.0
+info:
+  title: Braiins OS Public REST Configuration API
+  description: ''
+  contact:
+    name: Braiins
+    url: https://help.braiins.com
+    email: help@braiins.com
+  license:
+    name: ''
+  version: 1.7.0
+servers:
+- url: http://miner/
+tags:
+- name: Configuration
+paths:
+  /api/v1/configuration/constraints:
+    get:
+      tags:
+      - Configuration
+      summary: Get constraints
+      description: ''
+      operationId: getConstraints
+      responses:
+        '200':
+          description: Successful response containing miner configuration constraints
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetConstraintsResponse'
+  /api/v1/configuration/miner:
+    get:
+      tags:
+      - Configuration
+      summary: Get miner configuration
+      description: ''
+      operationId: getMinerConfiguration
+      responses:
+        '200':
+          description: Successful response containing miner configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMinerConfigurationResponse'
+components:
+  schemas:
+    LoadBalanceStrategy:
+      oneOf:
+      - type: object
+        required:
+        - quota
+        properties:
+          quota:
+            $ref: '#/components/schemas/Quota'
+      - type: object
+        required:
+        - fixedshareratio
+        properties:
+          fixedshareratio:
+            $ref: '#/components/schemas/FixedShareRatio'
+      description: Group load balance strategy
+    HashboardConfig:
+      type: object
+      required:
+      - id
+      properties:
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Flag if HB si enabled
+        frequency:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Frequency'
+            description: Hashboard frequency
+        id:
+          type: string
+          description: Hashboard id
+        voltage:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Voltage'
+            description: Hashboard voltage
+    CoolingConfigurationMode:
+      oneOf:
+      - type: object
+        required:
+        - auto
+        properties:
+          auto:
+            $ref: '#/components/schemas/CoolingAutoMode'
+      - type: object
+        required:
+        - manual
+        properties:
+          manual:
+            $ref: '#/components/schemas/CoolingManualMode'
+      - type: object
+        required:
+        - disabled
+        properties:
+          disabled:
+            $ref: '#/components/schemas/CoolingDisabledMode'
+      - type: object
+        required:
+        - immersion
+        properties:
+          immersion:
+            $ref: '#/components/schemas/CoolingImmersionMode'
+      - type: object
+        required:
+        - hydro
+        properties:
+          hydro:
+            $ref: '#/components/schemas/CoolingHydroMode'
+    CoolingHydroMode:
+      type: object
+      properties:
+        dangerous_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+        hot_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+        target_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+    FixedShareRatio:
+      type: object
+      description: 'Structure for fixed share ratio load balance strategy
+
+        Fixed share ratio is value between 0.0 to 1.0 where 1.0 represents that all work is
+
+        generated from the group'
+      required:
+      - value
+      properties:
+        value:
+          type: number
+          format: double
+    Hours:
+      type: object
+      required:
+      - hours
+      properties:
+        hours:
+          type: integer
+          format: int32
+          minimum: 0
+    CoolingConstraints:
+      type: object
+      required:
+      - default_cooling_mode
+      properties:
+        dangerous_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TemperatureConstraints'
+        default_cooling_mode:
+          type: integer
+          format: int32
+        default_fan_pause_mode:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        default_fan_pause_runtime:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        fan_pause_runtime_limited_duration_s:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          minimum: 0
+        fan_speed_ratio:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/DoubleConstraints'
+        hot_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TemperatureConstraints'
+        max_fan_speed:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/UInt32Constraints'
+        min_fan_speed:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/UInt32Constraints'
+        minimum_required_fans:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/UInt32Constraints'
+        pause_cooldown_fan_speed_ratio:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/DoubleConstraints'
+        target_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TemperatureConstraints'
+    PauseMode:
+      type: object
+      description: Pause mode to control fans behaviour after you pause the miner
+      properties:
+        mode:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PauseModeMode'
+    BooleanConstraint:
+      type: object
+      required:
+      - default
+      properties:
+        default:
+          type: boolean
+    GetMinerConfigurationResponse:
+      type: object
+      description: Structure to return miner configuration
+      required:
+      - pool_groups
+      properties:
+        dps:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/DpsConfiguration'
+            description: DPS configuration
+        hashboard_config:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/HashboardPerformanceConfiguration'
+            description: Hashchain configuration
+        pool_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/PoolGroupConfiguration'
+          description: Pool groups configuration
+        temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/CoolingConfiguration'
+            description: Cooling configuration
+        tuner:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TunerConfiguration'
+            description: Tuner configuration
+    PoolConfiguration:
+      type: object
+      description: Structure handle information about configured pool
+      required:
+      - url
+      - user
+      properties:
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Flag if pool connection is enabled
+        password:
+          type:
+          - string
+          - 'null'
+          description: Pool connection password if set
+        uid:
+          type:
+          - string
+          - 'null'
+          description: 'Pool connection id<br>
+
+            If this struct is used when creating a new Pool Configuration, this field must not be specified (it will be generated)<br>
+
+            If this struct is used when updating an existing configuration, this field must be specified and represents unique id of pool which will be updated'
+        url:
+          type: string
+          description: Pool connection URL
+        user:
+          type: string
+          description: Pool connection user
+    DpsConfiguration:
+      type: object
+      properties:
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Flag if Dynamic Performance Scaling is enabled
+        hashrate_step:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+            description: Dynamic Performance Scaling hashrate step
+        min_hashrate_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+            description: Dynamic Performance Scaling minimal hashrate target
+        min_power_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Dynamic Performance Scaling minimal power target
+        mode:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Dynamic Performance Scaling mode
+        on_start_target_percent:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Initial target for Dynamic Performance Scaling in percent
+          minimum: 0
+        power_step:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Dynamic Performance Scaling power step
+        shutdown_duration:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Hours'
+            description: Dynamic Performance Scaling shutdown duration
+        shutdown_enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Flag if shutdown for Dynamic Performance Scaling is enabled
+    AutoPauseMode:
+      type: object
+      description: Automatic pause mode starts with fans going with last fan speed used for mining and slowly decreases speed down to 0%
+    HashrateConstraints:
+      type: object
+      properties:
+        default:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+        max:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+        min:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+    CoolingManualMode:
+      type: object
+      description: Fans are kept at a fixed, user-defined speed, no matter the temperature.
+      properties:
+        dangerous_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature threshold at which BOSMiner shuts down in order to prevent overheating and damaging the miner.
+        fan_speed_ratio:
+          type:
+          - number
+          - 'null'
+          format: double
+          description: 'User defined fan speed expressed as a ratio between 0.0 and 1.0
+
+            where 0.0 means completely turned off and
+
+            1.0 means running at full speed possible'
+        hot_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature threshold at which the fans start to run at 100%.
+        minimum_required_fans:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Minimum number of fans required to have BOSminer operational.
+          minimum: 0
+        pause_mode:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PauseMode'
+            description: Pause mode
+        target_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature that the miner will try to maintain when power scaling is enabled
+    UInt32Constraints:
+      type: object
+      required:
+      - default
+      - min
+      - max
+      properties:
+        default:
+          type: integer
+          format: int32
+          minimum: 0
+        max:
+          type: integer
+          format: int32
+          minimum: 0
+        min:
+          type: integer
+          format: int32
+          minimum: 0
+    HashboardConstraints:
+      type: object
+      required:
+      - hashboard_ids
+      properties:
+        enabled:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/BooleanConstraint'
+            description: Default value for flag if hashboards are enabled
+        frequency:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/FrequencyConstraints'
+            description: HB frequency constraints
+        hashboard_ids:
+          type: array
+          items:
+            type: string
+          description: List of possible HB indices
+        quick_ramping_time_s:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/UInt32Constraints'
+            description: Quick ramping time constraints in seconds. Used in curtailments
+        voltage:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/VoltageConstraints'
+            description: HB frequency constraints
+    TemperatureConstraints:
+      type: object
+      properties:
+        default:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+        max:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+        min:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+    PoolGroupConfiguration:
+      type: object
+      description: Structure handle configured mining group
+      required:
+      - name
+      - pools
+      properties:
+        load_balance_strategy:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/LoadBalanceStrategy'
+            description: Group load balance strategy
+        name:
+          type: string
+          description: Group name
+        pools:
+          type: array
+          items:
+            $ref: '#/components/schemas/PoolConfiguration'
+          description: Group pools
+        uid:
+          type:
+          - string
+          - 'null'
+          description: 'Group id<br>
+
+            gRPC: If this struct is used when creating a new Pool Group, this field must not be specified (it will be generated)<br>
+
+            gRPC: If this struct is used when updating an existing Pool Group, this field must be specified and represents unique id of Pool group which will be updated<br>
+
+            REST: If this struct is used when creating a new Pool Group, this field must not be specified (it will be generated)<br>
+
+            REST: If this struct is used when updating an existing Pool Group, this field must not be specified, uid in URL must be specified and represents unique id of Pool group which will be updated'
+    CoolingImmersionMode:
+      type: object
+      properties:
+        dangerous_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+        hot_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+        target_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+    Quota:
+      type: object
+      description: Structure for quota load balance strategy
+      required:
+      - value
+      properties:
+        value:
+          type: integer
+          format: int32
+          minimum: 0
+    CoolingConfiguration:
+      type: object
+      properties:
+        minimum_required_fans:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Minimum number of fans required to have BOSminer operational.
+          deprecated: true
+          minimum: 0
+        mode:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/CoolingConfigurationMode'
+    DurationConstraints:
+      type: object
+      properties:
+        default:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Hours'
+        max:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Hours'
+        min:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Hours'
+    PowerConstraints:
+      type: object
+      properties:
+        default:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+        max:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+        min:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+    ManualPauseMode:
+      type: object
+      description: 'Manual pause mode runs with defined fixed fans speed and either turns off after a certain period of time
+
+        or runs indefinitely according to fan_runtime settings'
+      properties:
+        fan_pause_runtime:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: 'Controls how long fans run at the fixed speed before turning off.<br>
+
+            1 = FAN_PAUSE_RUNTIME_LIMITED - fans run for a limited duration (see `fan_pause_runtime_limited_duration_s` in `CoolingConstraints`) then turn off<br>
+
+            2 = FAN_PAUSE_RUNTIME_INDEFINITE - fans run indefinitely at the fixed speed until miner is resumed'
+        pause_cooldown_fan_speed_ratio:
+          type:
+          - number
+          - 'null'
+          format: double
+          description: 'User defined pause cooldown fan speed expressed as a ratio between 0.0 and 1.0
+
+            where 0.0 means completely turned off and
+
+            1.0 means running at full speed possible'
+    HashboardPerformanceConfiguration:
+      type: object
+      required:
+      - hashboards
+      properties:
+        global_frequency:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Frequency'
+            description: Common frequency for all HB
+        global_voltage:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Voltage'
+            description: Common voltage for all HB
+        hashboards:
+          type: array
+          items:
+            $ref: '#/components/schemas/HashboardConfig'
+          description: Per hashboard frequency/voltage. It has higher priority than global one
+        quick_ramping_time_down_s:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Quick ramping time down in seconds. Used in curtailments
+          minimum: 0
+        quick_ramping_time_up_s:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Quick ramping time up in seconds. Used in curtailments
+          minimum: 0
+    GetConstraintsResponse:
+      type: object
+      properties:
+        cooling_constraints:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/CoolingConstraints'
+            description: Cooling constraints
+        dps_constraints:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/DpsConstraints'
+            description: Dynamic Performance scaling constraints
+        hashboards_constraints:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/HashboardConstraints'
+            description: Hashboard constraints
+        tuner_constraints:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TunerConstraints'
+            description: Tuner constraints
+    Frequency:
+      type: object
+      required:
+      - hertz
+      properties:
+        hertz:
+          type: number
+          format: double
+    FrequencyConstraints:
+      type: object
+      properties:
+        default:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Frequency'
+        max:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Frequency'
+        min:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Frequency'
+    TeraHashrate:
+      type: object
+      required:
+      - terahash_per_second
+      properties:
+        terahash_per_second:
+          type: number
+          format: double
+    Temperature:
+      type: object
+      required:
+      - degree_c
+      properties:
+        degree_c:
+          type: number
+          format: double
+    Voltage:
+      type: object
+      required:
+      - volt
+      properties:
+        volt:
+          type: number
+          format: double
+    VoltageConstraints:
+      type: object
+      properties:
+        default:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Voltage'
+        max:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Voltage'
+        min:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Voltage'
+    CoolingAutoMode:
+      type: object
+      description: 'The temperature control modes.
+
+        Miner software tries to regulate the fan speed so that miner temperature is approximately at the target temperature.
+
+        The allowed temperature range is 0-200 degree Celsius.'
+      properties:
+        dangerous_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature threshold at which BOSMiner shuts down in order to prevent overheating and damaging the miner.
+        hot_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature threshold at which the fans start to run at 100%.
+        max_fan_speed:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Maximum fan speed expressed as a value between 0 and 100. max_fan_speed must be greater than min_fan_speed.
+          minimum: 0
+        min_fan_speed:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Minimum fan speed expressed as a value between 0 and 100. min_fan_speed must be less than max_fan_speed.
+          minimum: 0
+        minimum_required_fans:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Minimum number of fans required to have BOSminer operational.
+          minimum: 0
+        pause_mode:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PauseMode'
+            description: Pause mode used for fans when the miner is paused
+        target_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature that the miner will try to maintain
+    DpsConstraints:
+      type: object
+      required:
+      - mode
+      properties:
+        enabled:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/BooleanConstraint'
+            description: Dynamic Performance Scaling enabled default value
+        hashrate_step:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/HashrateConstraints'
+            description: Dynamic Performance Scaling hashrate step constraints
+        min_hashrate_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/HashrateConstraints'
+            description: Dynamic Performance Scaling minimal hashrate target constraints
+        min_power_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PowerConstraints'
+            description: Dynamic Performance Scaling minimal power target constraints
+        mode:
+          type: integer
+          format: int32
+          description: Dynamic Performance Scaling default mode
+        on_start_target_percent:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/UInt32Constraints'
+            description: Initial target for Dynamic Performance Scaling in percent
+        power_step:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PowerConstraints'
+            description: Dynamic Performance Scaling power step constraints
+        shutdown_duration:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/DurationConstraints'
+            description: Dynamic Performance Scaling shutdown duration constraints
+        shutdown_enabled:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/BooleanConstraint'
+            description: Dynamic Performance Scaling enabled shutdown default value
+    TunerConfiguration:
+      type: object
+      properties:
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Flag if tuner is enabled
+        hashrate_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+            description: Tuner hashrate target
+        power_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Tuner power target
+        tuner_mode:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Tuner mode
+    Power:
+      type: object
+      required:
+      - watt
+      properties:
+        watt:
+          type: integer
+          format: int64
+          minimum: 0
+    PauseModeMode:
+      oneOf:
+      - type: object
+        required:
+        - auto
+        properties:
+          auto:
+            $ref: '#/components/schemas/AutoPauseMode'
+      - type: object
+        required:
+        - manual
+        properties:
+          manual:
+            $ref: '#/components/schemas/ManualPauseMode'
+    TunerConstraints:
+      type: object
+      required:
+      - default_mode
+      properties:
+        default_mode:
+          type: integer
+          format: int32
+          description: Default tuner mode
+        enabled:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/BooleanConstraint'
+            description: Tuner enabled enabled default value
+        hashrate_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/HashrateConstraints'
+            description: Tuner hashrate target mode constraints
+        power_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PowerConstraints'
+            description: Tuner power target mode constraints
+    CoolingDisabledMode:
+      type: object
+      description: 'Disable temperature control. May be dangerous.
+
+        DEPRECATED: Since Braiins OS 24.XX it is not possible to disable cooling mode.'
+      properties:
+        fan_speed_ratio:
+          type:
+          - number
+          - 'null'
+          format: double
+          description: 'User defined fan speed expressed as a ratio between 0.0 and 1.0
+
+            where 0.0 means completely turned off and
+
+            1.0 means running at full speed possible'
+    DoubleConstraints:
+      type: object
+      required:
+      - default
+      - min
+      - max
+      properties:
+        default:
+          type: number
+          format: double
+        max:
+          type: number
+          format: double
+        min:
+          type: number
+          format: double

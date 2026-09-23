@@ -1,0 +1,337 @@
+openapi: 3.2.0
+info:
+  title: Braiins Hashpower Market data API
+  description: 'Public HTTP API for buying hashrate on the spot market, scheduling fixed-duration
+
+    contracts, and reading account and market data.'
+  version: 1.0.0
+servers:
+- url: https://hashpower.braiins.com/v1
+  description: Production public API
+security:
+- ApiKey: []
+tags:
+- name: Market Data
+  description: Public statistics, order-book snapshots, trades, and OHLCV bars.
+paths:
+  /spot/stats:
+    get:
+      summary: Get market statistics
+      description: 'Returns a public snapshot of aggregate spot-market activity and current headline values.
+
+
+        **Access:** Public; no API key or ACL required.
+
+
+        **Rate limit:** 500 requests/minute per client IP.'
+      tags:
+      - Market Data
+      operationId: spotGetMarketStats
+      security: []
+      x-required-acl: []
+      x-rate-limit: 500 requests/minute per client IP
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpotGetMarketStatsResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/ServiceError'
+  /spot/orderbook:
+    get:
+      summary: Get spot market order book snapshot
+      description: 'Returns the current public bid and ask depth aggregated by price level. The snapshot is point-in-time and can change immediately after it is returned.
+
+
+        **Access:** Public; no API key or ACL required.
+
+
+        **Rate limit:** 500 requests/minute per client IP.'
+      tags:
+      - Market Data
+      operationId: spotGetOrderbookSnapshot
+      security: []
+      x-required-acl: []
+      x-rate-limit: 500 requests/minute per client IP
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpotGetOrderBookResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/ServiceError'
+  /spot/trades:
+    get:
+      summary: Get last market trades
+      description: 'Returns the most recent public spot trades, up to the requested limit, for market-history and price-discovery use.
+
+
+        **Access:** Public; no API key or ACL required.
+
+
+        **Rate limit:** 500 requests/minute per client IP.'
+      tags:
+      - Market Data
+      operationId: spotGetMarketTrades
+      security: []
+      x-required-acl: []
+      x-rate-limit: 500 requests/minute per client IP
+      parameters:
+      - name: limit
+        in: query
+        description: Limit amount of trades to retrieve.
+        schema:
+          $ref: '#/components/schemas/Uint32'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpotGetMarketTradesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/ServiceError'
+  /spot/bars:
+    get:
+      summary: Get aggregated bars for a given market (OHLCV)
+      description: 'Returns public open, high, low, close, and volume bars grouped by the required aggregation period. `limit` bounds the number of latest bars returned.
+
+
+        **Access:** Public; no API key or ACL required.
+
+
+        **Rate limit:** 500 requests/minute per client IP.'
+      tags:
+      - Market Data
+      operationId: spotGetMarketBars
+      security: []
+      x-required-acl: []
+      x-rate-limit: 500 requests/minute per client IP
+      parameters:
+      - name: aggregation_period
+        in: query
+        description: Aggregation period for the bars.
+        required: true
+        schema:
+          $ref: '#/components/schemas/AggregationPeriod'
+      - name: limit
+        in: query
+        description: Limit amount of bars to retrieve.
+        schema:
+          $ref: '#/components/schemas/Uint32'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpotGetBarsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/ServiceError'
+components:
+  schemas:
+    AskItem:
+      type: object
+      required:
+      - price_sat
+      - hr_matched_ph
+      - hr_available_ph
+      properties:
+        price_sat:
+          $ref: '#/components/schemas/Double'
+          description: Price of the ask item.
+        hr_matched_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate being matched at this level, estimated over a 10-minute window, in PH/s.
+        hr_available_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate available for sale at this level, estimated over a 10-minute window, in PH/s.
+    TradeBar:
+      type: object
+      required:
+      - timestamp
+      - open
+      - high
+      - low
+      - close
+      - volume
+      - vwap
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the bar.
+        open:
+          $ref: '#/components/schemas/Double'
+          description: Opening price.
+        high:
+          $ref: '#/components/schemas/Double'
+          description: Highest price during the period.
+        low:
+          $ref: '#/components/schemas/Double'
+          description: Lowest price during the period.
+        close:
+          $ref: '#/components/schemas/Double'
+          description: Closing price.
+        volume:
+          $ref: '#/components/schemas/Double'
+          description: Volume traded during the period.
+        vwap:
+          $ref: '#/components/schemas/Double'
+          description: Volume-weighted average price.
+    AggregationPeriod:
+      type: string
+      description: Aggregation period for bars (OHLCV candles).
+      enum:
+      - PERIOD_UNSPECIFIED
+      - PERIOD_5_MINUTES
+      - PERIOD_15_MINUTES
+      - PERIOD_1_HOUR
+      - PERIOD_4_HOURS
+      - PERIOD_1_DAY
+    BidItem:
+      type: object
+      required:
+      - price_sat
+      - amount_sat
+      - hr_matched_ph
+      - speed_limit_ph
+      properties:
+        price_sat:
+          $ref: '#/components/schemas/Double'
+          description: Price of the bid item.
+        amount_sat:
+          $ref: '#/components/schemas/Double'
+          description: Amount in market currency available to purchase hashrate.
+        hr_matched_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate being matched at this level, estimated over a 10-minute window, in PH/s.
+        speed_limit_ph:
+          $ref: '#/components/schemas/Double'
+          description: Aggregated hashrate limit at this level. Zero means no limit. In PH/s.
+        degraded_bids_count:
+          $ref: '#/components/schemas/Uint32'
+          description: Number of degraded bids at this price level.
+    Uint32:
+      type: integer
+      format: uint32
+      minimum: 0
+      maximum: 4294967295
+    SpotGetOrderBookResponse:
+      type: object
+      required:
+      - bids
+      - asks
+      properties:
+        bids:
+          type: array
+          items:
+            $ref: '#/components/schemas/BidItem'
+          description: List of bid items.
+        asks:
+          type: array
+          items:
+            $ref: '#/components/schemas/AskItem'
+          description: List of ask items.
+    SpotGetMarketTradesResponse:
+      type: object
+      required:
+      - trades
+      properties:
+        trades:
+          type: array
+          items:
+            $ref: '#/components/schemas/TradeSha256Btc'
+    SpotGetMarketStatsResponse:
+      type: object
+      required:
+      - status
+      - volume_24h_m
+      - best_bid_sat
+      - best_ask_sat
+      - last_avg_price_sat
+      - hash_rate_matched_10m_ph
+      - hash_rate_available_10m_ph
+      properties:
+        status:
+          $ref: '#/components/schemas/SpotInstrumentStatus'
+        volume_24h_m:
+          $ref: '#/components/schemas/Double'
+          description: Shares sold here in last 24 hours. In millions of shares.
+        best_bid_sat:
+          $ref: '#/components/schemas/Double'
+        best_ask_sat:
+          $ref: '#/components/schemas/Double'
+        last_avg_price_sat:
+          $ref: '#/components/schemas/Double'
+          description: Last second's average price matched. In satoshi.
+        hash_rate_matched_10m_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate being matched, estimated over a 10-minute rolling window, in PH/s.
+        hash_rate_available_10m_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate available in asks, estimated over a 10-minute rolling window, in PH/s.
+    SpotGetBarsResponse:
+      type: object
+      required:
+      - bars
+      properties:
+        bars:
+          type: array
+          items:
+            $ref: '#/components/schemas/TradeBar'
+    Double:
+      type: number
+      format: double
+    TradeSha256Btc:
+      type: object
+      required:
+      - timestamp
+      - volume_m
+      - price_sat
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the trade.
+        volume_m:
+          $ref: '#/components/schemas/Double'
+          description: Volume in millions of shares.
+        price_sat:
+          $ref: '#/components/schemas/Double'
+          description: Average price in satoshi.
+    SpotInstrumentStatus:
+      type: string
+      enum:
+      - SPOT_INSTRUMENT_STATUS_UNSPECIFIED
+      - SPOT_INSTRUMENT_STATUS_ACTIVE
+      - SPOT_INSTRUMENT_STATUS_HALTED
+  responses:
+    BadRequest:
+      description: The path, query, or JSON body is invalid, violates a market rule, or contains mutually exclusive fields.
+    ServiceError:
+      description: The gateway or upstream service could not complete the request. The response body and status depend on the failing boundary.
+    TooManyRequests:
+      description: The applicable per-credential or per-client-IP request limit was exceeded. Retry after reducing request frequency.
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: apikey
+      description: API credential issued for a Braiins Hashpower account. The credential's ACL role and resource ownership determine which authenticated operations and records are available.

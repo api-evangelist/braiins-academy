@@ -1,0 +1,79 @@
+openapi: 3.2.0
+info:
+  title: Braiins OS Public REST Advanced Settings API
+  description: ''
+  contact:
+    name: Braiins
+    url: https://help.braiins.com
+    email: help@braiins.com
+  license:
+    name: ''
+  version: 1.7.0
+servers:
+- url: http://miner/
+tags:
+- name: Advanced Settings
+paths:
+  /api/v1/advanced-settings/:
+    get:
+      tags:
+      - Advanced Settings
+      summary: Get current advanced settings values
+      description: Returns settings as key-value pairs. When include_default is false (default), only user-configured settings are returned. When true, all settings are returned with their effective values.
+      operationId: getAdvancedSettings
+      parameters:
+      - name: include_default
+        in: query
+        description: If true, all supported settings are returned including those that still hold their default value. If false (default), only user-configured settings are returned.
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Current settings values
+          content:
+            application/json:
+              schema: {}
+    delete:
+      tags:
+      - Advanced Settings
+      summary: Reset all advanced settings to defaults
+      description: Resets all advanced settings to their default values. Returns the effective values of all supported settings after the reset (equivalent to calling GetSettings with include_default=true).
+      operationId: resetAllAdvancedSettings
+      responses:
+        '200':
+          description: Effective values of all settings after reset to defaults
+          content:
+            application/json:
+              schema: {}
+    patch:
+      tags:
+      - Advanced Settings
+      summary: Set advanced settings values
+      description: 'Sets one or more setting values. Only settings present in the request are modified; keys not included are left untouched. Use null to clear a setting and revert it to its default value. The update is atomic: either all requested settings are applied, or none are. If any setting fails validation, the whole request is rejected.'
+      operationId: setAdvancedSettings
+      requestBody:
+        description: Key-value pairs of settings to update. Use null to clear a setting and revert to default.
+        content:
+          application/json:
+            schema: {}
+        required: true
+      responses:
+        '200':
+          description: All settings from the request with their new values. Settings that were cleared are returned with a null value.
+          content:
+            application/json:
+              schema: {}
+  /api/v1/advanced-settings/schema:
+    get:
+      tags:
+      - Advanced Settings
+      summary: Get settings schema
+      description: Returns a JSON Schema defining all available settings with their types, constraints, and metadata.
+      operationId: getAdvancedSettingsSchema
+      responses:
+        '200':
+          description: JSON Schema for all available settings
+          content:
+            application/json:
+              schema: {}

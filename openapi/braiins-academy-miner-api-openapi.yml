@@ -1,0 +1,1238 @@
+openapi: 3.2.0
+info:
+  title: Braiins OS Public REST Miner API
+  description: ''
+  contact:
+    name: Braiins
+    url: https://help.braiins.com
+    email: help@braiins.com
+  license:
+    name: ''
+  version: 1.7.0
+servers:
+- url: http://miner/
+tags:
+- name: Miner
+paths:
+  /api/v1/miner/details:
+    get:
+      tags:
+      - Miner
+      summary: Get miner details
+      description: Retrieves detailed information about the miner, such as hardware model, firmware version, serial number, and other identifying data.
+      operationId: getMinerDetails
+      responses:
+        '200':
+          description: Successful response containing detailed miner information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMinerDetailsResponse'
+  /api/v1/miner/errors:
+    get:
+      tags:
+      - Miner
+      summary: Get miner errors
+      description: Retrieves a list of errors reported by the miner, including timestamps, messages, error codes, and affected components.
+      operationId: getMinerErrors
+      responses:
+        '200':
+          description: Successful response containing an array of miner errors.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetErrorsResponse'
+  /api/v1/miner/hw/hashboards:
+    get:
+      tags:
+      - Miner
+      summary: Get hashboard details
+      description: Retrieves detailed information about all hashboards in the miner, including their status, temperature, voltage, frequency, and statistics.
+      operationId: getHashboards
+      responses:
+        '200':
+          description: Successful response containing a list of hashboards.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetHashboardsResponse'
+    patch:
+      tags:
+      - Miner
+      summary: Enable or disable hashboards
+      description: Enables or disables one or more hashboards based on the provided IDs. Useful for toggling hardware components during runtime or diagnostics.
+      operationId: updateHashboards
+      requestBody:
+        description: List of hashboard IDs to update and the desired enabled state.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateHashboards'
+            example:
+              enable: false
+              hashboard_ids:
+              - '1'
+              - '3'
+        required: true
+      responses:
+        '200':
+          description: Successful response with the updated enable state of hashboards.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnableHashboardsResponse'
+  /api/v1/miner/log/{log_type}:
+    get:
+      tags:
+      - Miner
+      summary: Stream log file
+      description: 'Streams the merged log file for a given log type. Supported log types: errors, bosminer, boser, monitor, syslog, dmesg.'
+      operationId: getLog
+      parameters:
+      - name: log_type
+        in: path
+        description: Log type to download
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Stream of log data.
+          content:
+            application/octet-stream:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int32
+                  minimum: 0
+  /api/v1/miner/stats:
+    get:
+      tags:
+      - Miner
+      summary: Get miner statistics
+      description: Retrieves runtime statistics about the miner, including pool performance, hashrate metrics, and power consumption.
+      operationId: getMinerStats
+      responses:
+        '200':
+          description: Successful response containing miner statistics.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMinerStatsResponse'
+  /api/v1/miner/status:
+    get:
+      tags:
+      - Miner
+      summary: Stream miner status updates
+      description: 'Streams the current status of the miner in real-time. The status can be one of: `unspecified`, `not_started`, `normal`, `paused`, `suspended`, or `restricted`. The response is a continuous JSON stream.'
+      operationId: getMinerStatus
+      responses:
+        '200':
+          description: Stream of miner status updates.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetMinerStatusResponse'
+      deprecated: true
+  /api/v1/miner/status/detailed:
+    get:
+      tags:
+      - Miner
+      summary: Stream detailed miner status updates
+      description: 'Streams the detailed status of the miner in real-time. The status is one of: `stopped`, `starting`, `running`, or `stopping`. The response is a continuous newline-delimited JSON stream.'
+      operationId: getMinerDetailedStatus
+      responses:
+        '200':
+          description: Stream of detailed miner status updates.
+          content:
+            application/x-ndjson:
+              schema:
+                $ref: '#/components/schemas/GetMinerDetailedStatusResponse'
+              examples:
+                Preheating:
+                  summary: Mining at reduced performance while hashboards preheat
+                  value:
+                    status:
+                      status:
+                        running:
+                          reason:
+                            preheating: {}
+                      status_since:
+                        nanos: 0
+                        seconds: 1741260900
+                      status_until:
+                        precision:
+                          max:
+                            nanos: 0
+                            seconds: 1741261500
+                Running:
+                  summary: Mining normally at full performance
+                  value:
+                    status:
+                      status:
+                        running:
+                          reason:
+                            normal: {}
+                      status_since:
+                        nanos: 0
+                        seconds: 1741260910
+                      status_until: null
+                Starting:
+                  summary: Waiting for a startup delay
+                  value:
+                    status:
+                      status:
+                        starting:
+                          reason:
+                            delayed_start: {}
+                      status_since:
+                        nanos: 0
+                        seconds: 1741260800
+                      status_until:
+                        precision:
+                          exact:
+                            nanos: 0
+                            seconds: 1741260860
+                ThermalPause:
+                  summary: Stopped by thermal protection (broken fans)
+                  value:
+                    status:
+                      status:
+                        stopped:
+                          reason:
+                            thermal_pause:
+                              reason: THERMAL_PAUSE_REASON_BROKEN_FANS
+                      status_since:
+                        nanos: 0
+                        seconds: 1741260700
+                      status_until: null
+                UnsupportedHardware:
+                  summary: Stopped, hardware detection failed
+                  value:
+                    status:
+                      status:
+                        stopped:
+                          reason:
+                            unsupported_hardware:
+                              errors:
+                              - Hashboard 1 not detected
+                              - Hashboard 3 communication error
+                      status_since:
+                        nanos: 0
+                        seconds: 1741260600
+                      status_until: null
+  /api/v1/miner/support-archive:
+    get:
+      tags:
+      - Miner
+      summary: Stream support archive
+      description: Streams support archive.
+      operationId: getSupportArchive
+      requestBody:
+        description: 'Support archive format. Format can be one of: ''zip'' (compressed zip format), ''bos'' (BOS custom format) or ''zipencrypted'' (compressed encrypted zip format).'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetSupportArchive'
+            example:
+              format: zipencrypted
+        required: true
+      responses:
+        '200':
+          description: Stream of support archive.
+          content:
+            application/octet-stream:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int32
+                  minimum: 0
+components:
+  schemas:
+    RunReason:
+      type: object
+      description: State of a running miner
+      properties:
+        reason:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/RunDetailedReason'
+    BosVersion:
+      type: object
+      description: Structure to handle BOS version
+      required:
+      - current
+      - major
+      - bos_plus
+      properties:
+        bos_plus:
+          type: boolean
+        current:
+          type: string
+        major:
+          type: string
+    PsuInfo:
+      type: object
+      properties:
+        fw_version:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: PSU firmware version identifier
+          minimum: 0
+        max_voltage:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Voltage'
+            description: Maximal voltage that can be set in volts
+        min_voltage:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Voltage'
+            description: Minimal voltage that can be set in volts
+        model_name:
+          type:
+          - string
+          - 'null'
+          description: PSU model/version name in human-readable form (e.g. "APW121215b")
+        serial_number:
+          type:
+          - string
+          - 'null'
+          description: PSU serial number (e.g. "DGAH335BDJDJG0782")
+        version:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: PSU hardware version identifier
+          minimum: 0
+    ThermalPauseReason:
+      type: string
+      enum:
+      - THERMAL_PAUSE_REASON_UNSPECIFIED
+      - THERMAL_PAUSE_REASON_DANGEROUS_TEMPERATURE
+      - THERMAL_PAUSE_REASON_BROKEN_FANS
+    Precision:
+      oneOf:
+      - type: object
+        description: 'Upper bound: not known exactly, but no later than this timestamp'
+        required:
+        - max
+        properties:
+          max:
+            $ref: '#/components/schemas/Timestamp'
+            description: 'Upper bound: not known exactly, but no later than this timestamp'
+      - type: object
+        description: 'Exact: known precisely, equal to this timestamp'
+        required:
+        - exact
+        properties:
+          exact:
+            $ref: '#/components/schemas/Timestamp'
+            description: 'Exact: known precisely, equal to this timestamp'
+    MissingLicense:
+      type: object
+      description: No valid BOS license
+    MinerDetailedStatus:
+      type: object
+      description: 'Detailed miner status: the lifecycle phase the miner is in, the reason or
+
+        sub-state behind it, and when it entered and is expected to leave that phase'
+      properties:
+        status:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Status'
+        status_since:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Timestamp'
+            description: When the miner entered the current status
+        status_until:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/ExpectedTime'
+            description: 'When the miner is expected to leave the current status (transition to another one), left unset
+
+              when that time is unknown'
+    GetHashboardsResponse:
+      type: object
+      required:
+      - hashboards
+      properties:
+        hashboards:
+          type: array
+          items:
+            $ref: '#/components/schemas/Hashboard'
+          description: All HB details
+    WorkSolverStats:
+      type: object
+      description: Structure to handle HB state
+      required:
+      - found_blocks
+      - best_share
+      - best_share_str
+      properties:
+        best_share:
+          type: integer
+          format: int64
+          description: 'Best share (deprecated: may overflow for values > 2^64-1, use best_share_str instead)'
+          deprecated: true
+          minimum: 0
+        best_share_str:
+          type: string
+          description: Best share as decimal string
+        error_hashrate:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/MegaHashrate'
+            description: Error hashrate
+        found_blocks:
+          type: integer
+          format: int32
+          description: Found blocks
+          minimum: 0
+        nominal_hashrate:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+            description: Nominal hashrate
+        real_hashrate:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/RealHashrate'
+            description: Real hashrate
+    PowerEfficiency:
+      type: object
+      required:
+      - joule_per_terahash
+      properties:
+        joule_per_terahash:
+          type: number
+          format: double
+    ThermalPause:
+      type: object
+      description: Paused due to thermal conditions
+      required:
+      - reason
+      properties:
+        reason:
+          $ref: '#/components/schemas/ThermalPauseReason'
+          description: Thermal reason that triggered the pause
+    TemperatureSensor:
+      type: object
+      required:
+      - location
+      properties:
+        id:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Sensor id
+          minimum: 0
+        location:
+          type: integer
+          format: int32
+          description: Sensor location
+        temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature
+    ExpectedTime:
+      type: object
+      description: 'A point in time known with a given precision: either an exact timestamp or
+
+        an upper bound (the event happens no later than the timestamp)'
+      properties:
+        precision:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Precision'
+    HashboardEnableState:
+      type: object
+      required:
+      - id
+      - is_enabled
+      properties:
+        id:
+          type: string
+          description: Hashboard ID
+        is_enabled:
+          type: boolean
+          description: Flag if hashboard is enabled or not
+    GetSupportArchive:
+      type: object
+      required:
+      - format
+      properties:
+        format:
+          $ref: '#/components/schemas/SupportArchiveFormat'
+    CoolingDown:
+      type: object
+      description: Cooling down before start
+    Hashboard:
+      type: object
+      description: Structure to handle HB details
+      required:
+      - id
+      - enabled
+      properties:
+        board_name:
+          type:
+          - string
+          - 'null'
+          description: Hashboard board name
+        board_temp:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Board temperature
+        chip_type:
+          type:
+          - string
+          - 'null'
+          description: Hashboard chip type
+        chips_count:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Number of chips
+          minimum: 0
+        current_frequency:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Frequency'
+            description: Current HB frequency in Hz
+        current_voltage:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Voltage'
+            description: Current HB voltage in volts
+        enabled:
+          type: boolean
+          description: Flag if HB is enabled
+        highest_chip_temp:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TemperatureSensor'
+            description: Highest chip temperature
+        highest_outlet_temp:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Highest outlet temperature
+        highest_water_outlet_temp:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Highest water outlet temperature (hydro cooling only)
+        id:
+          type: string
+          description: Hashboard ID
+        lowest_inlet_temp:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Lowest inlet temperature
+        lowest_water_inlet_temp:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Lowest water inlet temperature (hydro cooling only)
+        model:
+          type:
+          - string
+          - 'null'
+          description: Hashboard model
+        serial_number:
+          type:
+          - string
+          - 'null'
+          description: Hashboard serial number
+        stats:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/WorkSolverStats'
+            description: Hashboard stats
+    Preheating:
+      type: object
+      description: Mining at reduced performance while hashboards preheat to a stable temperature
+    MinerPowerStats:
+      type: object
+      properties:
+        approximated_consumption:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Miner approximated power consumption.
+        efficiency:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PowerEfficiency'
+            description: Miner power efficiency
+    TunerError:
+      type: object
+      description: Autotuner encountered an error
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Autotuner error message
+    Unspecified:
+      type: object
+      description: Empty state used when a state has no additional context
+    UserPause:
+      type: object
+      description: User-initiated pause
+    Defrosting:
+      type: object
+      description: Hashboard defrosting in progress
+    RunDetailedReason:
+      oneOf:
+      - type: object
+        description: Running normally
+        required:
+        - normal
+        properties:
+          normal:
+            $ref: '#/components/schemas/Normal'
+            description: Running normally
+      - type: object
+        description: Mining at reduced performance while hashboards preheat to a stable temperature
+        required:
+        - preheating
+        properties:
+          preheating:
+            $ref: '#/components/schemas/Preheating'
+            description: Mining at reduced performance while hashboards preheat to a stable temperature
+    GetMinerDetailedStatusResponse:
+      type: object
+      properties:
+        status:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/MinerDetailedStatus'
+            description: Detailed miner status
+    MinerIdentity:
+      type: object
+      required:
+      - brand
+      - model
+      - name
+      - miner_model
+      properties:
+        brand:
+          type: integer
+          format: int32
+        miner_model:
+          type: string
+        model:
+          type: integer
+          format: int32
+          description: 'Deprecated: Use miner_model instead.
+
+            This field is no longer supported.'
+          deprecated: true
+        name:
+          type: string
+    SupportArchiveFormat:
+      type: string
+      description: Enumeration for support archive format
+      enum:
+      - unspecified
+      - zip
+      - bos
+      - zipencrypted
+    GigaHashrate:
+      type: object
+      required:
+      - gigahash_per_second
+      properties:
+        gigahash_per_second:
+          type: number
+          format: double
+    MegaHashrate:
+      type: object
+      required:
+      - megahash_per_second
+      properties:
+        megahash_per_second:
+          type: number
+          format: double
+    StartDetailedReason:
+      oneOf:
+      - type: object
+        description: Starting with no additional context
+        required:
+        - none
+        properties:
+          none:
+            $ref: '#/components/schemas/Unspecified'
+            description: Starting with no additional context
+      - type: object
+        description: Waiting for a startup delay
+        required:
+        - delayed_start
+        properties:
+          delayed_start:
+            $ref: '#/components/schemas/DelayedStart'
+            description: Waiting for a startup delay
+      - type: object
+        description: Cooling down before start
+        required:
+        - cooling_down
+        properties:
+          cooling_down:
+            $ref: '#/components/schemas/CoolingDown'
+            description: Cooling down before start
+      - type: object
+        description: Ambient temperature too low, waiting before start
+        required:
+        - waiting_while_cold
+        properties:
+          waiting_while_cold:
+            $ref: '#/components/schemas/WaitingWhileCold'
+            description: Ambient temperature too low, waiting before start
+      - type: object
+        description: Hashboard defrosting in progress
+        required:
+        - defrosting
+        properties:
+          defrosting:
+            $ref: '#/components/schemas/Defrosting'
+            description: Hashboard defrosting in progress
+    Component:
+      type: object
+      required:
+      - name
+      - index
+      properties:
+        index:
+          type: integer
+          format: int32
+          minimum: 0
+        name:
+          type: string
+    DelayedStart:
+      type: object
+      description: Waiting for a startup delay
+    RealHashrate:
+      type: object
+      description: Structure which contains HB real hashrate stats.
+      properties:
+        last_15m:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+        last_15s:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+        last_1h:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+        last_1m:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+        last_24h:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+        last_30m:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+        last_30s:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+        last_5m:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+        last_5s:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+        since_restart:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+    GetErrorsResponse:
+      type: object
+      required:
+      - errors
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/MinerError'
+          description: Array of errors
+    GetMinerStatsResponse:
+      type: object
+      properties:
+        miner_stats:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/WorkSolverStats'
+            description: Miner hashrate statistics
+        pool_stats:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PoolStats'
+            description: Aggregate pool statistic
+        power_stats:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/MinerPowerStats'
+            description: Miner power stats
+    DeadPools:
+      type: object
+      description: All mining pools are unresponsive (or there is no pool configuration)
+    EnableHashboardsResponse:
+      type: object
+      required:
+      - hashboards
+      properties:
+        hashboards:
+          type: array
+          items:
+            $ref: '#/components/schemas/HashboardEnableState'
+          description: Hashboards enable state
+    Timestamp:
+      type: object
+      description: 'Custom version of google.protobuf.Timestamp
+
+        It is used only during compilation to replace google.protobuf.Timestamp to
+
+        enable traits for de/serialization and for generating documentation'
+      required:
+      - seconds
+      - nanos
+      properties:
+        nanos:
+          type: integer
+          format: int32
+        seconds:
+          type: integer
+          format: int64
+    StopDetailedReason:
+      oneOf:
+      - type: object
+        description: Stopped with no additional context
+        required:
+        - unspecified
+        properties:
+          unspecified:
+            $ref: '#/components/schemas/Unspecified'
+            description: Stopped with no additional context
+      - type: object
+        description: Application unavailable
+        required:
+        - application_unavailable
+        properties:
+          application_unavailable:
+            $ref: '#/components/schemas/ApplicationUnavailable'
+            description: Application unavailable
+      - type: object
+        description: Hardware detection failed
+        required:
+        - unsupported_hardware
+        properties:
+          unsupported_hardware:
+            $ref: '#/components/schemas/UnsupportedHardware'
+            description: Hardware detection failed
+      - type: object
+        description: All mining pools are unresponsive (or there is no pool configuration)
+        required:
+        - dead_pools
+        properties:
+          dead_pools:
+            $ref: '#/components/schemas/DeadPools'
+            description: All mining pools are unresponsive (or there is no pool configuration)
+      - type: object
+        description: No valid BOS license
+        required:
+        - missing_license
+        properties:
+          missing_license:
+            $ref: '#/components/schemas/MissingLicense'
+            description: No valid BOS license
+      - type: object
+        description: User-initiated pause
+        required:
+        - user_pause
+        properties:
+          user_pause:
+            $ref: '#/components/schemas/UserPause'
+            description: User-initiated pause
+      - type: object
+        description: Paused due to thermal conditions
+        required:
+        - thermal_pause
+        properties:
+          thermal_pause:
+            $ref: '#/components/schemas/ThermalPause'
+            description: Paused due to thermal conditions
+      - type: object
+        description: Dynamic Performance Scaling cooldown in progress
+        required:
+        - dps_cooldown
+        properties:
+          dps_cooldown:
+            $ref: '#/components/schemas/DpsCooldown'
+            description: Dynamic Performance Scaling cooldown in progress
+      - type: object
+        description: Autotuner encountered an error
+        required:
+        - tuner_error
+        properties:
+          tuner_error:
+            $ref: '#/components/schemas/TunerError'
+            description: Autotuner encountered an error
+      - type: object
+        description: Hardware error during operation
+        required:
+        - hardware_error
+        properties:
+          hardware_error:
+            $ref: '#/components/schemas/HardwareError'
+            description: Hardware error during operation
+    PoolStats:
+      type: object
+      description: Structure handle pool statistics
+      required:
+      - accepted_shares
+      - rejected_shares
+      - stale_shares
+      - last_difficulty
+      - best_share
+      - generated_work
+      - best_share_str
+      properties:
+        accepted_shares:
+          type: integer
+          format: int64
+          description: Accepted shares
+          minimum: 0
+        best_share:
+          type: integer
+          format: int64
+          description: 'Best share (deprecated: may overflow for values > 2^64-1, use best_share_str instead)'
+          deprecated: true
+          minimum: 0
+        best_share_str:
+          type: string
+          description: Best share as decimal string
+        generated_work:
+          type: integer
+          format: int64
+          description: Generated work
+          minimum: 0
+        last_difficulty:
+          type: integer
+          format: int64
+          description: Last difficulty
+          minimum: 0
+        last_share_time:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Timestamp'
+            description: Last share time
+        rejected_shares:
+          type: integer
+          format: int64
+          description: Rejected shares
+          minimum: 0
+        stale_shares:
+          type: integer
+          format: int64
+          description: Stale shares
+          minimum: 0
+    Frequency:
+      type: object
+      required:
+      - hertz
+      properties:
+        hertz:
+          type: number
+          format: double
+    UpdateHashboards:
+      type: object
+      required:
+      - hashboard_ids
+      - enable
+      properties:
+        enable:
+          type: boolean
+        hashboard_ids:
+          type: array
+          items:
+            type: string
+    DpsCooldown:
+      type: object
+      description: Dynamic Performance Scaling cooldown in progress
+    WaitingWhileCold:
+      type: object
+      description: Ambient temperature too low, waiting before start
+    Normal:
+      type: object
+      description: Mining normally at full performance
+    StopReason:
+      type: object
+      description: 'Detailed state of a stopped or stopping miner.
+
+
+        The same message is reused for both the `stopped` and `stopping` arms of
+
+        `MinerDetailedStatus.status` (a miner stops, and is shutting down,
+
+        for the same underlying reasons). The message type alone does not tell the
+
+        two phases apart: clients must look at which `status` arm is set to know
+
+        whether the miner is already stopped or still stopping.'
+      properties:
+        reason:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/StopDetailedReason'
+    Status:
+      oneOf:
+      - type: object
+        description: Miner is stopped and not mining
+        required:
+        - stopped
+        properties:
+          stopped:
+            $ref: '#/components/schemas/StopReason'
+            description: Miner is stopped and not mining
+      - type: object
+        description: Miner is starting up and not yet mining
+        required:
+        - starting
+        properties:
+          starting:
+            $ref: '#/components/schemas/StartReason'
+            description: Miner is starting up and not yet mining
+      - type: object
+        description: Miner is running and mining
+        required:
+        - running
+        properties:
+          running:
+            $ref: '#/components/schemas/RunReason'
+            description: Miner is running and mining
+      - type: object
+        description: Miner is shutting down
+        required:
+        - stopping
+        properties:
+          stopping:
+            $ref: '#/components/schemas/StopReason'
+            description: Miner is shutting down
+    ErrorCode:
+      type: object
+      required:
+      - code
+      - reason
+      - hint
+      properties:
+        code:
+          type: string
+        hint:
+          type: string
+        reason:
+          type: string
+    UnsupportedHardware:
+      type: object
+      description: Hardware detection failed
+      required:
+      - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+          description: Detected hardware error messages
+    StartReason:
+      type: object
+      description: State of a starting miner
+      properties:
+        reason:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/StartDetailedReason'
+    Temperature:
+      type: object
+      required:
+      - degree_c
+      properties:
+        degree_c:
+          type: number
+          format: double
+    GetMinerStatusResponse:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          type: integer
+          format: int32
+    Voltage:
+      type: object
+      required:
+      - volt
+      properties:
+        volt:
+          type: number
+          format: double
+    ApplicationUnavailable:
+      type: object
+      description: Bosminer application is unavailable
+    HardwareError:
+      type: object
+      description: Hardware error during operation
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          description: Hardware error message
+    Power:
+      type: object
+      required:
+      - watt
+      properties:
+        watt:
+          type: integer
+          format: int64
+          minimum: 0
+    GetMinerDetailsResponse:
+      type: object
+      description: Structure to handle system details
+      required:
+      - uid
+      - platform
+      - bos_mode
+      - hostname
+      - mac_address
+      - system_uptime
+      - bosminer_uptime_s
+      - system_uptime_s
+      - status
+      - kernel_version
+      - control_board_soc_family
+      properties:
+        bos_mode:
+          type: integer
+          format: int32
+          description: BOS Mode
+        bos_version:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/BosVersion'
+            description: OS Version
+        bosminer_uptime_s:
+          type: integer
+          format: int64
+          description: Bosminer uptime. `0` means bosminer is not running
+          minimum: 0
+        control_board_soc_family:
+          type: integer
+          format: int32
+          description: Control board soc family
+        detailed_status:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/MinerDetailedStatus'
+            description: Detailed miner status
+        hostname:
+          type: string
+          description: Hostname
+        is_pic_model:
+          type:
+          - boolean
+          - 'null'
+          description: Whether the miner has a PIC (Programmable Interrupt Controller) board
+        kernel_version:
+          type: string
+          description: Kernel version
+        mac_address:
+          type: string
+          description: MAC address
+        miner_identity:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/MinerIdentity'
+            description: Miner identity
+        platform:
+          type: integer
+          format: int32
+          description: Miner platform
+        psu_info:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PsuInfo'
+            description: PSU details
+        serial_number:
+          type:
+          - string
+          - 'null'
+          description: Miner serial number
+        status:
+          type: integer
+          format: int32
+          description: 'Miner status
+
+            Deprecated: Use detailed_status instead.'
+          deprecated: true
+        sticker_hashrate:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+            description: Miner hashrate declared by manufacturer
+        system_uptime:
+          type: integer
+          format: int64
+          description: 'Deprecated: Use system_uptime_s'
+          deprecated: true
+          minimum: 0
+        system_uptime_s:
+          type: integer
+          format: int64
+          description: System uptime
+          minimum: 0
+        uid:
+          type: string
+          description: Miner ID
+    MinerError:
+      type: object
+      required:
+      - timestamp
+      - message
+      - error_codes
+      - components
+      properties:
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/Component'
+        error_codes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+        timestamp:
+          type: string

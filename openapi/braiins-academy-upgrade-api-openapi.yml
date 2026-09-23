@@ -1,0 +1,307 @@
+openapi: 3.2.0
+info:
+  title: Braiins OS Public REST Upgrade API
+  description: ''
+  contact:
+    name: Braiins
+    url: https://help.braiins.com
+    email: help@braiins.com
+  license:
+    name: ''
+  version: 1.7.0
+servers:
+- url: http://miner/
+tags:
+- name: Upgrade
+paths:
+  /api/v1/upgrade/auto-upgrade:
+    get:
+      tags:
+      - Upgrade
+      summary: Get auto-upgrade settings
+      description: Get the current auto-upgrade configuration.
+      operationId: getAutoUpgradeStatus
+      responses:
+        '200':
+          description: Successful response with auto-upgrade settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAutoUpgradeStatusResponse'
+              example:
+                enabled: true
+                last_execution:
+                  nanos: 0
+                  seconds: 1744085400
+                next_execution:
+                  nanos: 0
+                  seconds: 1744171800
+                schedule:
+                  schedule_type:
+                    daily:
+                      time:
+                        hours: 3
+                        minutes: 30
+                        seconds: null
+    patch:
+      tags:
+      - Upgrade
+      summary: Set auto-upgrade settings
+      description: Configure auto-upgrade settings.
+      operationId: updateAutoUpgradeConfig
+      requestBody:
+        description: Auto-upgrade configuration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAutoUpgradeConfigRequest'
+            example:
+              enabled: true
+              schedule:
+                schedule_type:
+                  daily:
+                    time:
+                      hours: 3
+                      minutes: 30
+                      seconds: 21
+        required: true
+      responses:
+        '200':
+          description: Auto-upgrade settings updated successfully
+          content:
+            application/json:
+              example:
+                enabled: true
+                next_execution:
+                  nanos: 0
+                  seconds: 1744171800
+  /api/v1/upgrade/restore-stock:
+    post:
+      tags:
+      - Upgrade
+      summary: Restore stock
+      description: Uninstalls BraiinsOS and restores the miner to its original stock firmware. After initial checks pass, the response is returned and the restoration continues in the background. The device will become unreachable as the process proceeds. Not supported on all platforms (e.g. BMM) or SD card installations.
+      operationId: restoreStock
+      responses:
+        '204':
+          description: Successful response.
+        '409':
+          description: Another system task is already in progress.
+        '500':
+          description: Internal server error.
+        '501':
+          description: Uninstall is not supported on this platform.
+  /api/v1/upgrade/system-upgrade:
+    post:
+      tags:
+      - Upgrade
+      summary: System upgrade
+      description: Performs system upgrade.
+      operationId: systemUpgrade
+      requestBody:
+        description: Stream of metadata and data. First message of the stream has to be `metadata`. Additional messages of the stream have to be `data`.
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SystemUpgradeRequestRest'
+            example:
+              data:
+              - - 0
+                - 0
+                - 0
+                - 0
+              - - 0
+                - 0
+                - 0
+                - 0
+              - - 0
+                - 0
+                - 0
+                - 0
+              - - 0
+                - 0
+                - 0
+                - 0
+              metadata:
+                disable_cleanup: false
+                discard_settings: false
+                hash: fcdb4b423f4e5283afa249d762ef6aef150e91fccd810d43e5e719d14512dec7
+                size: 16
+        required: true
+      responses:
+        '204':
+          description: Successful response.
+        '409':
+          description: Another system task is already in progress.
+        '500':
+          description: Internal server error.
+components:
+  schemas:
+    AutoUpgradeSchedule:
+      type: object
+      properties:
+        schedule_type:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/ScheduleType'
+    WeeklySchedule:
+      type: object
+      properties:
+        day_of_week:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        time:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/UpgradeTime'
+    Timestamp:
+      type: object
+      description: 'Custom version of google.protobuf.Timestamp
+
+        It is used only during compilation to replace google.protobuf.Timestamp to
+
+        enable traits for de/serialization and for generating documentation'
+      required:
+      - seconds
+      - nanos
+      properties:
+        nanos:
+          type: integer
+          format: int32
+        seconds:
+          type: integer
+          format: int64
+    UpdateAutoUpgradeConfigRequest:
+      type: object
+      required:
+      - enabled
+      properties:
+        enabled:
+          type: boolean
+        schedule:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/AutoUpgradeSchedule'
+    SystemUpgradeRequestRest:
+      type: object
+      required:
+      - metadata
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            type: array
+            items:
+              type: integer
+              format: int32
+              minimum: 0
+        metadata:
+          $ref: '#/components/schemas/SystemUpgradeMetadata'
+    SystemUpgradeMetadata:
+      type: object
+      required:
+      - size
+      - hash
+      - discard_settings
+      - disable_cleanup
+      properties:
+        disable_cleanup:
+          type: boolean
+          description: Flag if should disable cleanup of directory, in which uploaded firmware is stored (default is false and do cleanup)
+        discard_settings:
+          type: boolean
+          description: Flag if should discard settings (default is false and keep settings)
+        hash:
+          type: string
+          description: Firmware hash (SHA256 hex encoded)
+        size:
+          type: integer
+          format: int64
+          description: Firmware size (bytes)
+          minimum: 0
+    MonthlySchedule:
+      type: object
+      properties:
+        day_of_month:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Artificially limited to 1-28 to cover all months
+          minimum: 0
+        time:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/UpgradeTime'
+    UpgradeTime:
+      type: object
+      required:
+      - hours
+      - minutes
+      properties:
+        hours:
+          type: integer
+          format: int32
+          description: Hours of day in 24 hour format. Must be from 0 to 23.
+          minimum: 0
+        minutes:
+          type: integer
+          format: int32
+          description: Minutes of hour of day. Must be from 0 to 59.
+          minimum: 0
+        seconds:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Seconds of minutes of the time. Can be from 0 to 59.
+          minimum: 0
+    ScheduleType:
+      oneOf:
+      - type: object
+        required:
+        - daily
+        properties:
+          daily:
+            $ref: '#/components/schemas/DailySchedule'
+      - type: object
+        required:
+        - weekly
+        properties:
+          weekly:
+            $ref: '#/components/schemas/WeeklySchedule'
+      - type: object
+        required:
+        - monthly
+        properties:
+          monthly:
+            $ref: '#/components/schemas/MonthlySchedule'
+    DailySchedule:
+      type: object
+      properties:
+        time:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/UpgradeTime'
+    GetAutoUpgradeStatusResponse:
+      type: object
+      required:
+      - enabled
+      properties:
+        enabled:
+          type: boolean
+        last_execution:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Timestamp'
+        next_execution:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Timestamp'
+        schedule:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/AutoUpgradeSchedule'

@@ -1,0 +1,467 @@
+openapi: 3.2.0
+info:
+  title: Braiins Hashpower Accounts API
+  description: 'Public HTTP API for buying hashrate on the spot market, scheduling fixed-duration
+
+    contracts, and reading account and market data.'
+  version: 1.0.0
+servers:
+- url: https://hashpower.braiins.com/v1
+  description: Production public API
+security:
+- ApiKey: []
+tags:
+- name: Accounts
+  description: Read caller-owned balances and accounting transactions.
+paths:
+  /account/balance:
+    get:
+      summary: Get account balance
+      description: 'Returns the authenticated account''s total, available, and blocked satoshi balances together with cumulative deposit, withdrawal, trading, revenue, and fee counters.
+
+
+        **Access:** API key required; allowed ACLs: `staff`, `owner`, `read-only`.
+
+
+        **Rate limit:** 100 requests/minute per API credential.'
+      tags:
+      - Accounts
+      operationId: getAccountBalances
+      x-required-acl:
+      - staff
+      - owner
+      - read-only
+      x-rate-limit: 100 requests/minute per API credential
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAccountBalancesResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/ServiceError'
+  /account/transaction:
+    get:
+      summary: List mixed account transactions (deprecated)
+      description: 'Returns the legacy mixed stream of caller-owned account transactions. New integrations should use the settlement, lock, and on-chain endpoints so each response has an unambiguous transaction category.
+
+
+        **Access:** API key required; allowed ACLs: `staff`, `owner`, `read-only`.
+
+
+        **Rate limit:** 100 requests/minute per API credential.'
+      tags:
+      - Accounts
+      operationId: getTransactions
+      deprecated: true
+      x-required-acl:
+      - staff
+      - owner
+      - read-only
+      x-rate-limit: 100 requests/minute per API credential
+      parameters:
+      - name: limit
+        in: query
+        description: Optional limit for the number of transactions to return.
+        schema:
+          $ref: '#/components/schemas/Uint32'
+          examples:
+          - 10
+      - name: offset
+        in: query
+        description: Optional offset for listing the transactions.
+        schema:
+          $ref: '#/components/schemas/Uint32'
+          examples:
+          - 0
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTransactionsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/ServiceError'
+  /account/transaction/settlement:
+    get:
+      summary: List settlement account transactions
+      tags:
+      - Accounts
+      operationId: getSettlementTransactions
+      description: 'Returns caller-owned spot or contract settlement transactions only. Provide at most one of `bid_id` or `contract_id`; omitting both lists settlements across all caller resources.
+
+
+        **Access:** API key required; allowed ACLs: `staff`, `owner`, `read-only`.
+
+
+        **Rate limit:** 100 requests/minute per API credential.'
+      x-required-acl:
+      - staff
+      - owner
+      - read-only
+      x-rate-limit: 100 requests/minute per API credential
+      parameters:
+      - name: limit
+        in: query
+        description: Optional limit for the number of transactions to return.
+        schema:
+          $ref: '#/components/schemas/Uint32'
+          examples:
+          - 10
+      - name: offset
+        in: query
+        description: Optional offset for listing the transactions.
+        schema:
+          $ref: '#/components/schemas/Uint32'
+          examples:
+          - 0
+      - name: bid_id
+        in: query
+        description: Optional bid filter. Accepts the numeric bid ID or public B-prefixed bid ID.
+        schema:
+          type: string
+          examples:
+          - B123
+      - name: contract_id
+        in: query
+        description: Optional contract filter. Accepts the public C-prefixed contract ID.
+        schema:
+          type: string
+          examples:
+          - C123
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTransactionsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/ServiceError'
+  /account/transaction/lock:
+    get:
+      summary: List lock account transactions
+      tags:
+      - Accounts
+      operationId: getLockTransactions
+      description: 'Returns caller-owned fund lock, unlock, and release transactions. Provide at most one of `bid_id` or `contract_id`; omitting both lists lock activity across all caller resources.
+
+
+        **Access:** API key required; allowed ACLs: `staff`, `owner`, `read-only`.
+
+
+        **Rate limit:** 100 requests/minute per API credential.'
+      x-required-acl:
+      - staff
+      - owner
+      - read-only
+      x-rate-limit: 100 requests/minute per API credential
+      parameters:
+      - name: limit
+        in: query
+        description: Optional limit for the number of transactions to return.
+        schema:
+          $ref: '#/components/schemas/Uint32'
+          examples:
+          - 10
+      - name: offset
+        in: query
+        description: Optional offset for listing the transactions.
+        schema:
+          $ref: '#/components/schemas/Uint32'
+          examples:
+          - 0
+      - name: bid_id
+        in: query
+        description: Optional bid filter. Accepts the numeric bid ID or public B-prefixed bid ID.
+        schema:
+          type: string
+          examples:
+          - B123
+      - name: contract_id
+        in: query
+        description: Optional contract filter. Accepts the public C-prefixed contract ID.
+        schema:
+          type: string
+          examples:
+          - C123
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTransactionsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/ServiceError'
+  /account/transaction/on-chain:
+    get:
+      summary: List on-chain account transactions
+      description: 'Returns caller-owned Bitcoin on-chain deposit and withdrawal transactions with pagination. Settlement and fund-lock activity is intentionally excluded.
+
+
+        **Access:** API key required; allowed ACLs: `staff`, `owner`, `read-only`.
+
+
+        **Rate limit:** 100 requests/minute per API credential.'
+      tags:
+      - Accounts
+      operationId: getOnChainTransactions
+      x-required-acl:
+      - staff
+      - owner
+      - read-only
+      x-rate-limit: 100 requests/minute per API credential
+      parameters:
+      - name: limit
+        in: query
+        description: Optional limit for the number of transactions to return.
+        schema:
+          $ref: '#/components/schemas/Uint32'
+          examples:
+          - 10
+      - name: offset
+        in: query
+        description: Optional offset for listing the transactions.
+        schema:
+          $ref: '#/components/schemas/Uint32'
+          examples:
+          - 0
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOnChainTransactionsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        default:
+          $ref: '#/components/responses/ServiceError'
+components:
+  schemas:
+    Transaction:
+      type: object
+      required:
+      - tx_type
+      - amount_sat
+      - details
+      - timestamp
+      properties:
+        tx_type:
+          type: string
+          description: Transaction type (deposit, withdrawal, fee, etc...).
+        amount_sat:
+          $ref: '#/components/schemas/Double'
+          description: Transaction amount in satoshi.
+        details:
+          type: string
+          description: Additional details.
+        timestamp:
+          type: string
+          format: date-time
+          description: Transaction timestamp.
+    GetOnChainTransactionsResponse:
+      type: object
+      required:
+      - transactions
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/OnChainTransaction'
+    AccountBalance:
+      type: object
+      required:
+      - subaccount
+      - currency
+      - total_balance_sat
+      - available_balance_sat
+      - blocked_balance_sat
+      - total_deposited_sat
+      - total_withdrawn_sat
+      - total_spot_spent_sat
+      - total_spot_revenue_gross_sat
+      - total_spot_revenue_net_sat
+      - total_spent_spot_buy_fees_sat
+      - total_spent_spot_sell_fees_sat
+      - total_spent_fees_sat
+      - has_pending_withdrawal
+      properties:
+        subaccount:
+          type: string
+          description: Related subaccount
+        currency:
+          type: string
+          description: Account currency.
+          examples:
+          - USDC
+        total_balance_sat:
+          $ref: '#/components/schemas/Double'
+          description: Actual total account balance (including blocked funds).
+        available_balance_sat:
+          $ref: '#/components/schemas/Double'
+          description: Account balance minus blocked funds. Funds available for withdrawals / purchases.
+        blocked_balance_sat:
+          $ref: '#/components/schemas/Double'
+          description: Blocked amount (in orders, etc...).
+        total_deposited_sat:
+          $ref: '#/components/schemas/Double'
+          description: Total deposited.
+        total_withdrawn_sat:
+          $ref: '#/components/schemas/Double'
+          description: Total withdrawn from this account.
+        total_spot_spent_sat:
+          $ref: '#/components/schemas/Double'
+          description: Total spent on spot market bids (net).
+        total_spot_revenue_gross_sat:
+          $ref: '#/components/schemas/Double'
+          description: Total revenue from spot market asks (gross).
+        total_spot_revenue_net_sat:
+          $ref: '#/components/schemas/Double'
+          description: Total revenue from spot market asks (net).
+        total_spent_spot_buy_fees_sat:
+          $ref: '#/components/schemas/Double'
+          description: Total spent on spot fees (buy)
+        total_spent_spot_sell_fees_sat:
+          $ref: '#/components/schemas/Double'
+          description: Total spent on spot fees (sell).
+        total_spent_fees_sat:
+          $ref: '#/components/schemas/Double'
+          description: Total spent in fees.
+        has_pending_withdrawal:
+          type: boolean
+          description: True if there is a pending withdrawal (clients may only withdraw the full amount).
+    Uint32:
+      type: integer
+      format: uint32
+      minimum: 0
+      maximum: 4294967295
+    GetTransactionsResponse:
+      type: object
+      required:
+      - transactions
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+    OnChainTransactionType:
+      type: integer
+      format: int32
+      description: On-chain transaction type.
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+    GetAccountBalancesResponse:
+      type: object
+      required:
+      - accounts
+      properties:
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountBalance'
+    Double:
+      type: number
+      format: double
+    OnChainTransaction:
+      type: object
+      required:
+      - tx_type
+      - timestamp
+      - amount_sat
+      - address
+      properties:
+        tx_type:
+          $ref: '#/components/schemas/OnChainTransactionType'
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the transaction recording.
+        amount_sat:
+          $ref: '#/components/schemas/Double'
+          description: Transaction amount in satoshi.
+        tx_id:
+          type: string
+          description: Blockchain transaction ID (deposit, withdrawal confirmation only).
+        address:
+          type: string
+          description: BTC address of the realizing output.
+        order_no:
+          type: integer
+          format: uint32
+          description: Sequential order of the realizing output.
+        deposit_status:
+          $ref: '#/components/schemas/DepositStatus'
+        return_tx_id:
+          type: string
+          description: Return transaction ID (returned deposits only).
+    DepositStatus:
+      type: integer
+      format: int32
+      description: Deposit status (deposit transactions only).
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+  responses:
+    Unauthorized:
+      description: The `apikey` header is missing or does not contain a valid API credential.
+    BadRequest:
+      description: The path, query, or JSON body is invalid, violates a market rule, or contains mutually exclusive fields.
+    ServiceError:
+      description: The gateway or upstream service could not complete the request. The response body and status depend on the failing boundary.
+    Forbidden:
+      description: The API credential is valid but its ACL role or resource ownership does not permit this operation.
+    TooManyRequests:
+      description: The applicable per-credential or per-client-IP request limit was exceeded. Retry after reducing request frequency.
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: apikey
+      description: API credential issued for a Braiins Hashpower account. The credential's ACL role and resource ownership determine which authenticated operations and records are available.

@@ -1,0 +1,147 @@
+openapi: 3.2.0
+info:
+  title: Braiins OS Public REST Actions API
+  description: ''
+  contact:
+    name: Braiins
+    url: https://help.braiins.com
+    email: help@braiins.com
+  license:
+    name: ''
+  version: 1.7.0
+servers:
+- url: http://miner/
+tags:
+- name: Actions
+paths:
+  /api/v1/actions/factory-reset:
+    put:
+      tags:
+      - Actions
+      summary: Factory Reset
+      description: Performs Factory Reset.
+      operationId: factory_reset
+      parameters:
+      - name: wipe_network
+        in: query
+        description: If true, the factory reset also clears the network configuration so the miner returns to DHCP with the stock hostname on the next boot. If omitted or false, the network configuration is preserved (previous behaviour).
+        required: false
+        schema:
+          type: boolean
+      responses:
+        '204':
+          description: Successful response.
+  /api/v1/actions/locate:
+    get:
+      tags:
+      - Actions
+      summary: Get locate device status
+      description: Gets locate device status.
+      operationId: getLocateDeviceStatus
+      responses:
+        '200':
+          description: Successful response containing bool if enabled.
+          content:
+            application/json:
+              schema:
+                type: boolean
+    put:
+      tags:
+      - Actions
+      summary: Set locate device status
+      description: Sets locate device status (turn LED blinking on or off).
+      operationId: setLocateDeviceStatus
+      requestBody:
+        description: Enable or disable.
+        content:
+          application/json:
+            schema:
+              type: boolean
+        required: true
+      responses:
+        '200':
+          description: Successful response containing bool if enabled.
+          content:
+            application/json:
+              schema:
+                type: boolean
+  /api/v1/actions/pause:
+    put:
+      tags:
+      - Actions
+      summary: Pause mining
+      description: Pauses mining.
+      operationId: pauseMining
+      responses:
+        '200':
+          description: Successful response containing bool if was already paused.
+          content:
+            application/json:
+              schema:
+                type: boolean
+  /api/v1/actions/reboot:
+    put:
+      tags:
+      - Actions
+      summary: Reboot
+      description: Reboots mining.
+      operationId: reboot
+      responses:
+        '204':
+          description: Successful response.
+  /api/v1/actions/restart:
+    put:
+      tags:
+      - Actions
+      summary: Restart
+      description: Restarts mining.
+      operationId: restart
+      responses:
+        '200':
+          description: Successful response containing bool if was already running.
+          content:
+            application/json:
+              schema:
+                type: boolean
+  /api/v1/actions/resume:
+    put:
+      tags:
+      - Actions
+      summary: Resume mining
+      description: Resumes mining.
+      operationId: resumeMining
+      responses:
+        '200':
+          description: Successful response containing bool if was already mining.
+          content:
+            application/json:
+              schema:
+                type: boolean
+  /api/v1/actions/start:
+    put:
+      tags:
+      - Actions
+      summary: Start
+      description: Starts mining.
+      operationId: start
+      responses:
+        '200':
+          description: Successful response containing bool if was already running.
+          content:
+            application/json:
+              schema:
+                type: boolean
+  /api/v1/actions/stop:
+    put:
+      tags:
+      - Actions
+      summary: Stop
+      description: Stops mining.
+      operationId: stop
+      responses:
+        '200':
+          description: Successful response containing bool if was already stopped.
+          content:
+            application/json:
+              schema:
+                type: boolean

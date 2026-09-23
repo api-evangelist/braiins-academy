@@ -1,0 +1,28 @@
+openapi: 3.2.0
+info:
+  title: Braiins OS Public REST Documentation API
+  description: ''
+  contact:
+    name: Braiins
+    url: https://help.braiins.com
+    email: help@braiins.com
+  license:
+    name: ''
+  version: 1.7.0
+servers:
+- url: http://miner/
+tags:
+- name: Documentation
+paths:
+  /api/v1/docs/openapi.json:
+    get:
+      tags:
+      - Documentation
+      summary: Retrieve OpenAPI JSON schema
+      description: Returns the OpenAPI specification in JSON format, which can be used by Redoc or Swagger UI for documentation.
+      operationId: getOpenApiSchema
+      responses:
+        '200':
+          description: Openapi schema in a JSON format
+          content:
+            application/json: {}

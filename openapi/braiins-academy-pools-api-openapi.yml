@@ -1,0 +1,464 @@
+openapi: 3.2.0
+info:
+  title: Braiins OS Public REST Pools API
+  description: ''
+  contact:
+    name: Braiins
+    url: https://help.braiins.com
+    email: help@braiins.com
+  license:
+    name: ''
+  version: 1.7.0
+servers:
+- url: http://miner/
+tags:
+- name: Pools
+paths:
+  /api/v1/pools/:
+    get:
+      tags:
+      - Pools
+      summary: Get Pool Groups
+      description: Fetches the list of all configured pool groups, including their pools, load balancing strategy, and status.
+      operationId: getPools
+      responses:
+        '200':
+          description: A list of pool groups with their respective pools and configurations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PoolGroup'
+              example:
+              - name: High Performance
+                pools:
+                - active: true
+                  alive: true
+                  enabled: true
+                  stats:
+                    accepted_shares: 1000
+                    best_share: 1200000
+                    best_share_str: '1200000'
+                    generated_work: 5000000
+                    last_difficulty: 800000
+                    last_share_time:
+                      nanos: 255441271
+                      seconds: 1741260910
+                    rejected_shares: 10
+                    stale_shares: 5
+                  uid: pool1
+                  url: stratum+tcp://pool.example.com:3333
+                  user: miner1
+                strategy:
+                  quota:
+                    value: 70
+                uid: group1
+    post:
+      tags:
+      - Pools
+      summary: Create a new pool group
+      description: Creates a new pool group with a specified name, list of pools, and load balancing strategy.
+      operationId: createPoolGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PoolGroupConfiguration'
+            example:
+              load_balance_strategy:
+                fixedshareratio:
+                  value: 50.0
+              name: Pools
+              pools:
+              - enabled: true
+                password: xxxx
+                uid: '1'
+                url: stratum+tcp://pool.example.com:3333
+                user: miner1
+              uid: group1
+        required: true
+      responses:
+        '201':
+          description: Pool group successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolGroupConfiguration'
+              example:
+                load_balance_strategy:
+                  fixedshareratio:
+                    value: 50.0
+                name: Pools
+                pools:
+                - enabled: true
+                  password: xxxx
+                  uid: '1'
+                  url: stratum+tcp://pool.example.com:3333
+                  user: miner1
+                uid: group1
+  /api/v1/pools/batch:
+    put:
+      tags:
+      - Pools
+      summary: Set multiple pool groups
+      description: Sets the pool groups with new configurations, replacing the existing ones.
+      operationId: setBatchPools
+      requestBody:
+        description: A list of pool group configurations to set.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/PoolGroupConfiguration'
+            example:
+            - load_balance_strategy:
+                fixedshareratio:
+                  value: 50.0
+              name: Pools
+              pools:
+              - enabled: true
+                password: xxxx
+                uid: '1'
+                url: stratum+tcp://pool.example.com:3333
+                user: miner1
+              uid: group1
+        required: true
+      responses:
+        '200':
+          description: Successfully set pool groups.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PoolGroupConfiguration'
+              example:
+              - load_balance_strategy:
+                  fixedshareratio:
+                    value: 50.0
+                name: Pools
+                pools:
+                - enabled: true
+                  password: xxxx
+                  uid: '1'
+                  url: stratum+tcp://pool.example.com:3333
+                  user: miner1
+                uid: group1
+  /api/v1/pools/{uid}:
+    put:
+      tags:
+      - Pools
+      summary: Update an existing pool group
+      description: Updates the specified pool group with a new name, list of pools, and load balancing strategy.
+      operationId: updatePoolGroup
+      parameters:
+      - name: uid
+        in: path
+        description: The UID of the pool to be updated.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Pool group configuration to be updated.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PoolGroupConfiguration'
+            example:
+              load_balance_strategy:
+                fixedshareratio:
+                  value: 50.0
+              name: Pools
+              pools:
+              - enabled: true
+                password: xxxx
+                uid: '1'
+                url: stratum+tcp://pool.example.com:3333
+                user: miner1
+              uid: group1
+        required: true
+      responses:
+        '200':
+          description: Pool group successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoolGroupConfiguration'
+              example:
+                load_balance_strategy:
+                  fixedshareratio:
+                    value: 50.0
+                name: Pools
+                pools:
+                - enabled: true
+                  password: xxxx
+                  uid: '1'
+                  url: stratum+tcp://pool.example.com:3333
+                  user: miner1
+                uid: group1
+        '404':
+          description: Pool group not found
+    delete:
+      tags:
+      - Pools
+      summary: Delete a pool group by UID
+      description: Deletes a pool group configuration based on the provided UID.
+      operationId: deletePool
+      parameters:
+      - name: uid
+        in: path
+        description: The UID of the pool group to be deleted.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Pool group successfully deleted.
+components:
+  schemas:
+    Quota:
+      type: object
+      description: Structure for quota load balance strategy
+      required:
+      - value
+      properties:
+        value:
+          type: integer
+          format: int32
+          minimum: 0
+    PoolConfiguration:
+      type: object
+      description: Structure handle information about configured pool
+      required:
+      - url
+      - user
+      properties:
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Flag if pool connection is enabled
+        password:
+          type:
+          - string
+          - 'null'
+          description: Pool connection password if set
+        uid:
+          type:
+          - string
+          - 'null'
+          description: 'Pool connection id<br>
+
+            If this struct is used when creating a new Pool Configuration, this field must not be specified (it will be generated)<br>
+
+            If this struct is used when updating an existing configuration, this field must be specified and represents unique id of pool which will be updated'
+        url:
+          type: string
+          description: Pool connection URL
+        user:
+          type: string
+          description: Pool connection user
+    LoadBalanceStrategy:
+      oneOf:
+      - type: object
+        required:
+        - quota
+        properties:
+          quota:
+            $ref: '#/components/schemas/Quota'
+      - type: object
+        required:
+        - fixedshareratio
+        properties:
+          fixedshareratio:
+            $ref: '#/components/schemas/FixedShareRatio'
+      description: Group load balance strategy
+    Pool:
+      type: object
+      description: Structure handle information about configured pool
+      required:
+      - uid
+      - url
+      - user
+      - enabled
+      - alive
+      - active
+      properties:
+        active:
+          type: boolean
+          description: Flag if pool is active (running)
+        alive:
+          type: boolean
+          description: Flag if pool is alive
+        enabled:
+          type: boolean
+          description: Flag if pool connection is enabled
+        stats:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PoolStats'
+            description: Pool stats
+        uid:
+          type: string
+          description: Pool connection id
+        url:
+          type: string
+          description: Pool connection URL
+        user:
+          type: string
+          description: Pool connection user
+    PoolStats:
+      type: object
+      description: Structure handle pool statistics
+      required:
+      - accepted_shares
+      - rejected_shares
+      - stale_shares
+      - last_difficulty
+      - best_share
+      - generated_work
+      - best_share_str
+      properties:
+        accepted_shares:
+          type: integer
+          format: int64
+          description: Accepted shares
+          minimum: 0
+        best_share:
+          type: integer
+          format: int64
+          description: 'Best share (deprecated: may overflow for values > 2^64-1, use best_share_str instead)'
+          deprecated: true
+          minimum: 0
+        best_share_str:
+          type: string
+          description: Best share as decimal string
+        generated_work:
+          type: integer
+          format: int64
+          description: Generated work
+          minimum: 0
+        last_difficulty:
+          type: integer
+          format: int64
+          description: Last difficulty
+          minimum: 0
+        last_share_time:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Timestamp'
+            description: Last share time
+        rejected_shares:
+          type: integer
+          format: int64
+          description: Rejected shares
+          minimum: 0
+        stale_shares:
+          type: integer
+          format: int64
+          description: Stale shares
+          minimum: 0
+    Timestamp:
+      type: object
+      description: 'Custom version of google.protobuf.Timestamp
+
+        It is used only during compilation to replace google.protobuf.Timestamp to
+
+        enable traits for de/serialization and for generating documentation'
+      required:
+      - seconds
+      - nanos
+      properties:
+        nanos:
+          type: integer
+          format: int32
+        seconds:
+          type: integer
+          format: int64
+    FixedShareRatio:
+      type: object
+      description: 'Structure for fixed share ratio load balance strategy
+
+        Fixed share ratio is value between 0.0 to 1.0 where 1.0 represents that all work is
+
+        generated from the group'
+      required:
+      - value
+      properties:
+        value:
+          type: number
+          format: double
+    Strategy:
+      oneOf:
+      - type: object
+        required:
+        - quota
+        properties:
+          quota:
+            $ref: '#/components/schemas/Quota'
+      - type: object
+        required:
+        - fixedshareratio
+        properties:
+          fixedshareratio:
+            $ref: '#/components/schemas/FixedShareRatio'
+      description: Load balancing strategy
+    PoolGroup:
+      type: object
+      description: Structure handle all pool group details
+      required:
+      - name
+      - pools
+      - uid
+      properties:
+        name:
+          type: string
+          description: Group name
+        pools:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pool'
+          description: Group pools
+        strategy:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Strategy'
+            description: Load balancing strategy
+        uid:
+          type: string
+          description: Group id
+    PoolGroupConfiguration:
+      type: object
+      description: Structure handle configured mining group
+      required:
+      - name
+      - pools
+      properties:
+        load_balance_strategy:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/LoadBalanceStrategy'
+            description: Group load balance strategy
+        name:
+          type: string
+          description: Group name
+        pools:
+          type: array
+          items:
+            $ref: '#/components/schemas/PoolConfiguration'
+          description: Group pools
+        uid:
+          type:
+          - string
+          - 'null'
+          description: 'Group id<br>
+
+            gRPC: If this struct is used when creating a new Pool Group, this field must not be specified (it will be generated)<br>
+
+            gRPC: If this struct is used when updating an existing Pool Group, this field must be specified and represents unique id of Pool group which will be updated<br>
+
+            REST: If this struct is used when creating a new Pool Group, this field must not be specified (it will be generated)<br>
+
+            REST: If this struct is used when updating an existing Pool Group, this field must not be specified, uid in URL must be specified and represents unique id of Pool group which will be updated'

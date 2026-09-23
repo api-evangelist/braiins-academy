@@ -1,0 +1,226 @@
+openapi: 3.2.0
+info:
+  title: Braiins OS Public REST Network API
+  description: ''
+  contact:
+    name: Braiins
+    url: https://help.braiins.com
+    email: help@braiins.com
+  license:
+    name: ''
+  version: 1.7.0
+servers:
+- url: http://miner/
+tags:
+- name: Network
+paths:
+  /api/v1/network/:
+    get:
+      tags:
+      - Network
+      summary: Retrieve miner network information
+      description: Fetches detailed information about the miner's network, including interfaces, MAC addresses, DNS settings, and default gateway.
+      operationId: getNetwork
+      responses:
+        '200':
+          description: Successful response containing miner network information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetNetworkInfoResponse'
+              example:
+                default_gateway: 192.168.1.1
+                dns_servers:
+                - 8.8.8.8
+                - 8.8.4.4
+                hostname: miner-01.local
+                mac_address: 00:1A:2B:3C:4D:5E
+                name: eth0
+                networks:
+                - address: 192.168.1.100
+                  netmask: 255.255.255.0
+                protocol: 1
+  /api/v1/network/configuration:
+    get:
+      tags:
+      - Network
+      summary: Get network configuration
+      description: Fetches the miner's network configuration, including interface settings, IP configurations, and routing details.
+      operationId: getNetworkConfiguration
+      responses:
+        '200':
+          description: Successful response containing network configuration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NetworkConfiguration'
+              example:
+                hostname: miner-01.local
+                protocol:
+                  dhcp: {}
+    patch:
+      tags:
+      - Network
+      summary: Update network configuration
+      description: Updates the miner's network configuration. Users can modify one or more fields, such as the hostname, network protocol, or DNS settings.
+      operationId: updateNetworkConfiguration
+      requestBody:
+        description: Partial or full network configuration update request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetNetworkConfigurationRequest'
+            example:
+              hostname: miner-01.local
+              protocol:
+                dhcp: {}
+        required: true
+      responses:
+        '200':
+          description: Successfully updated network configuration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NetworkConfiguration'
+              example:
+                hostname: miner-01.local
+                protocol:
+                  dhcp: {}
+components:
+  schemas:
+    Static:
+      type: object
+      required:
+      - address
+      - netmask
+      - gateway
+      - dns_servers
+      properties:
+        address:
+          type: string
+          description: IP address
+        dns_servers:
+          type: array
+          items:
+            type: string
+          description: DNS servers
+        gateway:
+          type: string
+          description: Gateway
+        netmask:
+          type: string
+          description: Netmask
+    IpNetwork:
+      type: object
+      required:
+      - address
+      - netmask
+      properties:
+        address:
+          type: string
+        netmask:
+          type: string
+    SetNetworkConfigurationRequest:
+      type: object
+      properties:
+        hostname:
+          type:
+          - string
+          - 'null'
+          description: Hostname. Existing value will be preserved if this field is not set.
+        protocol:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/SetNetworkConfigurationRequestProtocol'
+            description: Network protocol. Existing value will be preserved if this field is not set.
+    NetworkConfigurationProtocol:
+      oneOf:
+      - type: object
+        required:
+        - dhcp
+        properties:
+          dhcp:
+            $ref: '#/components/schemas/Dhcp'
+      - type: object
+        required:
+        - static
+        properties:
+          static:
+            $ref: '#/components/schemas/Static'
+      description: Network protocol
+    Dhcp:
+      type: object
+    NetworkConfiguration:
+      type: object
+      required:
+      - hostname
+      properties:
+        hostname:
+          type: string
+          description: Hostname
+        protocol:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/NetworkConfigurationProtocol'
+            description: Network protocol
+    SetNetworkConfigurationRequestProtocol:
+      oneOf:
+      - type: object
+        required:
+        - dhcp
+        properties:
+          dhcp:
+            $ref: '#/components/schemas/Dhcp'
+      - type: object
+        required:
+        - static
+        properties:
+          static:
+            $ref: '#/components/schemas/Static'
+      description: Network protocol. Existing value will be preserved if this field is not set.
+    GetNetworkInfoResponse:
+      type: object
+      description: 'Response message for GetCurrentNetworkConfiguration
+
+        Represents the current network configuration for the default network interface.
+
+        Only IPv4 is supported.'
+      required:
+      - name
+      - dns_servers
+      - networks
+      properties:
+        default_gateway:
+          type:
+          - string
+          - 'null'
+          description: Default gateway/route for the interface
+        dns_servers:
+          type: array
+          items:
+            type: string
+          description: List of configured DNS servers
+        hostname:
+          type:
+          - string
+          - 'null'
+          description: Miner hostname
+        mac_address:
+          type:
+          - string
+          - 'null'
+          description: MAC address of the network interface
+        name:
+          type: string
+          description: Name of the network interface
+        networks:
+          type: array
+          items:
+            $ref: '#/components/schemas/IpNetwork'
+          description: List of assigned IP addresses
+        protocol:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Network protocol

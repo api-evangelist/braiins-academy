@@ -1,0 +1,2 @@
+# x-archived-from: braiins-academy-braiins-os-public-rest-api-openapi.json
+# x-archived-on: 2026-09-16

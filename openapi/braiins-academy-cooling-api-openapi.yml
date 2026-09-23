@@ -1,0 +1,351 @@
+openapi: 3.2.0
+info:
+  title: Braiins OS Public REST Cooling API
+  description: ''
+  contact:
+    name: Braiins
+    url: https://help.braiins.com
+    email: help@braiins.com
+  license:
+    name: ''
+  version: 1.7.0
+servers:
+- url: http://miner/
+tags:
+- name: Cooling
+paths:
+  /api/v1/cooling/mode:
+    put:
+      tags:
+      - Cooling
+      summary: Set cooling mode
+      description: Sets the active cooling mode for the miner. The mode can be set to auto, manual, immersion, or hydro.
+      operationId: setCoolingMode
+      requestBody:
+        description: 'Cooling mode to activate. Can be one of: auto, manual, immersion, or hydro.'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetCoolingModeRequestMode'
+        required: true
+      responses:
+        '200':
+          description: Successful response containing active cooling mode
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetCoolingModeResponseMode'
+  /api/v1/cooling/state:
+    get:
+      tags:
+      - Cooling
+      summary: Get cooling state
+      description: Retrieves the current cooling state of the miner, including temperature measurements and the state of all fans.
+      operationId: getCoolingState
+      responses:
+        '200':
+          description: Successful response containing information about temperature measurements and fans states
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCoolingStateResponse'
+components:
+  schemas:
+    CoolingImmersionMode:
+      type: object
+      properties:
+        dangerous_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+        hot_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+        target_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+    Temperature:
+      type: object
+      required:
+      - degree_c
+      properties:
+        degree_c:
+          type: number
+          format: double
+    FanState:
+      type: object
+      description: Structure which contain info about one specific miner fan.
+      required:
+      - rpm
+      properties:
+        position:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Fan positions/ID
+          minimum: 0
+        rpm:
+          type: integer
+          format: int32
+          description: Actual fan RPM (Revolutions/Rotation Per Minute)
+          minimum: 0
+        target_speed_ratio:
+          type:
+          - number
+          - 'null'
+          format: double
+          description: Actual fan speed ratio(PWM) in range 0.0 - 1.0
+    SetCoolingModeRequestMode:
+      oneOf:
+      - type: object
+        required:
+        - auto
+        properties:
+          auto:
+            $ref: '#/components/schemas/CoolingAutoMode'
+      - type: object
+        required:
+        - manual
+        properties:
+          manual:
+            $ref: '#/components/schemas/CoolingManualMode'
+      - type: object
+        required:
+        - immersion
+        properties:
+          immersion:
+            $ref: '#/components/schemas/CoolingImmersionMode'
+      - type: object
+        required:
+        - hydro
+        properties:
+          hydro:
+            $ref: '#/components/schemas/CoolingHydroMode'
+      description: 'Cooling mode to set. If the cooling mode is changed, all fields that aren''t relevant to the new mode are reset to default values.
+
+        If the cooling mode values are updated, the new values are applied to the current mode.'
+    AutoPauseMode:
+      type: object
+      description: Automatic pause mode starts with fans going with last fan speed used for mining and slowly decreases speed down to 0%
+    ManualPauseMode:
+      type: object
+      description: 'Manual pause mode runs with defined fixed fans speed and either turns off after a certain period of time
+
+        or runs indefinitely according to fan_runtime settings'
+      properties:
+        fan_pause_runtime:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: 'Controls how long fans run at the fixed speed before turning off.<br>
+
+            1 = FAN_PAUSE_RUNTIME_LIMITED - fans run for a limited duration (see `fan_pause_runtime_limited_duration_s` in `CoolingConstraints`) then turn off<br>
+
+            2 = FAN_PAUSE_RUNTIME_INDEFINITE - fans run indefinitely at the fixed speed until miner is resumed'
+        pause_cooldown_fan_speed_ratio:
+          type:
+          - number
+          - 'null'
+          format: double
+          description: 'User defined pause cooldown fan speed expressed as a ratio between 0.0 and 1.0
+
+            where 0.0 means completely turned off and
+
+            1.0 means running at full speed possible'
+    CoolingAutoMode:
+      type: object
+      description: 'The temperature control modes.
+
+        Miner software tries to regulate the fan speed so that miner temperature is approximately at the target temperature.
+
+        The allowed temperature range is 0-200 degree Celsius.'
+      properties:
+        dangerous_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature threshold at which BOSMiner shuts down in order to prevent overheating and damaging the miner.
+        hot_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature threshold at which the fans start to run at 100%.
+        max_fan_speed:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Maximum fan speed expressed as a value between 0 and 100. max_fan_speed must be greater than min_fan_speed.
+          minimum: 0
+        min_fan_speed:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Minimum fan speed expressed as a value between 0 and 100. min_fan_speed must be less than max_fan_speed.
+          minimum: 0
+        minimum_required_fans:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Minimum number of fans required to have BOSminer operational.
+          minimum: 0
+        pause_mode:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PauseMode'
+            description: Pause mode used for fans when the miner is paused
+        target_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature that the miner will try to maintain
+    CoolingHydroMode:
+      type: object
+      properties:
+        dangerous_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+        hot_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+        target_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+    CoolingManualMode:
+      type: object
+      description: Fans are kept at a fixed, user-defined speed, no matter the temperature.
+      properties:
+        dangerous_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature threshold at which BOSMiner shuts down in order to prevent overheating and damaging the miner.
+        fan_speed_ratio:
+          type:
+          - number
+          - 'null'
+          format: double
+          description: 'User defined fan speed expressed as a ratio between 0.0 and 1.0
+
+            where 0.0 means completely turned off and
+
+            1.0 means running at full speed possible'
+        hot_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature threshold at which the fans start to run at 100%.
+        minimum_required_fans:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Minimum number of fans required to have BOSminer operational.
+          minimum: 0
+        pause_mode:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PauseMode'
+            description: Pause mode
+        target_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature that the miner will try to maintain when power scaling is enabled
+    SetCoolingModeResponseMode:
+      oneOf:
+      - type: object
+        required:
+        - auto
+        properties:
+          auto:
+            $ref: '#/components/schemas/CoolingAutoMode'
+      - type: object
+        required:
+        - manual
+        properties:
+          manual:
+            $ref: '#/components/schemas/CoolingManualMode'
+      - type: object
+        required:
+        - immersion
+        properties:
+          immersion:
+            $ref: '#/components/schemas/CoolingImmersionMode'
+      - type: object
+        required:
+        - hydro
+        properties:
+          hydro:
+            $ref: '#/components/schemas/CoolingHydroMode'
+      description: The resulting cooling mode
+    GetCoolingStateResponse:
+      type: object
+      description: 'Response to get current fan states and
+
+        temperature measurements'
+      required:
+      - fans
+      properties:
+        fans:
+          type: array
+          items:
+            $ref: '#/components/schemas/FanState'
+          description: All Fans state
+        highest_temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TemperatureSensor'
+            description: Sensor with current highest temperature
+    PauseModeMode:
+      oneOf:
+      - type: object
+        required:
+        - auto
+        properties:
+          auto:
+            $ref: '#/components/schemas/AutoPauseMode'
+      - type: object
+        required:
+        - manual
+        properties:
+          manual:
+            $ref: '#/components/schemas/ManualPauseMode'
+    TemperatureSensor:
+      type: object
+      required:
+      - location
+      properties:
+        id:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Sensor id
+          minimum: 0
+        location:
+          type: integer
+          format: int32
+          description: Sensor location
+        temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature
+    PauseMode:
+      type: object
+      description: Pause mode to control fans behaviour after you pause the miner
+      properties:
+        mode:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PauseModeMode'
