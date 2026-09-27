@@ -15,15 +15,20 @@ tags:
 type: Index
 kind: company
 deliveryModel:
-  model: unknown
-  open_source: false
-  commercial: false
-  callable_host: false
-  label: Delivery model not determined — needs a product licence on record
+  model: saas
+  license_evidence:
+    not_product:
+    - braiins/bos-plus-api
+  open_source: unknown
+  commercial: true
+  callable_host: true
+  label: Hosted service · you call their endpoint
   confidence: low
   source:
-  - none
-  generated: '2026-08-28'
+  - openapi
+  - pricing
+  - repository-not-product
+  generated: '2026-09-25'
   method: derived
 accessModel:
   pricing: freemium

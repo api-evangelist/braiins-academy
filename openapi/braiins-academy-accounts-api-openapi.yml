@@ -299,15 +299,6 @@ components:
           type: string
           format: date-time
           description: Transaction timestamp.
-    GetOnChainTransactionsResponse:
-      type: object
-      required:
-      - transactions
-      properties:
-        transactions:
-          type: array
-          items:
-            $ref: '#/components/schemas/OnChainTransaction'
     AccountBalance:
       type: object
       required:
@@ -370,20 +361,20 @@ components:
         has_pending_withdrawal:
           type: boolean
           description: True if there is a pending withdrawal (clients may only withdraw the full amount).
-    Uint32:
+    DepositStatus:
       type: integer
-      format: uint32
-      minimum: 0
-      maximum: 4294967295
-    GetTransactionsResponse:
-      type: object
-      required:
-      - transactions
-      properties:
-        transactions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Transaction'
+      format: int32
+      description: Deposit status (deposit transactions only).
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+    Double:
+      type: number
+      format: double
     OnChainTransactionType:
       type: integer
       format: int32
@@ -393,18 +384,11 @@ components:
       - 1
       - 2
       - 3
-    GetAccountBalancesResponse:
-      type: object
-      required:
-      - accounts
-      properties:
-        accounts:
-          type: array
-          items:
-            $ref: '#/components/schemas/AccountBalance'
-    Double:
-      type: number
-      format: double
+    Uint32:
+      type: integer
+      format: uint32
+      minimum: 0
+      maximum: 4294967295
     OnChainTransaction:
       type: object
       required:
@@ -437,28 +421,44 @@ components:
         return_tx_id:
           type: string
           description: Return transaction ID (returned deposits only).
-    DepositStatus:
-      type: integer
-      format: int32
-      description: Deposit status (deposit transactions only).
-      enum:
-      - 0
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
+    GetOnChainTransactionsResponse:
+      type: object
+      required:
+      - transactions
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/OnChainTransaction'
+    GetAccountBalancesResponse:
+      type: object
+      required:
+      - accounts
+      properties:
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountBalance'
+    GetTransactionsResponse:
+      type: object
+      required:
+      - transactions
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
   responses:
-    Unauthorized:
-      description: The `apikey` header is missing or does not contain a valid API credential.
     BadRequest:
       description: The path, query, or JSON body is invalid, violates a market rule, or contains mutually exclusive fields.
-    ServiceError:
-      description: The gateway or upstream service could not complete the request. The response body and status depend on the failing boundary.
+    Unauthorized:
+      description: The `apikey` header is missing or does not contain a valid API credential.
     Forbidden:
       description: The API credential is valid but its ACL role or resource ownership does not permit this operation.
     TooManyRequests:
       description: The applicable per-credential or per-client-IP request limit was exceeded. Retry after reducing request frequency.
+    ServiceError:
+      description: The gateway or upstream service could not complete the request. The response body and status depend on the failing boundary.
   securitySchemes:
     ApiKey:
       type: apiKey

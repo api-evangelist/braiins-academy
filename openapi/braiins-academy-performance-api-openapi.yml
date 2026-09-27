@@ -497,48 +497,68 @@ paths:
                 overall_tuner_state: 1
 components:
   schemas:
-    HashrateTargetProfile:
+    SetRelativeTargetRequestRest:
       type: object
-      description: Structure to handle hashrate target profile
+      required:
+      - percentage
+      - reference
       properties:
-        created:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/Timestamp'
-            description: Creation timestamp
-        estimated_power_consumption:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/Power'
-            description: Estimated power consumption
-        measured_hashrate:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/GigaHashrate'
-            description: Measured hashrate
-        target:
+        percentage:
+          type: number
+          format: double
+          description: Percentage value to set (e.g., 85.5 for 85.5%)
+        reference:
+          type: integer
+          format: int32
+          description: 'Reference point from which the percentage is calculated<br>
+
+            1 = nominal - use nominal (sticker) power/hashrate target as the reference<br>
+
+            2 = min - use minimal power/hashrate target as the reference<br>
+
+            3 = max - use maximal power/hashrate target as the reference<br>
+
+            4 = current - use current power/hashrate target as the reference<br>'
+    HashrateTargetMode:
+      type: object
+      properties:
+        hashrate_target:
           oneOf:
           - type: 'null'
           - $ref: '#/components/schemas/TeraHashrate'
-            description: Tuned hashrate target
-    DPSTargetTarget:
-      oneOf:
-      - type: object
-        description: Power target settings for Dynamic Performance Scaling
-        required:
-        - powertarget
-        properties:
-          powertarget:
-            $ref: '#/components/schemas/DpsPowerTarget'
-            description: Power target settings for Dynamic Performance Scaling
-      - type: object
-        description: Hashrate target settings for Dynamic Performance Scaling
-        required:
-        - hashratetarget
-        properties:
-          hashratetarget:
-            $ref: '#/components/schemas/DpsHashrateTarget'
-            description: Hashrate target settings for Dynamic Performance Scaling
+            description: Hashrate target
+    Timestamp:
+      type: object
+      description: 'Custom version of google.protobuf.Timestamp
+
+        It is used only during compilation to replace google.protobuf.Timestamp to
+
+        enable traits for de/serialization and for generating documentation'
+      required:
+      - seconds
+      - nanos
+      properties:
+        nanos:
+          type: integer
+          format: int32
+        seconds:
+          type: integer
+          format: int64
+    DpsPowerTarget:
+      type: object
+      properties:
+        min_power_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Dynamic Performance Scaling minimal power target
+        power_step:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Dynamic Performance Scaling power step
+    ListTargetProfilesRequest:
+      type: object
     QuickRampingResponse:
       type: object
       required:
@@ -555,43 +575,47 @@ components:
           format: int32
           description: Quick ramping time up in seconds when RESUMING the miner. Sets how fast the miner will power up. Used in curtailments
           minimum: 0
-    PowerTargetMode:
+    SetDpsResponse:
       type: object
       properties:
+        enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Flag if Dynamic Performance Scaling is enabled
+        hashrate_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/DpsHashrateTarget'
+            description: Dynamic Performance Scaling hashrate target
+        mode:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Dynamic Performance Scaling mode
+        on_start_target_percent:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Initial target for Dynamic Performance Scaling in percent
+          minimum: 0
         power_target:
           oneOf:
           - type: 'null'
-          - $ref: '#/components/schemas/Power'
-            description: Power target
-    Hours:
-      type: object
-      required:
-      - hours
-      properties:
-        hours:
-          type: integer
-          format: int32
-          minimum: 0
-    ManualPerformanceMode:
-      type: object
-      required:
-      - hashboards
-      properties:
-        global_frequency:
+          - $ref: '#/components/schemas/DpsPowerTarget'
+            description: Dynamic Performance Scaling Power target
+        shutdown_duration:
           oneOf:
           - type: 'null'
-          - $ref: '#/components/schemas/Frequency'
-            description: Global hashboard frequency
-        global_voltage:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/Voltage'
-            description: Global hashboard voltage
-        hashboards:
-          type: array
-          items:
-            $ref: '#/components/schemas/HashboardPerformanceSettings'
-          description: Per hashboard frequency/voltage. It has higher priority than global one
+          - $ref: '#/components/schemas/Hours'
+            description: Dynamic Performance Scaling shutdown duration
+        shutdown_enabled:
+          type:
+          - boolean
+          - 'null'
+          description: Flag if shutdown for Dynamic Performance Scaling should be enabled
     SetDpsRequestRest:
       type: object
       properties:
@@ -635,144 +659,6 @@ components:
           - type: 'null'
           - $ref: '#/components/schemas/DpsTarget'
             description: Dynamic Performance Scaling target
-    SetDpsResponse:
-      type: object
-      properties:
-        enabled:
-          type:
-          - boolean
-          - 'null'
-          description: Flag if Dynamic Performance Scaling is enabled
-        hashrate_target:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/DpsHashrateTarget'
-            description: Dynamic Performance Scaling hashrate target
-        mode:
-          type:
-          - integer
-          - 'null'
-          format: int32
-          description: Dynamic Performance Scaling mode
-        on_start_target_percent:
-          type:
-          - integer
-          - 'null'
-          format: int32
-          description: Initial target for Dynamic Performance Scaling in percent
-          minimum: 0
-        power_target:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/DpsPowerTarget'
-            description: Dynamic Performance Scaling Power target
-        shutdown_duration:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/Hours'
-            description: Dynamic Performance Scaling shutdown duration
-        shutdown_enabled:
-          type:
-          - boolean
-          - 'null'
-          description: Flag if shutdown for Dynamic Performance Scaling should be enabled
-    TunerPerformanceMode:
-      type: object
-      properties:
-        target:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/TunerPerformanceModeTarget'
-    SetRelativeTargetRequestRest:
-      type: object
-      required:
-      - percentage
-      - reference
-      properties:
-        percentage:
-          type: number
-          format: double
-          description: Percentage value to set (e.g., 85.5 for 85.5%)
-        reference:
-          type: integer
-          format: int32
-          description: 'Reference point from which the percentage is calculated<br>
-
-            1 = nominal - use nominal (sticker) power/hashrate target as the reference<br>
-
-            2 = min - use minimal power/hashrate target as the reference<br>
-
-            3 = max - use maximal power/hashrate target as the reference<br>
-
-            4 = current - use current power/hashrate target as the reference<br>'
-    HashrateTargetModeState:
-      type: object
-      properties:
-        current_target:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/TeraHashrate'
-            description: Current hashrate target
-        profile:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/HashrateTargetProfile'
-            description: Currently used profile
-    GigaHashrate:
-      type: object
-      required:
-      - gigahash_per_second
-      properties:
-        gigahash_per_second:
-          type: number
-          format: double
-    SetQuickRampingRequestRest:
-      type: object
-      required:
-      - up_s
-      - down_s
-      properties:
-        down_s:
-          type: integer
-          format: int32
-          minimum: 0
-        up_s:
-          type: integer
-          format: int32
-          minimum: 0
-    ListTargetProfilesRequest:
-      type: object
-    PerformanceModeMode:
-      oneOf:
-      - type: object
-        required:
-        - manualmode
-        properties:
-          manualmode:
-            $ref: '#/components/schemas/ManualPerformanceMode'
-      - type: object
-        required:
-        - tunermode
-        properties:
-          tunermode:
-            $ref: '#/components/schemas/TunerPerformanceMode'
-    Timestamp:
-      type: object
-      description: 'Custom version of google.protobuf.Timestamp
-
-        It is used only during compilation to replace google.protobuf.Timestamp to
-
-        enable traits for de/serialization and for generating documentation'
-      required:
-      - seconds
-      - nanos
-      properties:
-        nanos:
-          type: integer
-          format: int32
-        seconds:
-          type: integer
-          format: int64
     Frequency:
       type: object
       required:
@@ -781,9 +667,64 @@ components:
         hertz:
           type: number
           format: double
-    PowerTargetProfile:
+    TunerPerformanceModeTarget:
+      oneOf:
+      - type: object
+        description: Tuner power target
+        required:
+        - powertarget
+        properties:
+          powertarget:
+            $ref: '#/components/schemas/PowerTargetMode'
+            description: Tuner power target
+      - type: object
+        description: Tuner hashrate target
+        required:
+        - hashratetarget
+        properties:
+          hashratetarget:
+            $ref: '#/components/schemas/HashrateTargetMode'
+            description: Tuner hashrate target
+    DpsTarget:
       type: object
-      description: Structure to handle power target profile
+      properties:
+        target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/DPSTargetTarget'
+    PowerTargetMode:
+      type: object
+      properties:
+        power_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Power target
+    GetTunerStateResponse:
+      type: object
+      description: Response with the current tuner details
+      required:
+      - overall_tuner_state
+      properties:
+        mode_state:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/ModeState'
+        overall_tuner_state:
+          type: integer
+          format: int32
+          description: Tuner state
+    GigaHashrate:
+      type: object
+      required:
+      - gigahash_per_second
+      properties:
+        gigahash_per_second:
+          type: number
+          format: double
+    HashrateTargetProfile:
+      type: object
+      description: Structure to handle hashrate target profile
       properties:
         created:
           oneOf:
@@ -803,102 +744,8 @@ components:
         target:
           oneOf:
           - type: 'null'
-          - $ref: '#/components/schemas/Power'
-            description: Tuned power target
-    TeraHashrate:
-      type: object
-      required:
-      - terahash_per_second
-      properties:
-        terahash_per_second:
-          type: number
-          format: double
-    PowerTargetModeState:
-      type: object
-      properties:
-        current_target:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/Power'
-            description: Current power target
-        profile:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/PowerTargetProfile'
-            description: current power target profile
-    TunerPerformanceModeTarget:
-      oneOf:
-      - type: object
-        description: Tuner power target
-        required:
-        - powertarget
-        properties:
-          powertarget:
-            $ref: '#/components/schemas/PowerTargetMode'
-            description: Tuner power target
-      - type: object
-        description: Tuner hashrate target
-        required:
-        - hashratetarget
-        properties:
-          hashratetarget:
-            $ref: '#/components/schemas/HashrateTargetMode'
-            description: Tuner hashrate target
-    ModeState:
-      oneOf:
-      - type: object
-        required:
-        - powertargetmodestate
-        properties:
-          powertargetmodestate:
-            $ref: '#/components/schemas/PowerTargetModeState'
-      - type: object
-        required:
-        - hashratetargetmodestate
-        properties:
-          hashratetargetmodestate:
-            $ref: '#/components/schemas/HashrateTargetModeState'
-    DpsTarget:
-      type: object
-      properties:
-        target:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/DPSTargetTarget'
-    Temperature:
-      type: object
-      required:
-      - degree_c
-      properties:
-        degree_c:
-          type: number
-          format: double
-    DpsPowerTarget:
-      type: object
-      properties:
-        min_power_target:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/Power'
-            description: Dynamic Performance Scaling minimal power target
-        power_step:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/Power'
-            description: Dynamic Performance Scaling power step
-    DpsHashrateTarget:
-      type: object
-      properties:
-        hashrate_step:
-          oneOf:
-          - type: 'null'
           - $ref: '#/components/schemas/TeraHashrate'
-            description: Dynamic Performance Scaling hashrate step
-        min_hashrate_target:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/TeraHashrate'
-            description: Dynamic Performance Scaling minimal hashrate target
+            description: Tuned hashrate target
     Voltage:
       type: object
       required:
@@ -907,33 +754,6 @@ components:
         volt:
           type: number
           format: double
-    GetMinerEfficiencyProfileResponse:
-      type: object
-      description: Miner efficiency profile curve
-      required:
-      - points
-      properties:
-        points:
-          type: array
-          items:
-            $ref: '#/components/schemas/MinerEfficiencyPoint'
-          description: 'Efficiency curve points ordered by ascending power target. The number of points varies by miner model (typically 6
-
-            to 20 points).'
-    GetTunerStateResponse:
-      type: object
-      description: Response with the current tuner details
-      required:
-      - overall_tuner_state
-      properties:
-        mode_state:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/ModeState'
-        overall_tuner_state:
-          type: integer
-          format: int32
-          description: Tuner state
     HashboardPerformanceSettings:
       type: object
       required:
@@ -961,14 +781,128 @@ components:
           type: integer
           format: int64
           minimum: 0
-    HashrateTargetMode:
+    SetQuickRampingRequestRest:
+      type: object
+      required:
+      - up_s
+      - down_s
+      properties:
+        down_s:
+          type: integer
+          format: int32
+          minimum: 0
+        up_s:
+          type: integer
+          format: int32
+          minimum: 0
+    DpsHashrateTarget:
       type: object
       properties:
-        hashrate_target:
+        hashrate_step:
           oneOf:
           - type: 'null'
           - $ref: '#/components/schemas/TeraHashrate'
-            description: Hashrate target
+            description: Dynamic Performance Scaling hashrate step
+        min_hashrate_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+            description: Dynamic Performance Scaling minimal hashrate target
+    PowerTargetProfile:
+      type: object
+      description: Structure to handle power target profile
+      properties:
+        created:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Timestamp'
+            description: Creation timestamp
+        estimated_power_consumption:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Estimated power consumption
+        measured_hashrate:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/GigaHashrate'
+            description: Measured hashrate
+        target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Tuned power target
+    DPSTargetTarget:
+      oneOf:
+      - type: object
+        description: Power target settings for Dynamic Performance Scaling
+        required:
+        - powertarget
+        properties:
+          powertarget:
+            $ref: '#/components/schemas/DpsPowerTarget'
+            description: Power target settings for Dynamic Performance Scaling
+      - type: object
+        description: Hashrate target settings for Dynamic Performance Scaling
+        required:
+        - hashratetarget
+        properties:
+          hashratetarget:
+            $ref: '#/components/schemas/DpsHashrateTarget'
+            description: Hashrate target settings for Dynamic Performance Scaling
+    PerformanceModeMode:
+      oneOf:
+      - type: object
+        required:
+        - manualmode
+        properties:
+          manualmode:
+            $ref: '#/components/schemas/ManualPerformanceMode'
+      - type: object
+        required:
+        - tunermode
+        properties:
+          tunermode:
+            $ref: '#/components/schemas/TunerPerformanceMode'
+    HashrateTargetModeState:
+      type: object
+      properties:
+        current_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TeraHashrate'
+            description: Current hashrate target
+        profile:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/HashrateTargetProfile'
+            description: Currently used profile
+    PowerTargetModeState:
+      type: object
+      properties:
+        current_target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Power'
+            description: Current power target
+        profile:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PowerTargetProfile'
+            description: current power target profile
+    GetMinerEfficiencyProfileResponse:
+      type: object
+      description: Miner efficiency profile curve
+      required:
+      - points
+      properties:
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/MinerEfficiencyPoint'
+          description: 'Efficiency curve points ordered by ascending power target. The number of points varies by miner model (typically 6
+
+            to 20 points).'
     MinerEfficiencyPoint:
       type: object
       description: Single point on the miner efficiency curve
@@ -1022,3 +956,69 @@ components:
           - type: 'null'
           - $ref: '#/components/schemas/Voltage'
             description: Estimated voltage
+    ManualPerformanceMode:
+      type: object
+      required:
+      - hashboards
+      properties:
+        global_frequency:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Frequency'
+            description: Global hashboard frequency
+        global_voltage:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Voltage'
+            description: Global hashboard voltage
+        hashboards:
+          type: array
+          items:
+            $ref: '#/components/schemas/HashboardPerformanceSettings'
+          description: Per hashboard frequency/voltage. It has higher priority than global one
+    TunerPerformanceMode:
+      type: object
+      properties:
+        target:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/TunerPerformanceModeTarget'
+    Temperature:
+      type: object
+      required:
+      - degree_c
+      properties:
+        degree_c:
+          type: number
+          format: double
+    ModeState:
+      oneOf:
+      - type: object
+        required:
+        - powertargetmodestate
+        properties:
+          powertargetmodestate:
+            $ref: '#/components/schemas/PowerTargetModeState'
+      - type: object
+        required:
+        - hashratetargetmodestate
+        properties:
+          hashratetargetmodestate:
+            $ref: '#/components/schemas/HashrateTargetModeState'
+    TeraHashrate:
+      type: object
+      required:
+      - terahash_per_second
+      properties:
+        terahash_per_second:
+          type: number
+          format: double
+    Hours:
+      type: object
+      required:
+      - hours
+      properties:
+        hours:
+          type: integer
+          format: int32
+          minimum: 0

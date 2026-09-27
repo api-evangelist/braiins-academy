@@ -51,7 +51,10 @@ paths:
                 $ref: '#/components/schemas/GetCoolingStateResponse'
 components:
   schemas:
-    CoolingImmersionMode:
+    AutoPauseMode:
+      type: object
+      description: Automatic pause mode starts with fans going with last fan speed used for mining and slowly decreases speed down to 0%
+    CoolingHydroMode:
       type: object
       properties:
         dangerous_temperature:
@@ -66,38 +69,6 @@ components:
           oneOf:
           - type: 'null'
           - $ref: '#/components/schemas/Temperature'
-    Temperature:
-      type: object
-      required:
-      - degree_c
-      properties:
-        degree_c:
-          type: number
-          format: double
-    FanState:
-      type: object
-      description: Structure which contain info about one specific miner fan.
-      required:
-      - rpm
-      properties:
-        position:
-          type:
-          - integer
-          - 'null'
-          format: int32
-          description: Fan positions/ID
-          minimum: 0
-        rpm:
-          type: integer
-          format: int32
-          description: Actual fan RPM (Revolutions/Rotation Per Minute)
-          minimum: 0
-        target_speed_ratio:
-          type:
-          - number
-          - 'null'
-          format: double
-          description: Actual fan speed ratio(PWM) in range 0.0 - 1.0
     SetCoolingModeRequestMode:
       oneOf:
       - type: object
@@ -127,35 +98,27 @@ components:
       description: 'Cooling mode to set. If the cooling mode is changed, all fields that aren''t relevant to the new mode are reset to default values.
 
         If the cooling mode values are updated, the new values are applied to the current mode.'
-    AutoPauseMode:
+    TemperatureSensor:
       type: object
-      description: Automatic pause mode starts with fans going with last fan speed used for mining and slowly decreases speed down to 0%
-    ManualPauseMode:
-      type: object
-      description: 'Manual pause mode runs with defined fixed fans speed and either turns off after a certain period of time
-
-        or runs indefinitely according to fan_runtime settings'
+      required:
+      - location
       properties:
-        fan_pause_runtime:
+        id:
           type:
           - integer
           - 'null'
           format: int32
-          description: 'Controls how long fans run at the fixed speed before turning off.<br>
-
-            1 = FAN_PAUSE_RUNTIME_LIMITED - fans run for a limited duration (see `fan_pause_runtime_limited_duration_s` in `CoolingConstraints`) then turn off<br>
-
-            2 = FAN_PAUSE_RUNTIME_INDEFINITE - fans run indefinitely at the fixed speed until miner is resumed'
-        pause_cooldown_fan_speed_ratio:
-          type:
-          - number
-          - 'null'
-          format: double
-          description: 'User defined pause cooldown fan speed expressed as a ratio between 0.0 and 1.0
-
-            where 0.0 means completely turned off and
-
-            1.0 means running at full speed possible'
+          description: Sensor id
+          minimum: 0
+        location:
+          type: integer
+          format: int32
+          description: Sensor location
+        temperature:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Temperature'
+            description: Temperature
     CoolingAutoMode:
       type: object
       description: 'The temperature control modes.
@@ -205,7 +168,15 @@ components:
           - type: 'null'
           - $ref: '#/components/schemas/Temperature'
             description: Temperature that the miner will try to maintain
-    CoolingHydroMode:
+    PauseMode:
+      type: object
+      description: Pause mode to control fans behaviour after you pause the miner
+      properties:
+        mode:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PauseModeMode'
+    CoolingImmersionMode:
       type: object
       properties:
         dangerous_temperature:
@@ -220,6 +191,55 @@ components:
           oneOf:
           - type: 'null'
           - $ref: '#/components/schemas/Temperature'
+    PauseModeMode:
+      oneOf:
+      - type: object
+        required:
+        - auto
+        properties:
+          auto:
+            $ref: '#/components/schemas/AutoPauseMode'
+      - type: object
+        required:
+        - manual
+        properties:
+          manual:
+            $ref: '#/components/schemas/ManualPauseMode'
+    SetCoolingModeResponseMode:
+      oneOf:
+      - type: object
+        required:
+        - auto
+        properties:
+          auto:
+            $ref: '#/components/schemas/CoolingAutoMode'
+      - type: object
+        required:
+        - manual
+        properties:
+          manual:
+            $ref: '#/components/schemas/CoolingManualMode'
+      - type: object
+        required:
+        - immersion
+        properties:
+          immersion:
+            $ref: '#/components/schemas/CoolingImmersionMode'
+      - type: object
+        required:
+        - hydro
+        properties:
+          hydro:
+            $ref: '#/components/schemas/CoolingHydroMode'
+      description: The resulting cooling mode
+    Temperature:
+      type: object
+      required:
+      - degree_c
+      properties:
+        degree_c:
+          type: number
+          format: double
     CoolingManualMode:
       type: object
       description: Fans are kept at a fixed, user-defined speed, no matter the temperature.
@@ -261,33 +281,6 @@ components:
           - type: 'null'
           - $ref: '#/components/schemas/Temperature'
             description: Temperature that the miner will try to maintain when power scaling is enabled
-    SetCoolingModeResponseMode:
-      oneOf:
-      - type: object
-        required:
-        - auto
-        properties:
-          auto:
-            $ref: '#/components/schemas/CoolingAutoMode'
-      - type: object
-        required:
-        - manual
-        properties:
-          manual:
-            $ref: '#/components/schemas/CoolingManualMode'
-      - type: object
-        required:
-        - immersion
-        properties:
-          immersion:
-            $ref: '#/components/schemas/CoolingImmersionMode'
-      - type: object
-        required:
-        - hydro
-        properties:
-          hydro:
-            $ref: '#/components/schemas/CoolingHydroMode'
-      description: The resulting cooling mode
     GetCoolingStateResponse:
       type: object
       description: 'Response to get current fan states and
@@ -306,46 +299,53 @@ components:
           - type: 'null'
           - $ref: '#/components/schemas/TemperatureSensor'
             description: Sensor with current highest temperature
-    PauseModeMode:
-      oneOf:
-      - type: object
-        required:
-        - auto
-        properties:
-          auto:
-            $ref: '#/components/schemas/AutoPauseMode'
-      - type: object
-        required:
-        - manual
-        properties:
-          manual:
-            $ref: '#/components/schemas/ManualPauseMode'
-    TemperatureSensor:
+    FanState:
       type: object
+      description: Structure which contain info about one specific miner fan.
       required:
-      - location
+      - rpm
       properties:
-        id:
+        position:
           type:
           - integer
           - 'null'
           format: int32
-          description: Sensor id
+          description: Fan positions/ID
           minimum: 0
-        location:
+        rpm:
           type: integer
           format: int32
-          description: Sensor location
-        temperature:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/Temperature'
-            description: Temperature
-    PauseMode:
+          description: Actual fan RPM (Revolutions/Rotation Per Minute)
+          minimum: 0
+        target_speed_ratio:
+          type:
+          - number
+          - 'null'
+          format: double
+          description: Actual fan speed ratio(PWM) in range 0.0 - 1.0
+    ManualPauseMode:
       type: object
-      description: Pause mode to control fans behaviour after you pause the miner
+      description: 'Manual pause mode runs with defined fixed fans speed and either turns off after a certain period of time
+
+        or runs indefinitely according to fan_runtime settings'
       properties:
-        mode:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/PauseModeMode'
+        fan_pause_runtime:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: 'Controls how long fans run at the fixed speed before turning off.<br>
+
+            1 = FAN_PAUSE_RUNTIME_LIMITED - fans run for a limited duration (see `fan_pause_runtime_limited_duration_s` in `CoolingConstraints`) then turn off<br>
+
+            2 = FAN_PAUSE_RUNTIME_INDEFINITE - fans run indefinitely at the fixed speed until miner is resumed'
+        pause_cooldown_fan_speed_ratio:
+          type:
+          - number
+          - 'null'
+          format: double
+          description: 'User defined pause cooldown fan speed expressed as a ratio between 0.0 and 1.0
+
+            where 0.0 means completely turned off and
+
+            1.0 means running at full speed possible'

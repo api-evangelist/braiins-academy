@@ -145,7 +145,50 @@ paths:
         default:
           $ref: '#/components/responses/ServiceError'
 components:
+  responses:
+    BadRequest:
+      description: The path, query, or JSON body is invalid, violates a market rule, or contains mutually exclusive fields.
+    TooManyRequests:
+      description: The applicable per-credential or per-client-IP request limit was exceeded. Retry after reducing request frequency.
+    ServiceError:
+      description: The gateway or upstream service could not complete the request. The response body and status depend on the failing boundary.
   schemas:
+    BidItem:
+      type: object
+      required:
+      - price_sat
+      - amount_sat
+      - hr_matched_ph
+      - speed_limit_ph
+      properties:
+        price_sat:
+          $ref: '#/components/schemas/Double'
+          description: Price of the bid item.
+        amount_sat:
+          $ref: '#/components/schemas/Double'
+          description: Amount in market currency available to purchase hashrate.
+        hr_matched_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate being matched at this level, estimated over a 10-minute window, in PH/s.
+        speed_limit_ph:
+          $ref: '#/components/schemas/Double'
+          description: Aggregated hashrate limit at this level. Zero means no limit. In PH/s.
+        degraded_bids_count:
+          $ref: '#/components/schemas/Uint32'
+          description: Number of degraded bids at this price level.
+    Double:
+      type: number
+      format: double
+    AggregationPeriod:
+      type: string
+      description: Aggregation period for bars (OHLCV candles).
+      enum:
+      - PERIOD_UNSPECIFIED
+      - PERIOD_5_MINUTES
+      - PERIOD_15_MINUTES
+      - PERIOD_1_HOUR
+      - PERIOD_4_HOURS
+      - PERIOD_1_DAY
     AskItem:
       type: object
       required:
@@ -162,6 +205,65 @@ components:
         hr_available_ph:
           $ref: '#/components/schemas/Double'
           description: Hashrate available for sale at this level, estimated over a 10-minute window, in PH/s.
+    Uint32:
+      type: integer
+      format: uint32
+      minimum: 0
+      maximum: 4294967295
+    SpotGetOrderBookResponse:
+      type: object
+      required:
+      - bids
+      - asks
+      properties:
+        bids:
+          type: array
+          items:
+            $ref: '#/components/schemas/BidItem'
+          description: List of bid items.
+        asks:
+          type: array
+          items:
+            $ref: '#/components/schemas/AskItem'
+          description: List of ask items.
+    SpotGetMarketStatsResponse:
+      type: object
+      required:
+      - status
+      - volume_24h_m
+      - best_bid_sat
+      - best_ask_sat
+      - last_avg_price_sat
+      - hash_rate_matched_10m_ph
+      - hash_rate_available_10m_ph
+      properties:
+        status:
+          $ref: '#/components/schemas/SpotInstrumentStatus'
+        volume_24h_m:
+          $ref: '#/components/schemas/Double'
+          description: Shares sold here in last 24 hours. In millions of shares.
+        best_bid_sat:
+          $ref: '#/components/schemas/Double'
+        best_ask_sat:
+          $ref: '#/components/schemas/Double'
+        last_avg_price_sat:
+          $ref: '#/components/schemas/Double'
+          description: Last second's average price matched. In satoshi.
+        hash_rate_matched_10m_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate being matched, estimated over a 10-minute rolling window, in PH/s.
+        hash_rate_available_10m_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate available in asks, estimated over a 10-minute rolling window, in PH/s.
+    SpotGetMarketTradesResponse:
+      type: object
+      required:
+      - trades
+      properties:
+        trades:
+          type: array
+          items:
+            $ref: '#/components/schemas/TradeSha256Btc'
     TradeBar:
       type: object
       required:
@@ -195,110 +297,6 @@ components:
         vwap:
           $ref: '#/components/schemas/Double'
           description: Volume-weighted average price.
-    AggregationPeriod:
-      type: string
-      description: Aggregation period for bars (OHLCV candles).
-      enum:
-      - PERIOD_UNSPECIFIED
-      - PERIOD_5_MINUTES
-      - PERIOD_15_MINUTES
-      - PERIOD_1_HOUR
-      - PERIOD_4_HOURS
-      - PERIOD_1_DAY
-    BidItem:
-      type: object
-      required:
-      - price_sat
-      - amount_sat
-      - hr_matched_ph
-      - speed_limit_ph
-      properties:
-        price_sat:
-          $ref: '#/components/schemas/Double'
-          description: Price of the bid item.
-        amount_sat:
-          $ref: '#/components/schemas/Double'
-          description: Amount in market currency available to purchase hashrate.
-        hr_matched_ph:
-          $ref: '#/components/schemas/Double'
-          description: Hashrate being matched at this level, estimated over a 10-minute window, in PH/s.
-        speed_limit_ph:
-          $ref: '#/components/schemas/Double'
-          description: Aggregated hashrate limit at this level. Zero means no limit. In PH/s.
-        degraded_bids_count:
-          $ref: '#/components/schemas/Uint32'
-          description: Number of degraded bids at this price level.
-    Uint32:
-      type: integer
-      format: uint32
-      minimum: 0
-      maximum: 4294967295
-    SpotGetOrderBookResponse:
-      type: object
-      required:
-      - bids
-      - asks
-      properties:
-        bids:
-          type: array
-          items:
-            $ref: '#/components/schemas/BidItem'
-          description: List of bid items.
-        asks:
-          type: array
-          items:
-            $ref: '#/components/schemas/AskItem'
-          description: List of ask items.
-    SpotGetMarketTradesResponse:
-      type: object
-      required:
-      - trades
-      properties:
-        trades:
-          type: array
-          items:
-            $ref: '#/components/schemas/TradeSha256Btc'
-    SpotGetMarketStatsResponse:
-      type: object
-      required:
-      - status
-      - volume_24h_m
-      - best_bid_sat
-      - best_ask_sat
-      - last_avg_price_sat
-      - hash_rate_matched_10m_ph
-      - hash_rate_available_10m_ph
-      properties:
-        status:
-          $ref: '#/components/schemas/SpotInstrumentStatus'
-        volume_24h_m:
-          $ref: '#/components/schemas/Double'
-          description: Shares sold here in last 24 hours. In millions of shares.
-        best_bid_sat:
-          $ref: '#/components/schemas/Double'
-        best_ask_sat:
-          $ref: '#/components/schemas/Double'
-        last_avg_price_sat:
-          $ref: '#/components/schemas/Double'
-          description: Last second's average price matched. In satoshi.
-        hash_rate_matched_10m_ph:
-          $ref: '#/components/schemas/Double'
-          description: Hashrate being matched, estimated over a 10-minute rolling window, in PH/s.
-        hash_rate_available_10m_ph:
-          $ref: '#/components/schemas/Double'
-          description: Hashrate available in asks, estimated over a 10-minute rolling window, in PH/s.
-    SpotGetBarsResponse:
-      type: object
-      required:
-      - bars
-      properties:
-        bars:
-          type: array
-          items:
-            $ref: '#/components/schemas/TradeBar'
-    Double:
-      type: number
-      format: double
     TradeSha256Btc:
       type: object
       required:
@@ -316,19 +314,21 @@ components:
         price_sat:
           $ref: '#/components/schemas/Double'
           description: Average price in satoshi.
+    SpotGetBarsResponse:
+      type: object
+      required:
+      - bars
+      properties:
+        bars:
+          type: array
+          items:
+            $ref: '#/components/schemas/TradeBar'
     SpotInstrumentStatus:
       type: string
       enum:
       - SPOT_INSTRUMENT_STATUS_UNSPECIFIED
       - SPOT_INSTRUMENT_STATUS_ACTIVE
       - SPOT_INSTRUMENT_STATUS_HALTED
-  responses:
-    BadRequest:
-      description: The path, query, or JSON body is invalid, violates a market rule, or contains mutually exclusive fields.
-    ServiceError:
-      description: The gateway or upstream service could not complete the request. The response body and status depend on the failing boundary.
-    TooManyRequests:
-      description: The applicable per-credential or per-client-IP request limit was exceeded. Retry after reducing request frequency.
   securitySchemes:
     ApiKey:
       type: apiKey
