@@ -233,53 +233,48 @@ components:
           fixedshareratio:
             $ref: '#/components/schemas/FixedShareRatio'
       description: Load balancing strategy
-    FixedShareRatio:
+    Timestamp:
       type: object
-      description: 'Structure for fixed share ratio load balance strategy
+      description: 'Custom version of google.protobuf.Timestamp
 
-        Fixed share ratio is value between 0.0 to 1.0 where 1.0 represents that all work is
+        It is used only during compilation to replace google.protobuf.Timestamp to
 
-        generated from the group'
+        enable traits for de/serialization and for generating documentation'
+      required:
+      - seconds
+      - nanos
+      properties:
+        nanos:
+          type: integer
+          format: int32
+        seconds:
+          type: integer
+          format: int64
+    Quota:
+      type: object
+      description: Structure for quota load balance strategy
       required:
       - value
       properties:
         value:
-          type: number
-          format: double
-    Pool:
-      type: object
-      description: Structure handle information about configured pool
-      required:
-      - uid
-      - url
-      - user
-      - enabled
-      - alive
-      - active
-      properties:
-        active:
-          type: boolean
-          description: Flag if pool is active (running)
-        alive:
-          type: boolean
-          description: Flag if pool is alive
-        enabled:
-          type: boolean
-          description: Flag if pool connection is enabled
-        stats:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/PoolStats'
-            description: Pool stats
-        uid:
-          type: string
-          description: Pool connection id
-        url:
-          type: string
-          description: Pool connection URL
-        user:
-          type: string
-          description: Pool connection user
+          type: integer
+          format: int32
+          minimum: 0
+    LoadBalanceStrategy:
+      oneOf:
+      - type: object
+        required:
+        - quota
+        properties:
+          quota:
+            $ref: '#/components/schemas/Quota'
+      - type: object
+        required:
+        - fixedshareratio
+        properties:
+          fixedshareratio:
+            $ref: '#/components/schemas/FixedShareRatio'
+      description: Group load balance strategy
     PoolConfiguration:
       type: object
       description: Structure handle information about configured pool
@@ -312,62 +307,19 @@ components:
         user:
           type: string
           description: Pool connection user
-    PoolGroup:
+    FixedShareRatio:
       type: object
-      description: Structure handle all pool group details
-      required:
-      - name
-      - pools
-      - uid
-      properties:
-        name:
-          type: string
-          description: Group name
-        pools:
-          type: array
-          items:
-            $ref: '#/components/schemas/Pool'
-          description: Group pools
-        strategy:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/Strategy'
-            description: Load balancing strategy
-        uid:
-          type: string
-          description: Group id
-    LoadBalanceStrategy:
-      oneOf:
-      - type: object
-        required:
-        - quota
-        properties:
-          quota:
-            $ref: '#/components/schemas/Quota'
-      - type: object
-        required:
-        - fixedshareratio
-        properties:
-          fixedshareratio:
-            $ref: '#/components/schemas/FixedShareRatio'
-      description: Group load balance strategy
-    Timestamp:
-      type: object
-      description: 'Custom version of google.protobuf.Timestamp
+      description: 'Structure for fixed share ratio load balance strategy
 
-        It is used only during compilation to replace google.protobuf.Timestamp to
+        Fixed share ratio is value between 0.0 to 1.0 where 1.0 represents that all work is
 
-        enable traits for de/serialization and for generating documentation'
+        generated from the group'
       required:
-      - seconds
-      - nanos
+      - value
       properties:
-        nanos:
-          type: integer
-          format: int32
-        seconds:
-          type: integer
-          format: int64
+        value:
+          type: number
+          format: double
     PoolGroupConfiguration:
       type: object
       description: Structure handle configured mining group
@@ -401,16 +353,6 @@ components:
             REST: If this struct is used when creating a new Pool Group, this field must not be specified (it will be generated)<br>
 
             REST: If this struct is used when updating an existing Pool Group, this field must not be specified, uid in URL must be specified and represents unique id of Pool group which will be updated'
-    Quota:
-      type: object
-      description: Structure for quota load balance strategy
-      required:
-      - value
-      properties:
-        value:
-          type: integer
-          format: int32
-          minimum: 0
     PoolStats:
       type: object
       description: Structure handle pool statistics
@@ -462,3 +404,61 @@ components:
           format: int64
           description: Stale shares
           minimum: 0
+    PoolGroup:
+      type: object
+      description: Structure handle all pool group details
+      required:
+      - name
+      - pools
+      - uid
+      properties:
+        name:
+          type: string
+          description: Group name
+        pools:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pool'
+          description: Group pools
+        strategy:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Strategy'
+            description: Load balancing strategy
+        uid:
+          type: string
+          description: Group id
+    Pool:
+      type: object
+      description: Structure handle information about configured pool
+      required:
+      - uid
+      - url
+      - user
+      - enabled
+      - alive
+      - active
+      properties:
+        active:
+          type: boolean
+          description: Flag if pool is active (running)
+        alive:
+          type: boolean
+          description: Flag if pool is alive
+        enabled:
+          type: boolean
+          description: Flag if pool connection is enabled
+        stats:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/PoolStats'
+            description: Pool stats
+        uid:
+          type: string
+          description: Pool connection id
+        url:
+          type: string
+          description: Pool connection URL
+        user:
+          type: string
+          description: Pool connection user

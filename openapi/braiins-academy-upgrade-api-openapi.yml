@@ -137,70 +137,6 @@ paths:
           description: Internal server error.
 components:
   schemas:
-    MonthlySchedule:
-      type: object
-      properties:
-        day_of_month:
-          type:
-          - integer
-          - 'null'
-          format: int32
-          description: Artificially limited to 1-28 to cover all months
-          minimum: 0
-        time:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/UpgradeTime'
-    GetAutoUpgradeStatusResponse:
-      type: object
-      required:
-      - enabled
-      properties:
-        enabled:
-          type: boolean
-        last_execution:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/Timestamp'
-        next_execution:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/Timestamp'
-        schedule:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/AutoUpgradeSchedule'
-    AutoUpgradeSchedule:
-      type: object
-      properties:
-        schedule_type:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/ScheduleType'
-    Timestamp:
-      type: object
-      description: 'Custom version of google.protobuf.Timestamp
-
-        It is used only during compilation to replace google.protobuf.Timestamp to
-
-        enable traits for de/serialization and for generating documentation'
-      required:
-      - seconds
-      - nanos
-      properties:
-        nanos:
-          type: integer
-          format: int32
-        seconds:
-          type: integer
-          format: int64
-    DailySchedule:
-      type: object
-      properties:
-        time:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/UpgradeTime'
     SystemUpgradeMetadata:
       type: object
       required:
@@ -223,37 +159,49 @@ components:
           format: int64
           description: Firmware size (bytes)
           minimum: 0
-    ScheduleType:
-      oneOf:
-      - type: object
-        required:
-        - daily
-        properties:
-          daily:
-            $ref: '#/components/schemas/DailySchedule'
-      - type: object
-        required:
-        - weekly
-        properties:
-          weekly:
-            $ref: '#/components/schemas/WeeklySchedule'
-      - type: object
-        required:
-        - monthly
-        properties:
-          monthly:
-            $ref: '#/components/schemas/MonthlySchedule'
-    UpdateAutoUpgradeConfigRequest:
+    GetAutoUpgradeStatusResponse:
       type: object
       required:
       - enabled
       properties:
         enabled:
           type: boolean
+        last_execution:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Timestamp'
+        next_execution:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Timestamp'
         schedule:
           oneOf:
           - type: 'null'
           - $ref: '#/components/schemas/AutoUpgradeSchedule'
+    DailySchedule:
+      type: object
+      properties:
+        time:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/UpgradeTime'
+    Timestamp:
+      type: object
+      description: 'Custom version of google.protobuf.Timestamp
+
+        It is used only during compilation to replace google.protobuf.Timestamp to
+
+        enable traits for de/serialization and for generating documentation'
+      required:
+      - seconds
+      - nanos
+      properties:
+        nanos:
+          type: integer
+          format: int32
+        seconds:
+          type: integer
+          format: int64
     UpgradeTime:
       type: object
       required:
@@ -277,6 +225,24 @@ components:
           format: int32
           description: Seconds of minutes of the time. Can be from 0 to 59.
           minimum: 0
+    AutoUpgradeSchedule:
+      type: object
+      properties:
+        schedule_type:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/ScheduleType'
+    UpdateAutoUpgradeConfigRequest:
+      type: object
+      required:
+      - enabled
+      properties:
+        enabled:
+          type: boolean
+        schedule:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/AutoUpgradeSchedule'
     WeeklySchedule:
       type: object
       properties:
@@ -285,6 +251,20 @@ components:
           - integer
           - 'null'
           format: int32
+        time:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/UpgradeTime'
+    MonthlySchedule:
+      type: object
+      properties:
+        day_of_month:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Artificially limited to 1-28 to cover all months
+          minimum: 0
         time:
           oneOf:
           - type: 'null'
@@ -305,3 +285,23 @@ components:
               minimum: 0
         metadata:
           $ref: '#/components/schemas/SystemUpgradeMetadata'
+    ScheduleType:
+      oneOf:
+      - type: object
+        required:
+        - daily
+        properties:
+          daily:
+            $ref: '#/components/schemas/DailySchedule'
+      - type: object
+        required:
+        - weekly
+        properties:
+          weekly:
+            $ref: '#/components/schemas/WeeklySchedule'
+      - type: object
+        required:
+        - monthly
+        properties:
+          monthly:
+            $ref: '#/components/schemas/MonthlySchedule'

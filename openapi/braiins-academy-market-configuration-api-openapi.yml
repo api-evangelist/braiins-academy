@@ -82,41 +82,31 @@ paths:
           $ref: '#/components/responses/ServiceError'
 components:
   schemas:
-    FeeSpec:
-      description: Generic fee specification. Allows to specify a fee w/ percents for now.
+    SpotFeePublic:
       type: object
       required:
-      - fee_rate_pct
+      - symbol
+      - fee_type
+      - fee
       properties:
-        fee_rate_pct:
-          $ref: '#/components/schemas/Double'
-          description: Fee rate in percents
+        symbol:
+          type: string
+        fee_type:
+          $ref: '#/components/schemas/SpotMarketFeeType'
+        fee:
+          $ref: '#/components/schemas/FeeSpec'
+    GetFeeStructureResponse:
+      type: object
+      required:
+      - spot_fees
+      properties:
+        spot_fees:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpotFeePublic'
     Double:
       type: number
       format: double
-    Int32:
-      type: integer
-      format: int32
-    SpotMarketFeeType:
-      type: string
-      description: '* SPOT_FEE_TYPE_UNSPECIFIED
-
-        * SPOT_FEE_TYPE_BUY - Continuous spot buy fee. Only percentage_fee_rate is used.
-
-        * SPOT_FEE_TYPE_SELL - Continuous spot sell fee. Only percentage_fee_rate is used.
-
-        * SPOT_FEE_TYPE_PLACEMENT - Fee for placing a new order. Both percentage_fee_rate and abs_fee are used.
-
-        * SPOT_FEE_TYPE_CANCEL - Fee for canceling an order. Both percentage_fee_rate and abs_fee are used.
-
-        * SPOT_FEE_TYPE_EDIT - Fee for editing an order. Both percentage_fee_rate and abs_fee are used.'
-      enum:
-      - SPOT_FEE_TYPE_UNSPECIFIED
-      - SPOT_FEE_TYPE_BUY
-      - SPOT_FEE_TYPE_SELL
-      - SPOT_FEE_TYPE_PLACEMENT
-      - SPOT_FEE_TYPE_CANCEL
-      - SPOT_FEE_TYPE_EDIT
     MarketSettings:
       type: object
       required:
@@ -210,48 +200,58 @@ components:
         min_limited_bid_duration_s:
           $ref: '#/components/schemas/Uint32'
           description: Minimum duration for bids with a hashrate limit in seconds.
-    Uint32:
-      type: integer
-      format: uint32
-      minimum: 0
-      maximum: 4294967295
-    SpotFeePublic:
+    FeeSpec:
+      description: Generic fee specification. Allows to specify a fee w/ percents for now.
       type: object
       required:
-      - symbol
-      - fee_type
-      - fee
+      - fee_rate_pct
       properties:
-        symbol:
-          type: string
-        fee_type:
-          $ref: '#/components/schemas/SpotMarketFeeType'
-        fee:
-          $ref: '#/components/schemas/FeeSpec'
-    GetFeeStructureResponse:
-      type: object
-      required:
-      - spot_fees
-      properties:
-        spot_fees:
-          type: array
-          items:
-            $ref: '#/components/schemas/SpotFeePublic'
+        fee_rate_pct:
+          $ref: '#/components/schemas/Double'
+          description: Fee rate in percents
     SpotInstrumentStatus:
       type: string
       enum:
       - SPOT_INSTRUMENT_STATUS_UNSPECIFIED
       - SPOT_INSTRUMENT_STATUS_ACTIVE
       - SPOT_INSTRUMENT_STATUS_HALTED
+    Uint32:
+      type: integer
+      format: uint32
+      minimum: 0
+      maximum: 4294967295
+    SpotMarketFeeType:
+      type: string
+      description: '* SPOT_FEE_TYPE_UNSPECIFIED
+
+        * SPOT_FEE_TYPE_BUY - Continuous spot buy fee. Only percentage_fee_rate is used.
+
+        * SPOT_FEE_TYPE_SELL - Continuous spot sell fee. Only percentage_fee_rate is used.
+
+        * SPOT_FEE_TYPE_PLACEMENT - Fee for placing a new order. Both percentage_fee_rate and abs_fee are used.
+
+        * SPOT_FEE_TYPE_CANCEL - Fee for canceling an order. Both percentage_fee_rate and abs_fee are used.
+
+        * SPOT_FEE_TYPE_EDIT - Fee for editing an order. Both percentage_fee_rate and abs_fee are used.'
+      enum:
+      - SPOT_FEE_TYPE_UNSPECIFIED
+      - SPOT_FEE_TYPE_BUY
+      - SPOT_FEE_TYPE_SELL
+      - SPOT_FEE_TYPE_PLACEMENT
+      - SPOT_FEE_TYPE_CANCEL
+      - SPOT_FEE_TYPE_EDIT
+    Int32:
+      type: integer
+      format: int32
   responses:
-    Unauthorized:
-      description: The `apikey` header is missing or does not contain a valid API credential.
     Forbidden:
       description: The API credential is valid but its ACL role or resource ownership does not permit this operation.
-    TooManyRequests:
-      description: The applicable per-credential or per-client-IP request limit was exceeded. Retry after reducing request frequency.
     ServiceError:
       description: The gateway or upstream service could not complete the request. The response body and status depend on the failing boundary.
+    Unauthorized:
+      description: The `apikey` header is missing or does not contain a valid API credential.
+    TooManyRequests:
+      description: The applicable per-credential or per-client-IP request limit was exceeded. Retry after reducing request frequency.
   securitySchemes:
     ApiKey:
       type: apiKey
