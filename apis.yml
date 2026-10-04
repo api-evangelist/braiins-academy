@@ -672,6 +672,9 @@ apis:
   - type: TermsOfService
     url: https://hashpower.braiins.com/terms-and-conditions.html
 common:
+- type: CapabilityMap
+  url: capabilities/braiins-academy-capability-edges.yml
+  name: Braiins Business Capability Map
 - type: Overlay
   url: overlays/braiins-academy-braiins-os-public-rest-api-overlay.yaml
 - type: Overlay
