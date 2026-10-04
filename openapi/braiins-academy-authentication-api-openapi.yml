@@ -65,6 +65,14 @@ paths:
           description: Internal server error.
 components:
   schemas:
+    SetPasswordRequest:
+      type: object
+      description: Request for set password action.
+      properties:
+        password:
+          type:
+          - string
+          - 'null'
     LoginRequest:
       type: object
       description: Request for login action.
@@ -76,14 +84,6 @@ components:
           type: string
         username:
           type: string
-    SetPasswordRequest:
-      type: object
-      description: Request for set password action.
-      properties:
-        password:
-          type:
-          - string
-          - 'null'
     LoginResponse:
       type: object
       description: Response for login action.

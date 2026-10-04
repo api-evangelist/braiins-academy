@@ -218,63 +218,19 @@ paths:
           description: Pool group successfully deleted.
 components:
   schemas:
-    Strategy:
-      oneOf:
-      - type: object
-        required:
-        - quota
-        properties:
-          quota:
-            $ref: '#/components/schemas/Quota'
-      - type: object
-        required:
-        - fixedshareratio
-        properties:
-          fixedshareratio:
-            $ref: '#/components/schemas/FixedShareRatio'
-      description: Load balancing strategy
-    Timestamp:
+    FixedShareRatio:
       type: object
-      description: 'Custom version of google.protobuf.Timestamp
+      description: 'Structure for fixed share ratio load balance strategy
 
-        It is used only during compilation to replace google.protobuf.Timestamp to
+        Fixed share ratio is value between 0.0 to 1.0 where 1.0 represents that all work is
 
-        enable traits for de/serialization and for generating documentation'
-      required:
-      - seconds
-      - nanos
-      properties:
-        nanos:
-          type: integer
-          format: int32
-        seconds:
-          type: integer
-          format: int64
-    Quota:
-      type: object
-      description: Structure for quota load balance strategy
+        generated from the group'
       required:
       - value
       properties:
         value:
-          type: integer
-          format: int32
-          minimum: 0
-    LoadBalanceStrategy:
-      oneOf:
-      - type: object
-        required:
-        - quota
-        properties:
-          quota:
-            $ref: '#/components/schemas/Quota'
-      - type: object
-        required:
-        - fixedshareratio
-        properties:
-          fixedshareratio:
-            $ref: '#/components/schemas/FixedShareRatio'
-      description: Group load balance strategy
+          type: number
+          format: double
     PoolConfiguration:
       type: object
       description: Structure handle information about configured pool
@@ -307,52 +263,72 @@ components:
         user:
           type: string
           description: Pool connection user
-    FixedShareRatio:
+    Quota:
       type: object
-      description: 'Structure for fixed share ratio load balance strategy
-
-        Fixed share ratio is value between 0.0 to 1.0 where 1.0 represents that all work is
-
-        generated from the group'
+      description: Structure for quota load balance strategy
       required:
       - value
       properties:
         value:
-          type: number
-          format: double
-    PoolGroupConfiguration:
+          type: integer
+          format: int32
+          minimum: 0
+    Strategy:
+      oneOf:
+      - type: object
+        required:
+        - quota
+        properties:
+          quota:
+            $ref: '#/components/schemas/Quota'
+      - type: object
+        required:
+        - fixedshareratio
+        properties:
+          fixedshareratio:
+            $ref: '#/components/schemas/FixedShareRatio'
+      description: Load balancing strategy
+    PoolGroup:
       type: object
-      description: Structure handle configured mining group
+      description: Structure handle all pool group details
       required:
       - name
       - pools
+      - uid
       properties:
-        load_balance_strategy:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/LoadBalanceStrategy'
-            description: Group load balance strategy
         name:
           type: string
           description: Group name
         pools:
           type: array
           items:
-            $ref: '#/components/schemas/PoolConfiguration'
+            $ref: '#/components/schemas/Pool'
           description: Group pools
+        strategy:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/Strategy'
+            description: Load balancing strategy
         uid:
-          type:
-          - string
-          - 'null'
-          description: 'Group id<br>
+          type: string
+          description: Group id
+    Timestamp:
+      type: object
+      description: 'Custom version of google.protobuf.Timestamp
 
-            gRPC: If this struct is used when creating a new Pool Group, this field must not be specified (it will be generated)<br>
+        It is used only during compilation to replace google.protobuf.Timestamp to
 
-            gRPC: If this struct is used when updating an existing Pool Group, this field must be specified and represents unique id of Pool group which will be updated<br>
-
-            REST: If this struct is used when creating a new Pool Group, this field must not be specified (it will be generated)<br>
-
-            REST: If this struct is used when updating an existing Pool Group, this field must not be specified, uid in URL must be specified and represents unique id of Pool group which will be updated'
+        enable traits for de/serialization and for generating documentation'
+      required:
+      - seconds
+      - nanos
+      properties:
+        nanos:
+          type: integer
+          format: int32
+        seconds:
+          type: integer
+          format: int64
     PoolStats:
       type: object
       description: Structure handle pool statistics
@@ -404,30 +380,39 @@ components:
           format: int64
           description: Stale shares
           minimum: 0
-    PoolGroup:
+    PoolGroupConfiguration:
       type: object
-      description: Structure handle all pool group details
+      description: Structure handle configured mining group
       required:
       - name
       - pools
-      - uid
       properties:
+        load_balance_strategy:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/LoadBalanceStrategy'
+            description: Group load balance strategy
         name:
           type: string
           description: Group name
         pools:
           type: array
           items:
-            $ref: '#/components/schemas/Pool'
+            $ref: '#/components/schemas/PoolConfiguration'
           description: Group pools
-        strategy:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/Strategy'
-            description: Load balancing strategy
         uid:
-          type: string
-          description: Group id
+          type:
+          - string
+          - 'null'
+          description: 'Group id<br>
+
+            gRPC: If this struct is used when creating a new Pool Group, this field must not be specified (it will be generated)<br>
+
+            gRPC: If this struct is used when updating an existing Pool Group, this field must be specified and represents unique id of Pool group which will be updated<br>
+
+            REST: If this struct is used when creating a new Pool Group, this field must not be specified (it will be generated)<br>
+
+            REST: If this struct is used when updating an existing Pool Group, this field must not be specified, uid in URL must be specified and represents unique id of Pool group which will be updated'
     Pool:
       type: object
       description: Structure handle information about configured pool
@@ -462,3 +447,18 @@ components:
         user:
           type: string
           description: Pool connection user
+    LoadBalanceStrategy:
+      oneOf:
+      - type: object
+        required:
+        - quota
+        properties:
+          quota:
+            $ref: '#/components/schemas/Quota'
+      - type: object
+        required:
+        - fixedshareratio
+        properties:
+          fixedshareratio:
+            $ref: '#/components/schemas/FixedShareRatio'
+      description: Group load balance strategy
