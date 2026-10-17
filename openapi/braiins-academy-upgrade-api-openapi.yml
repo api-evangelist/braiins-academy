@@ -137,84 +137,6 @@ paths:
           description: Internal server error.
 components:
   schemas:
-    SystemUpgradeRequestRest:
-      type: object
-      required:
-      - metadata
-      - data
-      properties:
-        data:
-          type: array
-          items:
-            type: array
-            items:
-              type: integer
-              format: int32
-              minimum: 0
-        metadata:
-          $ref: '#/components/schemas/SystemUpgradeMetadata'
-    WeeklySchedule:
-      type: object
-      properties:
-        day_of_week:
-          type:
-          - integer
-          - 'null'
-          format: int32
-        time:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/UpgradeTime'
-    UpdateAutoUpgradeConfigRequest:
-      type: object
-      required:
-      - enabled
-      properties:
-        enabled:
-          type: boolean
-        schedule:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/AutoUpgradeSchedule'
-    Timestamp:
-      type: object
-      description: 'Custom version of google.protobuf.Timestamp
-
-        It is used only during compilation to replace google.protobuf.Timestamp to
-
-        enable traits for de/serialization and for generating documentation'
-      required:
-      - seconds
-      - nanos
-      properties:
-        nanos:
-          type: integer
-          format: int32
-        seconds:
-          type: integer
-          format: int64
-    SystemUpgradeMetadata:
-      type: object
-      required:
-      - size
-      - hash
-      - discard_settings
-      - disable_cleanup
-      properties:
-        disable_cleanup:
-          type: boolean
-          description: Flag if should disable cleanup of directory, in which uploaded firmware is stored (default is false and do cleanup)
-        discard_settings:
-          type: boolean
-          description: Flag if should discard settings (default is false and keep settings)
-        hash:
-          type: string
-          description: Firmware hash (SHA256 hex encoded)
-        size:
-          type: integer
-          format: int64
-          description: Firmware size (bytes)
-          minimum: 0
     UpgradeTime:
       type: object
       required:
@@ -238,20 +160,62 @@ components:
           format: int32
           description: Seconds of minutes of the time. Can be from 0 to 59.
           minimum: 0
-    MonthlySchedule:
+    UpdateAutoUpgradeConfigRequest:
       type: object
+      required:
+      - enabled
       properties:
-        day_of_month:
-          type:
-          - integer
-          - 'null'
-          format: int32
-          description: Artificially limited to 1-28 to cover all months
-          minimum: 0
-        time:
+        enabled:
+          type: boolean
+        schedule:
           oneOf:
           - type: 'null'
-          - $ref: '#/components/schemas/UpgradeTime'
+          - $ref: '#/components/schemas/AutoUpgradeSchedule'
+    SystemUpgradeRequestRest:
+      type: object
+      required:
+      - metadata
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            type: array
+            items:
+              type: integer
+              format: int32
+              minimum: 0
+        metadata:
+          $ref: '#/components/schemas/SystemUpgradeMetadata'
+    AutoUpgradeSchedule:
+      type: object
+      properties:
+        schedule_type:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/ScheduleType'
+    SystemUpgradeMetadata:
+      type: object
+      required:
+      - size
+      - hash
+      - discard_settings
+      - disable_cleanup
+      properties:
+        disable_cleanup:
+          type: boolean
+          description: Flag if should disable cleanup of directory, in which uploaded firmware is stored (default is false and do cleanup)
+        discard_settings:
+          type: boolean
+          description: Flag if should discard settings (default is false and keep settings)
+        hash:
+          type: string
+          description: Firmware hash (SHA256 hex encoded)
+        size:
+          type: integer
+          format: int64
+          description: Firmware size (bytes)
+          minimum: 0
     DailySchedule:
       type: object
       properties:
@@ -279,13 +243,23 @@ components:
         properties:
           monthly:
             $ref: '#/components/schemas/MonthlySchedule'
-    AutoUpgradeSchedule:
+    Timestamp:
       type: object
+      description: 'Custom version of google.protobuf.Timestamp
+
+        It is used only during compilation to replace google.protobuf.Timestamp to
+
+        enable traits for de/serialization and for generating documentation'
+      required:
+      - seconds
+      - nanos
       properties:
-        schedule_type:
-          oneOf:
-          - type: 'null'
-          - $ref: '#/components/schemas/ScheduleType'
+        nanos:
+          type: integer
+          format: int32
+        seconds:
+          type: integer
+          format: int64
     GetAutoUpgradeStatusResponse:
       type: object
       required:
@@ -305,3 +279,29 @@ components:
           oneOf:
           - type: 'null'
           - $ref: '#/components/schemas/AutoUpgradeSchedule'
+    WeeklySchedule:
+      type: object
+      properties:
+        day_of_week:
+          type:
+          - integer
+          - 'null'
+          format: int32
+        time:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/UpgradeTime'
+    MonthlySchedule:
+      type: object
+      properties:
+        day_of_month:
+          type:
+          - integer
+          - 'null'
+          format: int32
+          description: Artificially limited to 1-28 to cover all months
+          minimum: 0
+        time:
+          oneOf:
+          - type: 'null'
+          - $ref: '#/components/schemas/UpgradeTime'

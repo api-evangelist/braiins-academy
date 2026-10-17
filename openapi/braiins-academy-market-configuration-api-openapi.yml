@@ -105,14 +105,6 @@ components:
       - SPOT_FEE_TYPE_PLACEMENT
       - SPOT_FEE_TYPE_CANCEL
       - SPOT_FEE_TYPE_EDIT
-    Int32:
-      type: integer
-      format: int32
-    Uint32:
-      type: integer
-      format: uint32
-      minimum: 0
-      maximum: 4294967295
     GetFeeStructureResponse:
       type: object
       required:
@@ -122,6 +114,42 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SpotFeePublic'
+    SpotFeePublic:
+      type: object
+      required:
+      - symbol
+      - fee_type
+      - fee
+      properties:
+        symbol:
+          type: string
+        fee_type:
+          $ref: '#/components/schemas/SpotMarketFeeType'
+        fee:
+          $ref: '#/components/schemas/FeeSpec'
+    SpotInstrumentStatus:
+      type: string
+      enum:
+      - SPOT_INSTRUMENT_STATUS_UNSPECIFIED
+      - SPOT_INSTRUMENT_STATUS_ACTIVE
+      - SPOT_INSTRUMENT_STATUS_HALTED
+    Int32:
+      type: integer
+      format: int32
+    FeeSpec:
+      description: Generic fee specification. Allows to specify a fee w/ percents for now.
+      type: object
+      required:
+      - fee_rate_pct
+      properties:
+        fee_rate_pct:
+          $ref: '#/components/schemas/Double'
+          description: Fee rate in percents
+    Uint32:
+      type: integer
+      format: uint32
+      minimum: 0
+      maximum: 4294967295
     MarketSettings:
       type: object
       required:
@@ -215,41 +243,13 @@ components:
         min_limited_bid_duration_s:
           $ref: '#/components/schemas/Uint32'
           description: Minimum duration for bids with a hashrate limit in seconds.
-    FeeSpec:
-      description: Generic fee specification. Allows to specify a fee w/ percents for now.
-      type: object
-      required:
-      - fee_rate_pct
-      properties:
-        fee_rate_pct:
-          $ref: '#/components/schemas/Double'
-          description: Fee rate in percents
-    SpotInstrumentStatus:
-      type: string
-      enum:
-      - SPOT_INSTRUMENT_STATUS_UNSPECIFIED
-      - SPOT_INSTRUMENT_STATUS_ACTIVE
-      - SPOT_INSTRUMENT_STATUS_HALTED
-    SpotFeePublic:
-      type: object
-      required:
-      - symbol
-      - fee_type
-      - fee
-      properties:
-        symbol:
-          type: string
-        fee_type:
-          $ref: '#/components/schemas/SpotMarketFeeType'
-        fee:
-          $ref: '#/components/schemas/FeeSpec'
   responses:
     TooManyRequests:
       description: The applicable per-credential or per-client-IP request limit was exceeded. Retry after reducing request frequency.
-    Forbidden:
-      description: The API credential is valid but its ACL role or resource ownership does not permit this operation.
     Unauthorized:
       description: The `apikey` header is missing or does not contain a valid API credential.
+    Forbidden:
+      description: The API credential is valid but its ACL role or resource ownership does not permit this operation.
     ServiceError:
       description: The gateway or upstream service could not complete the request. The response body and status depend on the failing boundary.
   securitySchemes:

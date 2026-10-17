@@ -73,17 +73,6 @@ components:
           type:
           - string
           - 'null'
-    LoginRequest:
-      type: object
-      description: Request for login action.
-      required:
-      - username
-      - password
-      properties:
-        password:
-          type: string
-        username:
-          type: string
     LoginResponse:
       type: object
       description: Response for login action.
@@ -101,3 +90,14 @@ components:
         token:
           type: string
           description: Token to be used for authentication
+    LoginRequest:
+      type: object
+      description: Request for login action.
+      required:
+      - username
+      - password
+      properties:
+        password:
+          type: string
+        username:
+          type: string

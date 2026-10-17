@@ -149,6 +149,132 @@ components:
     Double:
       type: number
       format: double
+    AskItem:
+      type: object
+      required:
+      - price_sat
+      - hr_matched_ph
+      - hr_available_ph
+      properties:
+        price_sat:
+          $ref: '#/components/schemas/Double'
+          description: Price of the ask item.
+        hr_matched_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate being matched at this level, estimated over a 10-minute window, in PH/s.
+        hr_available_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate available for sale at this level, estimated over a 10-minute window, in PH/s.
+    SpotGetMarketStatsResponse:
+      type: object
+      required:
+      - status
+      - volume_24h_m
+      - best_bid_sat
+      - best_ask_sat
+      - last_avg_price_sat
+      - hash_rate_matched_10m_ph
+      - hash_rate_available_10m_ph
+      properties:
+        status:
+          $ref: '#/components/schemas/SpotInstrumentStatus'
+        volume_24h_m:
+          $ref: '#/components/schemas/Double'
+          description: Shares sold here in last 24 hours. In millions of shares.
+        best_bid_sat:
+          $ref: '#/components/schemas/Double'
+        best_ask_sat:
+          $ref: '#/components/schemas/Double'
+        last_avg_price_sat:
+          $ref: '#/components/schemas/Double'
+          description: Last second's average price matched. In satoshi.
+        hash_rate_matched_10m_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate being matched, estimated over a 10-minute rolling window, in PH/s.
+        hash_rate_available_10m_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate available in asks, estimated over a 10-minute rolling window, in PH/s.
+    BidItem:
+      type: object
+      required:
+      - price_sat
+      - amount_sat
+      - hr_matched_ph
+      - speed_limit_ph
+      properties:
+        price_sat:
+          $ref: '#/components/schemas/Double'
+          description: Price of the bid item.
+        amount_sat:
+          $ref: '#/components/schemas/Double'
+          description: Amount in market currency available to purchase hashrate.
+        hr_matched_ph:
+          $ref: '#/components/schemas/Double'
+          description: Hashrate being matched at this level, estimated over a 10-minute window, in PH/s.
+        speed_limit_ph:
+          $ref: '#/components/schemas/Double'
+          description: Aggregated hashrate limit at this level. Zero means no limit. In PH/s.
+        degraded_bids_count:
+          $ref: '#/components/schemas/Uint32'
+          description: Number of degraded bids at this price level.
+    SpotGetOrderBookResponse:
+      type: object
+      required:
+      - bids
+      - asks
+      properties:
+        bids:
+          type: array
+          items:
+            $ref: '#/components/schemas/BidItem'
+          description: List of bid items.
+        asks:
+          type: array
+          items:
+            $ref: '#/components/schemas/AskItem'
+          description: List of ask items.
+    TradeSha256Btc:
+      type: object
+      required:
+      - timestamp
+      - volume_m
+      - price_sat
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the trade.
+        volume_m:
+          $ref: '#/components/schemas/Double'
+          description: Volume in millions of shares.
+        price_sat:
+          $ref: '#/components/schemas/Double'
+          description: Average price in satoshi.
+    AggregationPeriod:
+      type: string
+      description: Aggregation period for bars (OHLCV candles).
+      enum:
+      - PERIOD_UNSPECIFIED
+      - PERIOD_5_MINUTES
+      - PERIOD_15_MINUTES
+      - PERIOD_1_HOUR
+      - PERIOD_4_HOURS
+      - PERIOD_1_DAY
+    SpotGetBarsResponse:
+      type: object
+      required:
+      - bars
+      properties:
+        bars:
+          type: array
+          items:
+            $ref: '#/components/schemas/TradeBar'
+    SpotInstrumentStatus:
+      type: string
+      enum:
+      - SPOT_INSTRUMENT_STATUS_UNSPECIFIED
+      - SPOT_INSTRUMENT_STATUS_ACTIVE
+      - SPOT_INSTRUMENT_STATUS_HALTED
     TradeBar:
       type: object
       required:
@@ -182,6 +308,11 @@ components:
         vwap:
           $ref: '#/components/schemas/Double'
           description: Volume-weighted average price.
+    Uint32:
+      type: integer
+      format: uint32
+      minimum: 0
+      maximum: 4294967295
     SpotGetMarketTradesResponse:
       type: object
       required:
@@ -191,137 +322,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TradeSha256Btc'
-    Uint32:
-      type: integer
-      format: uint32
-      minimum: 0
-      maximum: 4294967295
-    AggregationPeriod:
-      type: string
-      description: Aggregation period for bars (OHLCV candles).
-      enum:
-      - PERIOD_UNSPECIFIED
-      - PERIOD_5_MINUTES
-      - PERIOD_15_MINUTES
-      - PERIOD_1_HOUR
-      - PERIOD_4_HOURS
-      - PERIOD_1_DAY
-    SpotGetOrderBookResponse:
-      type: object
-      required:
-      - bids
-      - asks
-      properties:
-        bids:
-          type: array
-          items:
-            $ref: '#/components/schemas/BidItem'
-          description: List of bid items.
-        asks:
-          type: array
-          items:
-            $ref: '#/components/schemas/AskItem'
-          description: List of ask items.
-    AskItem:
-      type: object
-      required:
-      - price_sat
-      - hr_matched_ph
-      - hr_available_ph
-      properties:
-        price_sat:
-          $ref: '#/components/schemas/Double'
-          description: Price of the ask item.
-        hr_matched_ph:
-          $ref: '#/components/schemas/Double'
-          description: Hashrate being matched at this level, estimated over a 10-minute window, in PH/s.
-        hr_available_ph:
-          $ref: '#/components/schemas/Double'
-          description: Hashrate available for sale at this level, estimated over a 10-minute window, in PH/s.
-    BidItem:
-      type: object
-      required:
-      - price_sat
-      - amount_sat
-      - hr_matched_ph
-      - speed_limit_ph
-      properties:
-        price_sat:
-          $ref: '#/components/schemas/Double'
-          description: Price of the bid item.
-        amount_sat:
-          $ref: '#/components/schemas/Double'
-          description: Amount in market currency available to purchase hashrate.
-        hr_matched_ph:
-          $ref: '#/components/schemas/Double'
-          description: Hashrate being matched at this level, estimated over a 10-minute window, in PH/s.
-        speed_limit_ph:
-          $ref: '#/components/schemas/Double'
-          description: Aggregated hashrate limit at this level. Zero means no limit. In PH/s.
-        degraded_bids_count:
-          $ref: '#/components/schemas/Uint32'
-          description: Number of degraded bids at this price level.
-    TradeSha256Btc:
-      type: object
-      required:
-      - timestamp
-      - volume_m
-      - price_sat
-      properties:
-        timestamp:
-          type: string
-          format: date-time
-          description: Timestamp of the trade.
-        volume_m:
-          $ref: '#/components/schemas/Double'
-          description: Volume in millions of shares.
-        price_sat:
-          $ref: '#/components/schemas/Double'
-          description: Average price in satoshi.
-    SpotGetBarsResponse:
-      type: object
-      required:
-      - bars
-      properties:
-        bars:
-          type: array
-          items:
-            $ref: '#/components/schemas/TradeBar'
-    SpotInstrumentStatus:
-      type: string
-      enum:
-      - SPOT_INSTRUMENT_STATUS_UNSPECIFIED
-      - SPOT_INSTRUMENT_STATUS_ACTIVE
-      - SPOT_INSTRUMENT_STATUS_HALTED
-    SpotGetMarketStatsResponse:
-      type: object
-      required:
-      - status
-      - volume_24h_m
-      - best_bid_sat
-      - best_ask_sat
-      - last_avg_price_sat
-      - hash_rate_matched_10m_ph
-      - hash_rate_available_10m_ph
-      properties:
-        status:
-          $ref: '#/components/schemas/SpotInstrumentStatus'
-        volume_24h_m:
-          $ref: '#/components/schemas/Double'
-          description: Shares sold here in last 24 hours. In millions of shares.
-        best_bid_sat:
-          $ref: '#/components/schemas/Double'
-        best_ask_sat:
-          $ref: '#/components/schemas/Double'
-        last_avg_price_sat:
-          $ref: '#/components/schemas/Double'
-          description: Last second's average price matched. In satoshi.
-        hash_rate_matched_10m_ph:
-          $ref: '#/components/schemas/Double'
-          description: Hashrate being matched, estimated over a 10-minute rolling window, in PH/s.
-        hash_rate_available_10m_ph:
-          $ref: '#/components/schemas/Double'
-          description: Hashrate available in asks, estimated over a 10-minute rolling window, in PH/s.
   responses:
     BadRequest:
       description: The path, query, or JSON body is invalid, violates a market rule, or contains mutually exclusive fields.

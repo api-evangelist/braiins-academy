@@ -803,123 +803,15 @@ paths:
           $ref: '#/components/responses/ServiceError'
 components:
   schemas:
-    ContractActivityItem:
+    GetContractDeliveryHistoryResponse:
       type: object
       required:
-      - cursor
-      - contract_id
-      - type
-      - occurred_at
-      - effective_date
-      - amount
-      - message
-      - details_json
-      properties:
-        cursor:
-          type: integer
-          format: uint64
-          minimum: 0
-        contract_id:
-          type: string
-          description: Contract ID prefixed with C.
-        type:
-          $ref: '#/components/schemas/ContractActivityType'
-        occurred_at:
-          type: string
-          format: date-time
-          description: Event creation time in UTC.
-        effective_date:
-          type: string
-          description: Accounting day in YYYY-MM-DD format, or an empty string when not applicable.
-        amount:
-          $ref: '#/components/schemas/Int64'
-          description: Primary event amount in satoshis, or zero when not applicable.
-        message:
-          type: string
-          description: Human-readable event summary.
-        details_json:
-          type: string
-          description: Additional machine-readable values encoded as a JSON object.
-    GetContractReservationsResponse:
-      type: object
-      required:
-      - contract_id
       - items
       properties:
-        contract_id:
-          type: string
-          description: Contract ID prefixed with C.
         items:
           type: array
           items:
-            $ref: '#/components/schemas/ContractReservationPublicItem'
-    ContractDestination:
-      oneOf:
-      - $ref: '#/components/schemas/LocalContractDestination'
-      - $ref: '#/components/schemas/UpstreamContractDestination'
-    CurrentContractCancelFeeLayerKind:
-      type: string
-      enum:
-      - CURRENT_CONTRACT_CANCEL_FEE_LAYER_KIND_UNSPECIFIED
-      - CURRENT_CONTRACT_CANCEL_FEE_LAYER_KIND_GLOBAL
-      - CURRENT_CONTRACT_CANCEL_FEE_LAYER_KIND_PROMO
-      - CURRENT_CONTRACT_CANCEL_FEE_LAYER_KIND_USER
-    QuoteContractCreationRequest:
-      type: object
-      required:
-      - pow_algo
-      - speed_ph
-      - activates_at
-      - expires_at
-      properties:
-        pow_algo:
-          type: string
-          description: 'Proof-of-work algorithm. Canonical spelling: `sha256`; parsing is ASCII case-insensitive.'
-        speed_ph:
-          $ref: '#/components/schemas/Double'
-          description: Contract hashrate in PH/s.
-        activates_at:
-          type: string
-          format: date-time
-          description: Desired activation datetime of the contract.
-        expires_at:
-          type: string
-          format: date-time
-          description: Desired expiration datetime of the contract.
-    TerminateContractResponse:
-      type: object
-      required:
-      - affected_ids
-      properties:
-        affected_ids:
-          type: array
-          items:
-            type: string
-    CheckContractSpeedAvailabilityResponse:
-      type: object
-      required:
-      - available
-      - reason_code
-      - reason
-      properties:
-        available:
-          type: boolean
-          description: True when the requested hashrate and window currently fit configured contract capacity.
-        reason_code:
-          type: string
-          description: Empty when available is true; otherwise a stable machine-readable rejection code.
-        reason:
-          type: string
-          description: Empty when available is true; otherwise a human-readable rejection reason.
-    LocalContractDestination:
-      type: object
-      required:
-      - local
-      properties:
-        local:
-          type: integer
-          enum:
-          - 0
+            $ref: '#/components/schemas/GetContractDeliveryHistoryItem'
     ContractPublic:
       type: object
       required:
@@ -987,6 +879,234 @@ components:
         cancel_fee_pct:
           $ref: '#/components/schemas/OptionalDouble'
           description: Agreed cancellation fee as a percentage of unpaid remaining contract premium. Omitted while commercial terms are not yet available.
+    GetContractsResponseItem:
+      type: object
+      required:
+      - contract
+      - state
+      properties:
+        contract:
+          $ref: '#/components/schemas/ContractPublic'
+        state:
+          $ref: '#/components/schemas/ContractStatePublic'
+    OptionalDouble:
+      description: Optional double value.
+      type: object
+      properties:
+        value:
+          $ref: '#/components/schemas/Double'
+    ContractCreationQuoteReason:
+      type: string
+      enum:
+      - CONTRACT_CREATION_QUOTE_REASON_UNSPECIFIED
+      - CONTRACT_CREATION_QUOTE_REASON_SALES_DISABLED
+      - CONTRACT_CREATION_QUOTE_REASON_SHARE_PRICE_UNAVAILABLE
+      - CONTRACT_CREATION_QUOTE_REASON_NO_VALID_PRICING
+      - CONTRACT_CREATION_QUOTE_REASON_SPEED_LIMIT_NOT_CONFIGURED
+      - CONTRACT_CREATION_QUOTE_REASON_INSUFFICIENT_SPEED_CAPACITY
+      - CONTRACT_CREATION_QUOTE_REASON_SPEED_UNAVAILABLE
+      - CONTRACT_CREATION_QUOTE_REASON_INSUFFICIENT_FUNDS
+    ContractCancellationRequestState:
+      type: string
+      enum:
+      - CONTRACT_CANCELLATION_REQUEST_STATE_UNSPECIFIED
+      - CONTRACT_CANCELLATION_REQUEST_STATE_PENDING
+      - CONTRACT_CANCELLATION_REQUEST_STATE_ACCEPTED_BY_FLUX
+      - CONTRACT_CANCELLATION_REQUEST_STATE_REJECTED_BY_FLUX
+      - CONTRACT_CANCELLATION_REQUEST_STATE_CONFIRMED_RELEASED
+      - CONTRACT_CANCELLATION_REQUEST_STATE_RELEASE_FAILED
+    ContractCreationQuoteStatus:
+      type: string
+      enum:
+      - CONTRACT_CREATION_QUOTE_STATUS_UNSPECIFIED
+      - CONTRACT_CREATION_QUOTE_STATUS_SUCCESS
+      - CONTRACT_CREATION_QUOTE_STATUS_FAILED
+    TerminateContractRequest:
+      type: object
+      properties:
+        memo:
+          type: string
+          description: Optional memo or reason.
+    CheckContractSpeedAvailabilityResponse:
+      type: object
+      required:
+      - available
+      - reason_code
+      - reason
+      properties:
+        available:
+          type: boolean
+          description: True when the requested hashrate and window currently fit configured contract capacity.
+        reason_code:
+          type: string
+          description: Empty when available is true; otherwise a stable machine-readable rejection code.
+        reason:
+          type: string
+          description: Empty when available is true; otherwise a human-readable rejection reason.
+    ContractSettlementPublicItem:
+      type: object
+      required:
+      - settlement_date
+      - bare_price_amount
+      - premium_amount
+      - pps_rate_for_day
+      - shares_for_day
+      - created_at
+      - cancellation_fee_amount
+      - is_final
+      properties:
+        settlement_date:
+          type: string
+          description: Settlement day in YYYY-MM-DD format.
+        bare_price_amount:
+          $ref: '#/components/schemas/Int64'
+          description: Bare PPS price component in the implicit settlement currency smallest unit.
+        premium_amount:
+          $ref: '#/components/schemas/Int64'
+          description: Premium component in the implicit settlement currency smallest unit.
+        pps_rate_for_day:
+          $ref: '#/components/schemas/Double'
+          description: Indicative PPS rate used for this row. Derived from finalized daily pricing for delivered shares; a final row without delivery may use the cancellation price.
+        shares_for_day:
+          $ref: '#/components/schemas/Double'
+          description: Shares delivered for this accounting day. Zero records a completed day with no delivery.
+        released_amount:
+          type: integer
+          format: int64
+          nullable: true
+          description: Smallest-unit amount released by the final settlement row. Null or omitted for non-final rows.
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the settlement row was recorded.
+        cancellation_fee_amount:
+          $ref: '#/components/schemas/Int64'
+          description: Fee charged from unrealized remaining contract premium on termination.
+        is_final:
+          type: boolean
+          description: True when this row completed accounting and released the remaining locked funds.
+        cancellation_share_price_btc:
+          type: string
+          description: Exact BTC-per-difficulty-unit price used to calculate the final cancellation fee, encoded as a decimal string. Omitted when cancellation pricing was not required.
+    GetContractDeliveryHistoryItem:
+      type: object
+      required:
+      - timestamp
+      - shares_delivered_m
+      - shares_accepted_m
+      - shares_rejected_m
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the delivery record.
+        shares_delivered_m:
+          $ref: '#/components/schemas/Double'
+          description: Shares delivered (validated by platform). In millions.
+        shares_accepted_m:
+          $ref: '#/components/schemas/Double'
+          description: Shares accepted by the target. In millions.
+        shares_rejected_m:
+          $ref: '#/components/schemas/Double'
+          description: Shares rejected by the target. In millions.
+    UpstreamContractDestination:
+      type: object
+      required:
+      - upstream
+      properties:
+        upstream:
+          $ref: '#/components/schemas/UpstreamSpecification'
+    GetContractReservationsResponse:
+      type: object
+      required:
+      - contract_id
+      - items
+      properties:
+        contract_id:
+          type: string
+          description: Contract ID prefixed with C.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContractReservationPublicItem'
+    ContractActivityType:
+      type: string
+      enum:
+      - CONTRACT_ACTIVITY_TYPE_UNSPECIFIED
+      - CONTRACT_ACTIVITY_TYPE_RESERVATION
+      - CONTRACT_ACTIVITY_TYPE_SETTLEMENT
+      - CONTRACT_ACTIVITY_TYPE_AUTO_TERMINATION
+      - CONTRACT_ACTIVITY_TYPE_FUNDING_WARNING
+      - CONTRACT_ACTIVITY_TYPE_SETTLEMENT_BLOCKED
+      - CONTRACT_ACTIVITY_TYPE_LATE_YIELD
+    GetCurrentContractCancelFeesResponse:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrentContractCancelFeeLayer'
+    GetContractDetailResponse:
+      type: object
+      required:
+      - contract
+      - state
+      properties:
+        contract:
+          $ref: '#/components/schemas/ContractPublic'
+        state:
+          $ref: '#/components/schemas/ContractStatePublic'
+    CancelContractResponse:
+      type: object
+      properties:
+        cancellation_request:
+          $ref: '#/components/schemas/ContractCancellationRequest'
+    ContractReservationPublicItem:
+      type: object
+      required:
+      - effective_at
+      - amount
+      - origin
+      - created_at
+      - cancellation_buffer_amount
+      properties:
+        effective_at:
+          type: string
+          format: date-time
+          description: Logical timestamp represented by this reservation.
+        amount:
+          $ref: '#/components/schemas/Int64'
+          description: Incremental amount blocked by this reservation in the smallest unit of the implicit contract settlement currency.
+        origin:
+          $ref: '#/components/schemas/ContractReservationOriginPublic'
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the reservation row was recorded.
+        cancellation_buffer_amount:
+          $ref: '#/components/schemas/Int64'
+          description: Portion of this reservation attributed to newly required cancellation-fee coverage after accounting for amounts already covered. This is not an additional reservation or the final cancellation fee.
+        share_price_btc:
+          type: string
+          description: Exact BTC-per-difficulty-unit price used for this reservation, encoded as a decimal string. Omitted when no pricing evidence is available.
+    Double:
+      type: number
+      format: double
+    Int64:
+      type: integer
+      format: int64
+    ContractStatus:
+      type: string
+      enum:
+      - CONTRACT_STATUS_UNSPECIFIED
+      - CONTRACT_STATUS_PENDING
+      - CONTRACT_STATUS_RUNNING
+      - CONTRACT_STATUS_FINISHED
+      - CONTRACT_STATUS_CANCELED
+      - CONTRACT_STATUS_PAUSED
+      - CONTRACT_STATUS_TERMINATED
     GetContractActivityResponse:
       type: object
       required:
@@ -1006,10 +1126,59 @@ components:
         has_more:
           type: boolean
           description: True when more matching events are currently available.
-    Int64:
-      type: integer
-      format: int64
-    CheckContractSpeedAvailabilityRequest:
+    ContractStatePublic:
+      type: object
+      required:
+      - shares_claimed
+      - shares_yielded
+      - shares_sold
+      - shares_delivered
+      - shares_accepted
+      - shares_rejected
+      - avg_speed_ph
+      - progress
+      properties:
+        shares_claimed:
+          $ref: '#/components/schemas/Double'
+        shares_yielded:
+          $ref: '#/components/schemas/Double'
+        shares_sold:
+          $ref: '#/components/schemas/Double'
+        shares_delivered:
+          $ref: '#/components/schemas/Double'
+        shares_accepted:
+          $ref: '#/components/schemas/Double'
+        shares_rejected:
+          $ref: '#/components/schemas/Double'
+        avg_speed_ph:
+          $ref: '#/components/schemas/Double'
+          description: Contract hashrate estimate in PH/s.
+        progress:
+          $ref: '#/components/schemas/Double'
+          description: Progress in percents from 0 to 100.
+    CurrentContractCancelFeeLayerKind:
+      type: string
+      enum:
+      - CURRENT_CONTRACT_CANCEL_FEE_LAYER_KIND_UNSPECIFIED
+      - CURRENT_CONTRACT_CANCEL_FEE_LAYER_KIND_GLOBAL
+      - CURRENT_CONTRACT_CANCEL_FEE_LAYER_KIND_PROMO
+      - CURRENT_CONTRACT_CANCEL_FEE_LAYER_KIND_USER
+    CancelContractRequest:
+      type: object
+      properties:
+        memo:
+          type: string
+          description: Optional memo or reason.
+    LocalContractDestination:
+      type: object
+      required:
+      - local
+      properties:
+        local:
+          type: integer
+          enum:
+          - 0
+    QuoteContractCreationRequest:
       type: object
       required:
       - pow_algo
@@ -1031,117 +1200,45 @@ components:
           type: string
           format: date-time
           description: Desired expiration datetime of the contract.
-    ContractActivityType:
-      type: string
-      enum:
-      - CONTRACT_ACTIVITY_TYPE_UNSPECIFIED
-      - CONTRACT_ACTIVITY_TYPE_RESERVATION
-      - CONTRACT_ACTIVITY_TYPE_SETTLEMENT
-      - CONTRACT_ACTIVITY_TYPE_AUTO_TERMINATION
-      - CONTRACT_ACTIVITY_TYPE_FUNDING_WARNING
-      - CONTRACT_ACTIVITY_TYPE_SETTLEMENT_BLOCKED
-      - CONTRACT_ACTIVITY_TYPE_LATE_YIELD
-    UpstreamContractDestination:
+    GetContractSettingsResponse:
       type: object
       required:
-      - upstream
+      - min_speed_ph
+      - max_speed_ph
+      - min_duration_seconds
+      - max_duration_seconds
+      - min_start_gap_seconds
+      - min_cancellation_gap_seconds
+      - reservation_lead_days
+      - max_start_gap_days
       properties:
-        upstream:
-          $ref: '#/components/schemas/UpstreamSpecification'
-    Double:
-      type: number
-      format: double
-    GetContractsResponseItem:
-      type: object
-      required:
-      - contract
-      - state
-      properties:
-        contract:
-          $ref: '#/components/schemas/ContractPublic'
-        state:
-          $ref: '#/components/schemas/ContractStatePublic'
-    ContractHistoryAggregationPeriod:
-      type: string
-      description: Aggregation period for contract history time series.
-      enum:
-      - PERIOD_UNSPECIFIED
-      - PERIOD_5_MINUTES
-      - PERIOD_15_MINUTES
-      - PERIOD_1_HOUR
-      - PERIOD_4_HOURS
-    UpstreamSpecification:
-      type: object
-      required:
-      - url
-      - identity
-      properties:
-        url:
+        min_speed_ph:
+          type: number
+          format: double
+          description: Minimum allowed contract hashrate in PH/s.
+        max_speed_ph:
+          type: number
+          format: double
+          description: Maximum allowed contract hashrate in PH/s.
+        min_duration_seconds:
+          type: integer
+          format: int64
+        max_duration_seconds:
+          type: integer
+          format: int64
+        min_start_gap_seconds:
+          type: integer
+          format: int64
+        min_cancellation_gap_seconds:
+          type: integer
+          format: int64
+        reservation_lead_days:
           type: string
-          description: Upstream URL
-          examples:
-          - stratum+tcp://pool.net:7770
-        identity:
-          type: string
-          description: User / worker identification
-    CancelContractResponse:
-      type: object
-      properties:
-        cancellation_request:
-          $ref: '#/components/schemas/ContractCancellationRequest'
-    Uint32:
-      type: integer
-      format: uint32
-      minimum: 0
-      maximum: 4294967295
-    GetContractSettlementsResponse:
-      type: object
-      required:
-      - contract_id
-      - items
-      properties:
-        contract_id:
-          type: string
-          description: Contract ID prefixed with C.
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContractSettlementPublicItem'
-    ContractCreationQuoteReason:
-      type: string
-      enum:
-      - CONTRACT_CREATION_QUOTE_REASON_UNSPECIFIED
-      - CONTRACT_CREATION_QUOTE_REASON_SALES_DISABLED
-      - CONTRACT_CREATION_QUOTE_REASON_SHARE_PRICE_UNAVAILABLE
-      - CONTRACT_CREATION_QUOTE_REASON_NO_VALID_PRICING
-      - CONTRACT_CREATION_QUOTE_REASON_SPEED_LIMIT_NOT_CONFIGURED
-      - CONTRACT_CREATION_QUOTE_REASON_INSUFFICIENT_SPEED_CAPACITY
-      - CONTRACT_CREATION_QUOTE_REASON_SPEED_UNAVAILABLE
-      - CONTRACT_CREATION_QUOTE_REASON_INSUFFICIENT_FUNDS
-    CurrentContractPricingLayer:
-      type: object
-      required:
-      - kind
-      - label
-      - valid_from
-      - valid_to
-      - bands
-      properties:
-        kind:
-          $ref: '#/components/schemas/CurrentContractPricingLayerKind'
-        label:
-          type: string
-        valid_from:
-          type: string
-          format: date-time
-          description: RFC3339 UTC timestamp from which this pricing layer is valid.
-        valid_to:
-          type: string
-          description: RFC3339 UTC timestamp at which this pricing layer stops being valid. Empty means open-ended.
-        bands:
-          type: array
-          items:
-            $ref: '#/components/schemas/CurrentContractPricingBand'
+          description: Reservation lead time in days as an exact decimal string.
+        max_start_gap_days:
+          type: integer
+          format: int64
+          description: Maximum allowed number of days between the request time and contract activation.
     QuoteContractCreationResponse:
       type: object
       required:
@@ -1205,56 +1302,70 @@ components:
         cancel_fee_pct:
           type: string
           description: Cancellation fee as a percentage of unpaid remaining contract premium.
-    ContractCancellationRequest:
+    ContractActivityItem:
       type: object
+      required:
+      - cursor
+      - contract_id
+      - type
+      - occurred_at
+      - effective_date
+      - amount
+      - message
+      - details_json
       properties:
-        cancellation_request_id:
+        cursor:
           type: integer
           format: uint64
           minimum: 0
         contract_id:
           type: string
           description: Contract ID prefixed with C.
-        state:
-          $ref: '#/components/schemas/ContractCancellationRequestState'
-        affected_ids:
-          type: array
-          items:
-            type: string
-        failure_code:
+        type:
+          $ref: '#/components/schemas/ContractActivityType'
+        occurred_at:
           type: string
-        failure_reason:
+          format: date-time
+          description: Event creation time in UTC.
+        effective_date:
           type: string
-    ContractStatePublic:
+          description: Accounting day in YYYY-MM-DD format, or an empty string when not applicable.
+        amount:
+          $ref: '#/components/schemas/Int64'
+          description: Primary event amount in satoshis, or zero when not applicable.
+        message:
+          type: string
+          description: Human-readable event summary.
+        details_json:
+          type: string
+          description: Additional machine-readable values encoded as a JSON object.
+    GetContractsResponse:
       type: object
       required:
-      - shares_claimed
-      - shares_yielded
-      - shares_sold
-      - shares_delivered
-      - shares_accepted
-      - shares_rejected
-      - avg_speed_ph
-      - progress
+      - items
       properties:
-        shares_claimed:
-          $ref: '#/components/schemas/Double'
-        shares_yielded:
-          $ref: '#/components/schemas/Double'
-        shares_sold:
-          $ref: '#/components/schemas/Double'
-        shares_delivered:
-          $ref: '#/components/schemas/Double'
-        shares_accepted:
-          $ref: '#/components/schemas/Double'
-        shares_rejected:
-          $ref: '#/components/schemas/Double'
-        avg_speed_ph:
-          $ref: '#/components/schemas/Double'
-          description: Contract hashrate estimate in PH/s.
-        progress:
-          $ref: '#/components/schemas/Double'
-          description: Progress in percents from 0 to 100.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/GetContractsResponseItem'
+    UpstreamSpecification:
+      type: object
+      required:
+      - url
+      - identity
+      properties:
+        url:
+          type: string
+          description: Upstream URL
+          examples:
+          - stratum+tcp://pool.net:7770
+        identity:
+          type: string
+          description: User / worker identification
+    ContractDestination:
+      oneOf:
+      - $ref: '#/components/schemas/LocalContractDestination'
+      - $ref: '#/components/schemas/UpstreamContractDestination'
     GetCurrentContractPricingResponse:
       type: object
       required:
@@ -1264,25 +1375,47 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CurrentContractPricingLayer'
-    OptionalDouble:
-      description: Optional double value.
-      type: object
-      properties:
-        value:
-          $ref: '#/components/schemas/Double'
-    GetContractSpeedHistoryItem:
+    TerminateContractResponse:
       type: object
       required:
-      - timestamp
-      - speed_ph
+      - affected_ids
       properties:
-        timestamp:
+        affected_ids:
+          type: array
+          items:
+            type: string
+    SlidingWindowSize:
+      type: string
+      description: Sliding window size for estimating hashrate.
+      enum:
+      - WINDOW_SIZE_UNSPECIFIED
+      - WINDOW_SIZE_10_MINUTES
+      - WINDOW_SIZE_20_MINUTES
+      - WINDOW_SIZE_30_MINUTES
+    CurrentContractPricingLayer:
+      type: object
+      required:
+      - kind
+      - label
+      - valid_from
+      - valid_to
+      - bands
+      properties:
+        kind:
+          $ref: '#/components/schemas/CurrentContractPricingLayerKind'
+        label:
+          type: string
+        valid_from:
           type: string
           format: date-time
-          description: Timestamp of the hashrate measurement.
-        speed_ph:
-          $ref: '#/components/schemas/Double'
-          description: Estimated hashrate in PH/s.
+          description: RFC3339 UTC timestamp from which this pricing layer is valid.
+        valid_to:
+          type: string
+          description: RFC3339 UTC timestamp at which this pricing layer stops being valid. Empty means open-ended.
+        bands:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrentContractPricingBand'
     ScheduleContractRequest:
       type: object
       required:
@@ -1311,59 +1444,35 @@ components:
         text:
           type: string
           description: Optional remark.
-    ContractCreationQuoteStatus:
-      type: string
-      enum:
-      - CONTRACT_CREATION_QUOTE_STATUS_UNSPECIFIED
-      - CONTRACT_CREATION_QUOTE_STATUS_SUCCESS
-      - CONTRACT_CREATION_QUOTE_STATUS_FAILED
-    ContractStatus:
-      type: string
-      enum:
-      - CONTRACT_STATUS_UNSPECIFIED
-      - CONTRACT_STATUS_PENDING
-      - CONTRACT_STATUS_RUNNING
-      - CONTRACT_STATUS_FINISHED
-      - CONTRACT_STATUS_CANCELED
-      - CONTRACT_STATUS_PAUSED
-      - CONTRACT_STATUS_TERMINATED
-    ContractReservationPublicItem:
+    ProfileIdentifier:
       type: object
       required:
-      - effective_at
-      - amount
-      - origin
-      - created_at
-      - cancellation_buffer_amount
+      - profile_name
+      - client_name
       properties:
-        effective_at:
+        profile_name:
           type: string
-          format: date-time
-          description: Logical timestamp represented by this reservation.
-        amount:
-          $ref: '#/components/schemas/Int64'
-          description: Incremental amount blocked by this reservation in the smallest unit of the implicit contract settlement currency.
-        origin:
-          $ref: '#/components/schemas/ContractReservationOriginPublic'
-        created_at:
+        client_name:
           type: string
-          format: date-time
-          description: Timestamp when the reservation row was recorded.
-        cancellation_buffer_amount:
-          $ref: '#/components/schemas/Int64'
-          description: Portion of this reservation attributed to newly required cancellation-fee coverage after accounting for amounts already covered. This is not an additional reservation or the final cancellation fee.
-        share_price_btc:
-          type: string
-          description: Exact BTC-per-difficulty-unit price used for this reservation, encoded as a decimal string. Omitted when no pricing evidence is available.
-    GetContractsResponse:
+    ScheduleContractResponse:
       type: object
       required:
-      - items
+      - id
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/GetContractsResponseItem'
+        id:
+          type: string
+          description: Contract ID prefixed with C.
+    Uint32:
+      type: integer
+      format: uint32
+      minimum: 0
+      maximum: 4294967295
+    ContractReservationOriginPublic:
+      type: string
+      enum:
+      - CONTRACT_RESERVATION_ORIGIN_UNSPECIFIED
+      - CONTRACT_RESERVATION_ORIGIN_INITIAL
+      - CONTRACT_RESERVATION_ORIGIN_RECURRING
     GetContractSpeedHistoryResponse:
       type: object
       required:
@@ -1373,66 +1482,27 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GetContractSpeedHistoryItem'
-    GetContractDetailResponse:
+    CurrentContractPricingBand:
       type: object
       required:
-      - contract
-      - state
+      - shares_to
+      - premium_pct
       properties:
-        contract:
-          $ref: '#/components/schemas/ContractPublic'
-        state:
-          $ref: '#/components/schemas/ContractStatePublic'
-    GetContractDeliveryHistoryItem:
-      type: object
-      required:
-      - timestamp
-      - shares_delivered_m
-      - shares_accepted_m
-      - shares_rejected_m
-      properties:
-        timestamp:
+        shares_to:
           type: string
-          format: date-time
-          description: Timestamp of the delivery record.
-        shares_delivered_m:
-          $ref: '#/components/schemas/Double'
-          description: Shares delivered (validated by platform). In millions.
-        shares_accepted_m:
-          $ref: '#/components/schemas/Double'
-          description: Shares accepted by the target. In millions.
-        shares_rejected_m:
-          $ref: '#/components/schemas/Double'
-          description: Shares rejected by the target. In millions.
-    CancelContractRequest:
-      type: object
-      properties:
-        memo:
+          description: Exclusive upper bound in difficulty-1 shares. Empty means open-ended top band.
+        premium_pct:
           type: string
-          description: Optional memo or reason.
-    ScheduleContractResponse:
-      type: object
-      required:
-      - id
-      properties:
-        id:
-          type: string
-          description: Contract ID prefixed with C.
-    TerminateContractRequest:
-      type: object
-      properties:
-        memo:
-          type: string
-          description: Optional memo or reason.
-    GetContractDeliveryHistoryResponse:
-      type: object
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/GetContractDeliveryHistoryItem'
+          description: Markup/fee percentage as a normalized decimal string.
+    ContractHistoryAggregationPeriod:
+      type: string
+      description: Aggregation period for contract history time series.
+      enum:
+      - PERIOD_UNSPECIFIED
+      - PERIOD_5_MINUTES
+      - PERIOD_15_MINUTES
+      - PERIOD_1_HOUR
+      - PERIOD_4_HOURS
     CurrentContractCancelFeeLayer:
       type: object
       required:
@@ -1456,105 +1526,74 @@ components:
         cancel_fee_pct:
           type: string
           description: Cancellation fee as a percentage of unpaid remaining contract premium.
-    SlidingWindowSize:
-      type: string
-      description: Sliding window size for estimating hashrate.
-      enum:
-      - WINDOW_SIZE_UNSPECIFIED
-      - WINDOW_SIZE_10_MINUTES
-      - WINDOW_SIZE_20_MINUTES
-      - WINDOW_SIZE_30_MINUTES
-    ContractReservationOriginPublic:
-      type: string
-      enum:
-      - CONTRACT_RESERVATION_ORIGIN_UNSPECIFIED
-      - CONTRACT_RESERVATION_ORIGIN_INITIAL
-      - CONTRACT_RESERVATION_ORIGIN_RECURRING
-    ContractCancellationRequestState:
-      type: string
-      enum:
-      - CONTRACT_CANCELLATION_REQUEST_STATE_UNSPECIFIED
-      - CONTRACT_CANCELLATION_REQUEST_STATE_PENDING
-      - CONTRACT_CANCELLATION_REQUEST_STATE_ACCEPTED_BY_FLUX
-      - CONTRACT_CANCELLATION_REQUEST_STATE_REJECTED_BY_FLUX
-      - CONTRACT_CANCELLATION_REQUEST_STATE_CONFIRMED_RELEASED
-      - CONTRACT_CANCELLATION_REQUEST_STATE_RELEASE_FAILED
-    CurrentContractPricingBand:
+    CheckContractSpeedAvailabilityRequest:
       type: object
       required:
-      - shares_to
-      - premium_pct
+      - pow_algo
+      - speed_ph
+      - activates_at
+      - expires_at
       properties:
-        shares_to:
+        pow_algo:
           type: string
-          description: Exclusive upper bound in difficulty-1 shares. Empty means open-ended top band.
-        premium_pct:
+          description: 'Proof-of-work algorithm. Canonical spelling: `sha256`; parsing is ASCII case-insensitive.'
+        speed_ph:
+          $ref: '#/components/schemas/Double'
+          description: Contract hashrate in PH/s.
+        activates_at:
           type: string
-          description: Markup/fee percentage as a normalized decimal string.
-    GetCurrentContractCancelFeesResponse:
+          format: date-time
+          description: Desired activation datetime of the contract.
+        expires_at:
+          type: string
+          format: date-time
+          description: Desired expiration datetime of the contract.
+    ContractCancellationRequest:
+      type: object
+      properties:
+        cancellation_request_id:
+          type: integer
+          format: uint64
+          minimum: 0
+        contract_id:
+          type: string
+          description: Contract ID prefixed with C.
+        state:
+          $ref: '#/components/schemas/ContractCancellationRequestState'
+        affected_ids:
+          type: array
+          items:
+            type: string
+        failure_code:
+          type: string
+        failure_reason:
+          type: string
+    GetContractSettlementsResponse:
       type: object
       required:
+      - contract_id
       - items
       properties:
+        contract_id:
+          type: string
+          description: Contract ID prefixed with C.
         items:
           type: array
           items:
-            $ref: '#/components/schemas/CurrentContractCancelFeeLayer'
-    ContractSettlementPublicItem:
+            $ref: '#/components/schemas/ContractSettlementPublicItem'
+    GetContractSpeedHistoryItem:
       type: object
       required:
-      - settlement_date
-      - bare_price_amount
-      - premium_amount
-      - pps_rate_for_day
-      - shares_for_day
-      - created_at
-      - cancellation_fee_amount
-      - is_final
+      - timestamp
+      - speed_ph
       properties:
-        settlement_date:
-          type: string
-          description: Settlement day in YYYY-MM-DD format.
-        bare_price_amount:
-          $ref: '#/components/schemas/Int64'
-          description: Bare PPS price component in the implicit settlement currency smallest unit.
-        premium_amount:
-          $ref: '#/components/schemas/Int64'
-          description: Premium component in the implicit settlement currency smallest unit.
-        pps_rate_for_day:
-          $ref: '#/components/schemas/Double'
-          description: Indicative PPS rate used for this row. Derived from finalized daily pricing for delivered shares; a final row without delivery may use the cancellation price.
-        shares_for_day:
-          $ref: '#/components/schemas/Double'
-          description: Shares delivered for this accounting day. Zero records a completed day with no delivery.
-        released_amount:
-          type: integer
-          format: int64
-          nullable: true
-          description: Smallest-unit amount released by the final settlement row. Null or omitted for non-final rows.
-        created_at:
+        timestamp:
           type: string
           format: date-time
-          description: Timestamp when the settlement row was recorded.
-        cancellation_fee_amount:
-          $ref: '#/components/schemas/Int64'
-          description: Fee charged from unrealized remaining contract premium on termination.
-        is_final:
-          type: boolean
-          description: True when this row completed accounting and released the remaining locked funds.
-        cancellation_share_price_btc:
-          type: string
-          description: Exact BTC-per-difficulty-unit price used to calculate the final cancellation fee, encoded as a decimal string. Omitted when cancellation pricing was not required.
-    ProfileIdentifier:
-      type: object
-      required:
-      - profile_name
-      - client_name
-      properties:
-        profile_name:
-          type: string
-        client_name:
-          type: string
+          description: Timestamp of the hashrate measurement.
+        speed_ph:
+          $ref: '#/components/schemas/Double'
+          description: Estimated hashrate in PH/s.
     CurrentContractPricingLayerKind:
       type: string
       enum:
@@ -1562,58 +1601,19 @@ components:
       - CURRENT_CONTRACT_PRICING_LAYER_KIND_GLOBAL
       - CURRENT_CONTRACT_PRICING_LAYER_KIND_PROMO
       - CURRENT_CONTRACT_PRICING_LAYER_KIND_USER
-    GetContractSettingsResponse:
-      type: object
-      required:
-      - min_speed_ph
-      - max_speed_ph
-      - min_duration_seconds
-      - max_duration_seconds
-      - min_start_gap_seconds
-      - min_cancellation_gap_seconds
-      - reservation_lead_days
-      - max_start_gap_days
-      properties:
-        min_speed_ph:
-          type: number
-          format: double
-          description: Minimum allowed contract hashrate in PH/s.
-        max_speed_ph:
-          type: number
-          format: double
-          description: Maximum allowed contract hashrate in PH/s.
-        min_duration_seconds:
-          type: integer
-          format: int64
-        max_duration_seconds:
-          type: integer
-          format: int64
-        min_start_gap_seconds:
-          type: integer
-          format: int64
-        min_cancellation_gap_seconds:
-          type: integer
-          format: int64
-        reservation_lead_days:
-          type: string
-          description: Reservation lead time in days as an exact decimal string.
-        max_start_gap_days:
-          type: integer
-          format: int64
-          description: Maximum allowed number of days between the request time and contract activation.
   responses:
-    BadRequest:
-      description: The path, query, or JSON body is invalid, violates a market rule, or contains mutually exclusive fields.
-    Forbidden:
-      description: The API credential is valid but its ACL role or resource ownership does not permit this operation.
-    Unauthorized:
-      description: The `apikey` header is missing or does not contain a valid API credential.
-    TooManyRequests:
-      description: The applicable per-credential or per-client-IP request limit was exceeded. Retry after reducing request frequency.
     NotFound:
       description: The requested caller-visible resource does not exist.
+    TooManyRequests:
+      description: The applicable per-credential or per-client-IP request limit was exceeded. Retry after reducing request frequency.
+    Unauthorized:
+      description: The `apikey` header is missing or does not contain a valid API credential.
     ServiceError:
       description: The gateway or upstream service could not complete the request. The response body and status depend on the failing boundary.
+    Forbidden:
+      description: The API credential is valid but its ACL role or resource ownership does not permit this operation.
+    BadRequest:
+      description: The path, query, or JSON body is invalid, violates a market rule, or contains mutually exclusive fields.
   securitySchemes:
     ApiKey:
       type: apiKey

@@ -278,18 +278,15 @@ paths:
           $ref: '#/components/responses/ServiceError'
 components:
   schemas:
-    Double:
-      type: number
-      format: double
-    GetAccountBalancesResponse:
+    GetTransactionsResponse:
       type: object
       required:
-      - accounts
+      - transactions
       properties:
-        accounts:
+        transactions:
           type: array
           items:
-            $ref: '#/components/schemas/AccountBalance'
+            $ref: '#/components/schemas/Transaction'
     AccountBalance:
       type: object
       required:
@@ -352,6 +349,20 @@ components:
         has_pending_withdrawal:
           type: boolean
           description: True if there is a pending withdrawal (clients may only withdraw the full amount).
+    Double:
+      type: number
+      format: double
+    DepositStatus:
+      type: integer
+      format: int32
+      description: Deposit status (deposit transactions only).
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
     OnChainTransactionType:
       type: integer
       format: int32
@@ -361,32 +372,6 @@ components:
       - 1
       - 2
       - 3
-    Uint32:
-      type: integer
-      format: uint32
-      minimum: 0
-      maximum: 4294967295
-    Transaction:
-      type: object
-      required:
-      - tx_type
-      - amount_sat
-      - details
-      - timestamp
-      properties:
-        tx_type:
-          type: string
-          description: Transaction type (deposit, withdrawal, fee, etc...).
-        amount_sat:
-          $ref: '#/components/schemas/Double'
-          description: Transaction amount in satoshi.
-        details:
-          type: string
-          description: Additional details.
-        timestamp:
-          type: string
-          format: date-time
-          description: Transaction timestamp.
     GetOnChainTransactionsResponse:
       type: object
       required:
@@ -428,35 +413,50 @@ components:
         return_tx_id:
           type: string
           description: Return transaction ID (returned deposits only).
-    GetTransactionsResponse:
+    Transaction:
       type: object
       required:
-      - transactions
+      - tx_type
+      - amount_sat
+      - details
+      - timestamp
       properties:
-        transactions:
+        tx_type:
+          type: string
+          description: Transaction type (deposit, withdrawal, fee, etc...).
+        amount_sat:
+          $ref: '#/components/schemas/Double'
+          description: Transaction amount in satoshi.
+        details:
+          type: string
+          description: Additional details.
+        timestamp:
+          type: string
+          format: date-time
+          description: Transaction timestamp.
+    GetAccountBalancesResponse:
+      type: object
+      required:
+      - accounts
+      properties:
+        accounts:
           type: array
           items:
-            $ref: '#/components/schemas/Transaction'
-    DepositStatus:
+            $ref: '#/components/schemas/AccountBalance'
+    Uint32:
       type: integer
-      format: int32
-      description: Deposit status (deposit transactions only).
-      enum:
-      - 0
-      - 1
-      - 2
-      - 3
-      - 4
-      - 5
+      format: uint32
+      minimum: 0
+      maximum: 4294967295
   responses:
     BadRequest:
       description: The path, query, or JSON body is invalid, violates a market rule, or contains mutually exclusive fields.
     TooManyRequests:
       description: The applicable per-credential or per-client-IP request limit was exceeded. Retry after reducing request frequency.
-    Forbidden:
-      description: The API credential is valid but its ACL role or resource ownership does not permit this operation.
     Unauthorized:
       description: The `apikey` header is missing or does not contain a valid API credential.
+    Forbidden:
+      description: The API credential is valid but its ACL role or resource ownership does not permit this operation.
     ServiceError:
       description: The gateway or upstream service could not complete the request. The response body and status depend on the failing boundary.
   securitySchemes:
