@@ -1,4 +1,4 @@
-# Braiins (braiins-academy)
+# Braiins
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,90 +64,147 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Braiins is a Bitcoin mining technology company operating the world's longest-running Bitcoin mining pool (Slush Pool, now Braiins Pool), developing Braiins OS+ mining firmware, and pioneering the Stratum V2 next-generation mining protocol. Braiins Academy provides educational resources on Bitcoin mining, and the company publishes a public Mining Insights API with network statistics. Founded in Prague in 2011, Braiins powers over 2 gigawatts of mining infrastructure worldwide.
+Braiins is a Prague-based Bitcoin mining technology company that operates the world's longest-running Bitcoin mining pool (Slush Pool, now Braiins Pool, mining since 2010), builds Braiins OS autotuning ASIC firmware, and co-developed Stratum V2, the successor mining-pool protocol. Three of its products publish an API: Braiins OS ships a Public API over both gRPC and REST that runs on the miner itself (63 REST operations, 16 proto3 service files); Braiins Hashpower publishes an OpenAPI 3.1 contract for its spot hashrate marketplace and fixed-duration contracts (35 operations); and Braiins Pool exposes six read-only JSON endpoints for pool, worker and reward statistics. Braiins Manager gates its own public API behind a paid tier. Braiins completed a SOC 2 Type 2 audit in 2025 and publishes a vulnerability disclosure policy with a five-business-day response commitment.
 
-**URL:** [https://raw.githubusercontent.com/api-evangelist/braiins-academy/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/braiins-academy/refs/heads/main/apis.yml)
+**Areas:** Bitcoin Mining · Cryptocurrency · Mining Pool · Mining Firmware · Blockchain · Stratum V2 · Hashrate Marketplace · Mining Management · ASIC · Energy
 
-## Scope
+## Braiins on APIs.io
 
-- **Type:** Index
-- **Position:** Consumer
-- **Access:** 3rd-Party
+Everything profiled for Braiins is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/braiins-academy/](https://apis.io/providers/braiins-academy/)** — or go straight to one of the APIs or properties below.
 
-## Tags
+### APIs (19)
 
-- Bitcoin Mining
-- Cryptocurrency
-- Mining Pool
-- Mining Firmware
-- Blockchain
-- Stratum V2
+- [Braiins Pool API](https://apis.io/apis/braiins-academy/braiins-pool-api/) — Read-only JSON API for Braiins Pool, the oldest active Bitcoin mining pool (first block 2010, 1.29M+ BTC mined). Six documented endpoints: pool stats and…
+- [Braiins Accounts API](https://apis.io/apis/braiins-academy/braiins-academy-accounts-api/) — Read caller-owned balances and accounting transactions.
+- [Braiins Actions API](https://apis.io/apis/braiins-academy/braiins-academy-actions-api/) — The Actions API from Braiins — 8 operation(s) for actions.
+- [Braiins Advanced Settings API](https://apis.io/apis/braiins-academy/braiins-academy-advanced-settings-api/) — The Advanced Settings API from Braiins — 2 operation(s) for advanced settings.
+- [Braiins Authentication API](https://apis.io/apis/braiins-academy/braiins-academy-authentication-api/) — The Authentication API from Braiins — 2 operation(s) for authentication.
+- [Braiins Bid orders API](https://apis.io/apis/braiins-academy/braiins-academy-bid-orders-api/) — Create, update, cancel, and inspect caller-owned spot-market bids.
+- [Braiins Configuration API](https://apis.io/apis/braiins-academy/braiins-academy-configuration-api/) — The Configuration API from Braiins — 2 operation(s) for configuration.
+- [Braiins Contracts API](https://apis.io/apis/braiins-academy/braiins-academy-contracts-api/) — Quote, schedule, manage, and inspect caller-owned fixed-duration contracts.
+- [Braiins Cooling API](https://apis.io/apis/braiins-academy/braiins-academy-cooling-api/) — The Cooling API from Braiins — 2 operation(s) for cooling.
+- [Braiins Documentation API](https://apis.io/apis/braiins-academy/braiins-academy-documentation-api/) — The Documentation API from Braiins — 1 operation(s) for documentation.
+- [Braiins License API](https://apis.io/apis/braiins-academy/braiins-academy-license-api/) — The License API from Braiins — 2 operation(s) for license.
+- [Braiins Market configuration API](https://apis.io/apis/braiins-academy/braiins-academy-market-configuration-api/) — Spot-market rules, units, and fees needed to construct valid orders.
+- [Braiins Market data API](https://apis.io/apis/braiins-academy/braiins-academy-market-data-api/) — Public statistics, order-book snapshots, trades, and OHLCV bars.
+- [Braiins Miner API](https://apis.io/apis/braiins-academy/braiins-academy-miner-api/) — The Miner API from Braiins — 8 operation(s) for miner.
+- [Braiins Network API](https://apis.io/apis/braiins-academy/braiins-academy-network-api/) — The Network API from Braiins — 2 operation(s) for network.
+- [Braiins Performance API](https://apis.io/apis/braiins-academy/braiins-academy-performance-api/) — The Performance API from Braiins — 18 operation(s) for performance.
+- [Braiins Pools API](https://apis.io/apis/braiins-academy/braiins-academy-pools-api/) — The Pools API from Braiins — 3 operation(s) for pools.
+- [Braiins Upgrade API](https://apis.io/apis/braiins-academy/braiins-academy-upgrade-api/) — The Upgrade API from Braiins — 3 operation(s) for upgrade.
+- [Braiins Version API](https://apis.io/apis/braiins-academy/braiins-academy-version-api/) — The Version API from Braiins — 1 operation(s) for version.
 
-## Timestamps
+### Published properties
 
-- **Created:** 2025-03-01
-- **Modified:** 2026-04-21
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-## APIs
+#### MCP servers (1)
 
-### Braiins Mining Insights Public API
+Model Context Protocol servers that expose the API to agents.
 
-Public API providing Bitcoin mining network statistics, hashrate data, and pool performance metrics.
+- [braiins-academy-mcp.yml](https://apis.io/servers/braiins-academy/braiins-academy-mcp-yml/)
 
-**Human URL:** [https://academy.braiins.com/en/mining-insights/public-api/](https://academy.braiins.com/en/mining-insights/public-api/)
+#### Overlays (2)
 
-#### Properties
+OpenAPI overlays, including conversational phrasing for each operation.
 
-- [Documentation](https://academy.braiins.com/en/mining-insights/public-api/)
+- [Braiins Academy Braiins Hashpower Overlay](https://apis.io/overlays/braiins-academy/braiins-academy-braiins-hashpower-overlay/)
+- [Braiins Academy Braiins Os Public Rest Api Overlay](https://apis.io/overlays/braiins-academy/braiins-academy-braiins-os-public-rest-api-overlay/)
 
-### Braiins Pool API
+#### Security (4)
 
-API access for Braiins Pool (formerly Slush Pool), the world's first Bitcoin mining pool. Provides miner statistics, payout data, worker management, and pool hashrate information.
+Authentication, trust centre, and vulnerability disclosure.
 
-**Human URL:** [https://braiins.com/pool](https://braiins.com/pool)
+- [Braiins Academy Authentication](https://apis.io/security/braiins-academy/braiins-academy-authentication/)
+- [Braiins Academy Domain Security](https://apis.io/security/braiins-academy/braiins-academy-domain-security/)
+- [Braiins Academy Trust Center](https://apis.io/security/braiins-academy/braiins-academy-trust-center/)
+- [Braiins Academy Vulnerability Disclosure](https://apis.io/security/braiins-academy/braiins-academy-vulnerability-disclosure/)
 
-### Braiins OS+ Firmware API
+#### Plans and pricing (1)
 
-Custom mining firmware for Bitcoin ASICs featuring autotuning, dynamic performance scaling, and thermal management. Supports remote batch configuration via Braiins Toolbox.
+Published plans, tiers and prices.
 
-**Human URL:** [https://braiins.com/os/plus](https://braiins.com/os/plus)
+- [Braiins Academy Plans Pricing](https://apis.io/plans/braiins-academy/braiins-academy-plans-pricing/)
 
-## Common Properties
+#### Rate limits (1)
+
+Published request limits.
+
+- [Braiins Academy Rate Limits](https://apis.io/rate-limits/braiins-academy/braiins-academy-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Braiins Academy Finops](https://apis.io/finops/braiins-academy/braiins-academy-finops/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
 
 - [Website](https://braiins.com)
-- [Academy](https://academy.braiins.com)
-- [Mining Pool](https://braiins.com/pool)
-- [Firmware](https://braiins.com/os/plus)
-- [Stratum V2](https://braiins.com/stratum-v2)
-- [Documentation](https://academy.braiins.com/os/plus-en/)
+- [Documentation](https://academy.braiins.com)
+- [Getting started](https://academy.braiins.com/braiins-hashpower/quick-start.md)
+- [API reference](https://developer.braiins-os.com/latest/openapi.html)
+- [Pricing](https://braiins.com/manager/pricing)
+- [Sign up](https://manager.braiins.com/sign-up)
+- [Support](https://help.braiins.com/en/support/tickets/new)
+- [Blog](https://braiins.com/blog)
+- [Terms of service](https://braiins.com/legal/braiins-general-terms-and-conditions)
+- [Privacy policy](https://braiins.com/legal/privacy-policy)
+- [GitHub](https://github.com/braiins)
 
-## Products
+## API Evangelist rating
 
-- **Braiins Pool** - Bitcoin mining pool (world's first, formerly Slush Pool)
-- **Braiins OS+** - Custom ASIC firmware with autotuning
-- **Braiins Toolbox** - Batch remote configuration tool
-- **Stratum V2** - Next-generation mining protocol
-- **Braiins Academy** - Bitcoin mining education platform
+**Kin Score 61.5** — strong · rubric 0.25.0 · scored 2026-10-23
 
-## Stratum V2 Features
+| Facet | Score |
+|---|---|
+| Discoverability | 73.2 |
+| Contract quality | 49.4 |
+| Contract governance | 18.2 |
+| Operational transparency | 68.4 |
+| Developer ergonomics | 66.1 |
+| Access clarity | 78.9 |
 
-- Enhanced security against MITM attacks and hashrate hijacking
-- Bandwidth efficiency improvements
-- Miner-side transaction selection (decentralization)
-- Open-source reference implementation v1.0 (released March 2024)
+**Agent readiness 27.0** — agent-aware
 
-## Supported Hardware
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | verified |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | derived (partial credit) |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | — |
+| Operation Distinctiveness | distinct |
 
-Antminer S21 series, S19 series, T19, S17 series, S9 series
+**Regulatory alignment 29.5** — Energy & Utilities
 
-## About
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/braiins-academy/](https://apis.io/providers/braiins-academy/).
 
-- **Founded:** 2011
-- **Headquarters:** Prague, Czech Republic
-- **Industry:** Bitcoin Mining Technology
+## How this profile is made
 
-## Maintainers
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
 
-**FN:** Kin Lane
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Braiins: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
 
-**Email:** info@apievangelist.com
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/braiins-academy/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
