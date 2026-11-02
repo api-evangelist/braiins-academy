@@ -1,0 +1,41 @@
+# Pricing transcribed from the provider's own page — see provenance. Numbers are quoted, not derived.
+generated: '2026-10-28'
+method: searched
+source: https://academy.braiins.com/braiins-hashpower/fees.md
+sources:
+- https://academy.braiins.com/braiins-hashpower/fees.md
+provenance:
+  tool: engine/economics/harvest_pricing.py
+  run: 20261028T141238
+  grounding: every price_text was found verbatim in the fetched page text
+audience: business-product
+pricing_basis: ad-valorem
+delivery:
+  delivery: managed
+  method: page
+  read: '2026-10-28'
+published: true
+note: Fee page for Braiins Hashpower marketplace; Spot Bid Fee is 0% during beta, deducted from settled
+  amount at hourly settlement intervals. Page notes rate may change after beta.
+plan_count: 1
+plans:
+- name: Spot Bid Fee
+  price_text: 0% \*
+  price: 0
+  period: per-use
+  unit: settled amount during order execution
+x-canonical:
+  generated: '2026-11-01'
+  vocabulary: engine/economics/plans-canonical.yml
+  models:
+  - free
+  units: []
+  plans:
+  - name: Spot Bid Fee
+    access: other
+    model: free
+    model_how: derived
+    units:
+    - other
+    periods:
+    - other
